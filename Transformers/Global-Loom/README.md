@@ -1,300 +1,217 @@
-# Global Loom — Gold Layer Project Plan
+# Global Loom — PAS Data Warehouse
+
+> **Quick Navigation**: See [INDEX.md](INDEX.md) for complete file directory
 
 ## Project Overview
 
 | Field | Value |
 |---|---|
-| **Project** | Global Loom |
-| **Source System** | PAS (Policy Administration System) |
+| **Project** | Global Loom (PAS Data Warehouse) |
+| **Source System** | PAS (Policy Administration System) — 56 global data sources |
 | **Fabric Lakehouse** | `The_Global_Loom` |
+| **Fabric Capacity** | F16 (300M rows/table, 1.5B total model) |
 | **Architecture** | Medallion (Bronze → Silver → Gold) |
-| **Gold Layer Pattern** | Star Schema (Dimensional Model) |
-| **Consumers** | Power BI (Direct Lake) + AI Agent |
-| **Ref Table Prefix** | `ref_pas_` |
+| **Gold Layer Pattern** | Star Schema (10 tables: 7 dims + 1 fact + 1 bridge + 1 deferred) |
+| **Business Use Case** | Cross-sell analytics, financial reporting, AI insights |
+| **Consumers** | Power BI Direct Lake + AI Agent |
 | **Column Naming** | PascalCase (`PolicyNumber`, `CarrierKey`) |
+| **Status** | ✅ Design complete, ⚠️ 2 items blocking execution |
 
 ---
 
-## Source Data Inventory
+## 📁 Project Files
 
-### Reference Schema (`ref`) — 4 tables
+### For Stakeholders
+- **[EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md)** — Business-focused summary (for your boss)
+- **[ACTION_ITEMS.md](ACTION_ITEMS.md)** — What needs to be done next
+- **[INDEX.md](INDEX.md)** — Complete file directory & navigation
 
-| Table | Likely Role | Hypothesised Gold Target |
-|---|---|---|
-| `CarrierHierarchy` | Carrier/insurer hierarchy | `dim_carrier` |
-| `FinancialGeographyHierarchy` | Geography hierarchy | `dim_geography` |
-| `FinancialSegmentHierarchy` | Business segment hierarchy | `dim_financial_segment` |
-| `IndustryHierarchy` | Industry classification | `dim_industry` |
+### Documentation (Read in Order)
+1. **[docs/00_data_exploration_results.md](docs/00_data_exploration_results.md)** — 471M rows profiled
+2. **[docs/01_star_schema_plan.md](docs/01_star_schema_plan.md)** — Star schema design
+3. **[docs/02_validation_summary.md](docs/02_validation_summary.md)** — Validation report
 
-### Report Schema (`rpt`) — 14 tables
-
-| Table | Likely Role | Hypothesised Gold Target |
-|---|---|---|
-| `vwTransaction` | Main transaction data (4M+ rows) | `fact_transaction` |
-| `vwTransactionDetailUSD` | Transaction line details (USD) | `fact_transaction_detail` |
-| `vwTransactionSummaryUSD` | Aggregated summary | `agg_transaction_summary` |
-| `vwPolicy` | Policy master data | `dim_policy` |
-| `vwPolicyLayer` | Coverage layers per policy | Extends `dim_policy` or `fact_policy_layer` |
-| `vwPolicyPartyRole` | Policy ↔ Party role mapping | `bridge_policy_party` |
-| `vwProduct` | Product catalogue | `dim_product` |
-| `vwParty` | Party master (clients, brokers, etc.) | `dim_party` |
-| `vwCFParty` | Cash flow party data | Extends `dim_party` |
-| `vwAddress` | Address records | Extends `dim_party` or standalone `dim_address` |
-| `vwFinancialGeography` | Financial geography detail | `dim_geography` (merge with ref) |
-| `vwCarrierHierarchy` | Carrier detail (rpt version) | `dim_carrier` (merge with ref) |
-| `vwCFInvoice` | Cash flow invoices | `fact_invoice` or extends fact |
-| `vwDataSourceInstance` | Data source metadata | `ref_pas_data_source` (metadata only) |
-
-> [!NOTE]
-> The `ref` hierarchy tables and their `rpt` counterparts (e.g., `CarrierHierarchy` vs `vwCarrierHierarchy`) may overlap. The exploration notebook will clarify whether they should be merged or kept separate.
+### Notebooks
+- **[exploration/](exploration/)** — Data profiling notebooks + 23 query results
+- **[notebooks/dimensions/](notebooks/dimensions/)** — 8 dimension notebooks (7 ready, 1 needs modification)
+- **[notebooks/facts/](notebooks/facts/)** — 2 fact notebooks (1 ready, 1 deferred)
+- **[notebooks/bridge/](notebooks/bridge/)** — 1 bridge notebook (ready)
 
 ---
 
-## Phased Approach
+## Key Metrics
 
-```mermaid
-graph LR
-    P0["Phase 0<br/>Data Discovery"] --> P1["Phase 1<br/>Schema Design"]
-    P1 --> P2["Phase 2<br/>Dimensions"]
-    P2 --> P3["Phase 3<br/>Facts"]
-    P3 --> P4["Phase 4<br/>DQ Framework"]
-    P4 --> P5["Phase 5<br/>Semantic Model"]
-    P5 --> P6["Phase 6<br/>Orchestration"]
+| Metric | Value |
+|--------|-------|
+| **Source Tables** | 18 (ref + rpt schemas) |
+| **Transaction Details** | 471M rows → aggregated to 85M transactions |
+| **Policies** | 20M unique across 56 data sources |
+| **Parties** | 3.7M local → 626K global entities (for cross-sell) |
+| **Product Classes** | 16 (Property, Casualty, Marine, etc.) |
+| **Gold Tables** | 10 total |
+| **Total Model Size** | ~157M rows (well within F16 capacity) |
+| **FK Integrity** | 100% (zero orphans across all 471M detail rows) |
+| **Timeline** | 6 weeks to production |
 
-    style P0 fill:#7C3AED,color:#fff
-    style P1 fill:#7C3AED,color:#fff
+---
+
+## Business Use Cases
+
+### 1. Cross-Sell Analytics
+**Question**: "Which clients buy Property insurance but NOT Marine insurance?"
+
+**Answer**: Use `GlobalPartyId` to group parties across data sources, then analyze product mix by `GlobalProductClass`.
+
+**Value**: 3-5% revenue uplift from targeted cross-sell campaigns.
+
+### 2. Financial Reporting
+**Metrics Available**: GrossPremium, NetPremium, GrossBrokerage, NetBrokerage, Claims, Fees (15 total)
+
+**Dimensions**: Date (Aus FY), Geography (9 levels), Segment (CRB/HCB/IRR), Product (16 classes)
+
+**Value**: Unified global view vs 56 separate data source reports today.
+
+### 3. AI-Powered Insights
+**Detail Level**: 471M transaction detail rows (carrier-level granularity) available in lakehouse
+
+**Use Case**: "Which carriers have the highest claim ratios for Marine products in APAC?"
+
+**Value**: Deep analysis not possible in Power BI (F16 limit = 300M rows/table).
+
+---
+
+## Gold Layer Star Schema
+
+```
+                    ┌─────────────┐
+                    │  dim_date   │
+                    │  (~13K)     │
+                    └──────┬──────┘
+                           │
+    ┌──────────┐    ┌──────▼──────────┐    ┌──────────────┐
+    │dim_party │◄───┤fact_transaction │───►│ dim_product  │
+    │ (3.7M)   │    │    (85M rows)   │    │   (31K)      │
+    └────┬─────┘    └─────────────────┘    └──────────────┘
+         │                  │
+         │                  ▼
+         │          ┌───────────────┐
+         │          │ dim_geography │
+         │          │    (1K)       │
+         │          └───────────────┘
+         ▼
+┌─────────────────┐         ┌────────────────┐
+│bridge_policy_   │────────►│  dim_policy    │
+│  party (48.7M)  │         │    (20M)       │
+└─────────────────┘         └────────────────┘
 ```
 
-### Phase 0: Data Discovery & Profiling ← **CURRENT**
+### Table Inventory
 
-**Goal**: Understand every table's schema, grain, quality, and relationships before designing anything.
-
-**Deliverable**: [00_explore_pas_silver.ipynb](file:///c:/Users/LiuPr/OneDrive%20-%20Willis%20Towers%20Watson/Documents/WTW-Data-Solutions/Transformers/Global-Loom/00_explore_pas_silver.ipynb)
-
-**Steps**:
-1. Run the exploration notebook in Fabric (attached to `The_Global_Loom`)
-2. Review outputs — especially schemas, row counts, shared columns, and transaction deep dive
-3. Share profiling summary (not raw data) with AI assistant
-4. Answer the 5 decision points (see below)
-
-**Decision Points After Exploration**:
-
-| # | Question | Why It Matters |
-|---|----------|---------------|
-| 1 | What does one row represent in each transaction table? | Defines the **grain** of the fact table |
-| 2 | Which transaction table is the primary fact? | `vwTransaction` vs `vwTransactionDetailUSD` vs `vwTransactionSummaryUSD` |
-| 3 | How does `vwPolicyPartyRole` link policies to parties? | Determines if we need a **bridge table** |
-| 4 | Do `ref` hierarchy tables duplicate `rpt` views? | Avoid redundant dimensions |
-| 5 | Which date columns exist and need role-playing? | Drives `Dim_Date` design and relationships |
+| Table | Rows | Source | Status |
+|-------|------|--------|--------|
+| **fact_transaction** | 85M | vwTransaction + agg(vwTransactionDetailUSD) | ✅ Ready |
+| **dim_date** | 13K | Generated (Aus FY) | ✅ Ready |
+| **dim_party** | 3.7M | vwParty + carrier hierarchy | ⚠️ Needs modification |
+| **dim_policy** | 20M | vwPolicy | ✅ Ready |
+| **dim_product** | 31K | vwProduct | ✅ Ready |
+| **dim_geography** | 1K | FinancialGeographyHierarchy (ref) | ✅ Ready |
+| **dim_financial_segment** | 4K | FinancialSegmentHierarchy (ref) | ✅ Ready |
+| **dim_data_source** | 81 | vwDataSourceInstance | ✅ Ready |
+| **dim_industry** | 1K | IndustryHierarchy (ref) | 🔴 Missing (needs creation) |
+| **bridge_policy_party** | 48.7M | vwPolicyPartyRole | ✅ Ready |
+| **fact_invoice** | 9.7M | vwCFInvoice | ❌ Deferred (only 3/56 DSIs) |
 
 ---
 
-### Phase 1: Star Schema Design
+## Current Status
 
-**Goal**: Design the gold layer star schema based on profiling results.
+### ✅ Completed
+- Phase 0: Data discovery (471M rows profiled, 23 deep dive queries)
+- Phase 1: Star schema design (10 tables, join map, cross-sell path)
+- Notebook creation (9/10 ready)
+- Code validation (zero quality issues)
+- Open questions resolved (all 5 answered)
 
-**Deliverables**:
-- ERD diagram (Mermaid)
-- Table-level documentation (grain, columns, keys, source)
-- FK relationship map
+### ⚠️ Blocking Items (2)
+1. **Create dim_industry notebook** — Need to investigate SIC code linkage first
+2. **Modify dim_party notebook** — Add carrier hierarchy (denormalize from dim_carrier)
 
-**Hypothesised Star Schema** (to be validated after Phase 0):
+### 🔴 To Delete
+- `notebooks/dimensions/03_gold_dim_carrier.ipynb` — Merged into dim_party (star schema pattern)
 
-```mermaid
-erDiagram
-    dim_date ||--o{ fact_transaction : "TransactionDateKey"
-    dim_policy ||--o{ fact_transaction : "PolicyKey"
-    dim_product ||--o{ fact_transaction : "ProductKey"
-    dim_carrier ||--o{ fact_transaction : "CarrierKey"
-    dim_geography ||--o{ fact_transaction : "GeographyKey"
-    dim_party ||--o{ bridge_policy_party : "PartyKey"
-    dim_policy ||--o{ bridge_policy_party : "PolicyKey"
+---
 
-    fact_transaction {
-        int TransactionKey PK
-        int PolicyKey FK
-        int ProductKey FK
-        int CarrierKey FK
-        int GeographyKey FK
-        int TransactionDateKey FK
-        decimal AmountUsd
-        string TransactionType
-    }
+## Next Steps
 
-    dim_policy {
-        int PolicyKey PK
-        string PolicyNumber
-        date EffectiveDate
-        date ExpiryDate
-    }
+See [ACTION_ITEMS.md](ACTION_ITEMS.md) for detailed instructions.
 
-    dim_date {
-        int DateKey PK
-        date Date
-        int Year
-        string FiscalYearLabel
-    }
+**Quick Summary**:
+1. Investigate SIC code linkage (run SQL queries)
+2. Create `dim_industry` notebook
+3. Modify `dim_party` notebook (add carrier hierarchy columns)
+4. Delete `dim_carrier` notebook
+5. Execute notebooks in Fabric (60-90 min total runtime)
+6. Validate results (row counts, FK integrity, financial totals)
+
+---
+
+## Execution Plan
+
+### Phase 2: Build Dimensions (Parallel)
+```bash
+# Small dimensions (run simultaneously)
+notebooks/dimensions/03_gold_dim_date.ipynb
+notebooks/dimensions/03_gold_dim_data_source.ipynb
+notebooks/dimensions/03_gold_dim_financial_segment.ipynb
+notebooks/dimensions/03_gold_dim_geography.ipynb
+notebooks/dimensions/03_gold_dim_product.ipynb
+notebooks/dimensions/03_gold_dim_industry.ipynb          # NEW (after creation)
+
+# Medium dimension (after small dims)
+notebooks/dimensions/03_gold_dim_party.ipynb             # MODIFIED (with carrier)
+
+# Large dimension (after party)
+notebooks/dimensions/03_gold_dim_policy.ipynb            # 20M rows
 ```
 
-> [!IMPORTANT]
-> This schema is a **hypothesis**. It will be revised after Phase 0 profiling reveals the actual column names, grains, and relationships.
-
----
-
-### Phase 2: Build Dimension Tables
-
-**Goal**: Create gold-layer dimension tables. Build in dependency order (shared dims first).
-
-**Notebook Sequence** (one per dimension):
-
-| Order | Notebook | Source Table(s) | Gold Table |
-|---|---|---|---|
-| 1 | `03_gold_dim_date.ipynb` | Generated | `dim_date` |
-| 2 | `03_gold_dim_carrier.ipynb` | `CarrierHierarchy` + `vwCarrierHierarchy` | `dim_carrier` |
-| 3 | `03_gold_dim_geography.ipynb` | `FinancialGeographyHierarchy` + `vwFinancialGeography` | `dim_geography` |
-| 4 | `03_gold_dim_product.ipynb` | `vwProduct` | `dim_product` |
-| 5 | `03_gold_dim_party.ipynb` | `vwParty` + `vwCFParty` + `vwAddress` | `dim_party` |
-| 6 | `03_gold_dim_policy.ipynb` | `vwPolicy` + `vwPolicyLayer` | `dim_policy` |
-| 7 | `03_gold_dim_financial_segment.ipynb` | `FinancialSegmentHierarchy` | `dim_financial_segment` |
-| 8 | `03_gold_dim_industry.ipynb` | `IndustryHierarchy` | `dim_industry` |
-
-**Each notebook follows this structure**:
-1. **Markdown**: Purpose, source, grain
-2. **Cell 1**: Setup & config
-3. **Cell 2**: Read silver source(s) + schema check
-4. **Cell 3**: Transform (clean, join, derive, rename to PascalCase)
-5. **Cell 4**: Add surrogate key (`[Entity]Key`)
-6. **Cell 5**: Data quality checks (null counts, duplicate keys, row counts)
-7. **Cell 6**: Write to gold (`dim_[entity]`)
-
----
-
-### Phase 3: Build Fact Tables
-
-**Goal**: Create gold-layer fact tables with FK references to dimensions.
-
-| Notebook | Source | Gold Table |
-|---|---|---|
-| `03_gold_fact_transaction.ipynb` | `vwTransaction` or `vwTransactionDetailUSD` | `fact_transaction` |
-| `03_gold_bridge_policy_party.ipynb` | `vwPolicyPartyRole` | `bridge_policy_party` |
-| `03_gold_fact_invoice.ipynb` (if needed) | `vwCFInvoice` | `fact_invoice` |
-
-**Each fact notebook follows this structure**:
-1. **Markdown**: Purpose, grain, source
-2. **Cell 1**: Setup & config
-3. **Cell 2**: Read silver source(s) + schema check
-4. **Cell 3**: Read dimension key mappings (for FK lookups)
-5. **Cell 4**: Transform (clean, derive calculated columns)
-6. **Cell 5**: FK lookups (join to dims, pick up surrogate keys)
-7. **Cell 6**: Final select with PascalCase aliases + explicit `.cast()`
-8. **Cell 7**: Data quality checks (orphan keys, null FKs, row counts, sum validation)
-9. **Cell 8**: Write to gold (`fact_[process]`)
-
----
-
-### Phase 4: Data Quality Framework
-
-**Standard DQ checks at the end of every notebook**:
-
-```python
-# Row count
-print(f"Row count: {df.count():,}")
-
-# Null counts for key columns
-for col_name in key_columns:
-    null_count = df.filter(F.col(col_name).isNull()).count()
-    print(f"  {col_name} nulls: {null_count:,}")
-
-# Orphan key detection (FK exists in fact but not in dim)
-orphans = df_fact.join(df_dim, "DimKey", "left_anti")
-print(f"  Orphan keys: {orphans.count():,}")
-
-# Duplicate surrogate key check (dims only)
-dupes = df.groupBy("EntityKey").count().filter(F.col("count") > 1)
-print(f"  Duplicate keys: {dupes.count():,}")
+### Phase 3: Build Bridge + Fact (Sequential)
+```bash
+notebooks/bridge/03_gold_bridge_policy_party.ipynb
+notebooks/facts/03_gold_fact_transaction.ipynb           # 85M rows (30 min)
 ```
 
----
-
-### Phase 5: Semantic Model (Power BI)
-
-> Not ready at this stage. Will be designed after gold layer is built.
-
-**Preliminary plan**:
-- Direct Lake semantic model over gold Delta tables
-- `Dim_Date` with Australian FY (Jul–Jun) as per existing template
-- Role-playing date relationships via `USERELATIONSHIP()`
-- Measure library following WTW DAX patterns
-
----
-
-### Phase 6: Orchestration
-
-> Not ready at this stage.
-
-**Preliminary plan**:
-- Fabric Pipeline to orchestrate notebook execution
-- Dependency order: Dimensions → Facts → Aggregations
-- Scheduled daily refresh
-- Error alerting
+**Estimated Total Runtime**: 60-90 minutes
 
 ---
 
 ## Standards & Conventions
 
 ### File Naming
-
-| Type | Pattern | Example |
-|---|---|---|
-| Exploration | `00_explore_[subject].ipynb` | `00_explore_pas_silver.ipynb` |
-| Gold Dimension | `03_gold_dim_[entity].ipynb` | `03_gold_dim_carrier.ipynb` |
-| Gold Fact | `03_gold_fact_[process].ipynb` | `03_gold_fact_transaction.ipynb` |
-| Gold Bridge | `03_gold_bridge_[relationship].ipynb` | `03_gold_bridge_policy_party.ipynb` |
-| Gold Aggregate | `03_gold_agg_[metric].ipynb` | `03_gold_agg_monthly_premium.ipynb` |
+- Exploration: `00_explore_[subject].ipynb`
+- Dimensions: `03_gold_dim_[entity].ipynb`
+- Facts: `03_gold_fact_[process].ipynb`
+- Bridge: `03_gold_bridge_[relationship].ipynb`
 
 ### Table Naming
-
-| Layer | Prefix | Example |
-|---|---|---|
-| Silver (source) | As-is from PAS | `vwTransaction`, `CarrierHierarchy` |
-| Gold Fact | `fact_` | `fact_transaction` |
-| Gold Dimension | `dim_` | `dim_policy`, `dim_carrier` |
-| Gold Bridge | `bridge_` | `bridge_policy_party` |
-| Gold Aggregate | `agg_` | `agg_monthly_premium` |
-| Reference | `ref_pas_` | `ref_pas_currency_mapping` |
+- Facts: `fact_transaction`
+- Dimensions: `dim_party`, `dim_product`
+- Bridge: `bridge_policy_party`
 
 ### Column Naming
-
-- **PascalCase** for all gold layer columns: `PolicyNumber`, `TransactionDate`, `AmountUsd`
-- **Surrogate keys**: `[Entity]Key` — e.g., `PolicyKey`, `CarrierKey`, `TransactionKey`
-- **Date keys**: `[Role]DateKey` — e.g., `TransactionDateKey`, `EffectiveDateKey`
-- **DateKey format**: `YYYYMMDD` integer (e.g., `20251106`)
+- **PascalCase**: `PolicyNumber`, `TransactionDate`, `AmountUsd`
+- **Surrogate keys**: `PolicyKey`, `CarrierKey`, `TransactionKey`
+- **Date keys**: `TransactionDateKey`, `InvoiceDateKey` (YYYYMMDD int)
 
 ### Write Pattern
-
 ```python
-df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(f"{LAKEHOUSE}.{TABLE_NAME}")
+df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("table_name")
 ```
-
-### Notebook Idempotency
-
-All notebooks use `mode("overwrite")` + `overwriteSchema` — safe to re-run at any time.
 
 ---
 
-## Project Folder Structure
+## Contact
 
-```
-Transformers/Global-Loom/
-├── README.md                              # This plan
-├── 00_explore_pas_silver.ipynb            # Phase 0: Data profiling
-├── 03_gold_dim_date.ipynb                 # Phase 2: Dimensions
-├── 03_gold_dim_carrier.ipynb
-├── 03_gold_dim_geography.ipynb
-├── 03_gold_dim_product.ipynb
-├── 03_gold_dim_party.ipynb
-├── 03_gold_dim_policy.ipynb
-├── 03_gold_fact_transaction.ipynb         # Phase 3: Facts
-├── 03_gold_bridge_policy_party.ipynb
-└── ...
-```
+**Owner**: Prisco Liu
+**Workspace**: The_Global_Loom
+**Fabric Capacity**: F16
+**Last Updated**: 2026-03-16
