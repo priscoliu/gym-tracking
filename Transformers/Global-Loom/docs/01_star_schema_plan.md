@@ -419,14 +419,12 @@ fact_transaction has 7 cells (extra cell for reading + aggregating detail).
 
 ---
 
-## 8. Open Questions
+## 8. Open Questions — ✅ RESOLVED
 
-1. **Fabric SKU**: What capacity level? Determines if 85M fact + 20M dim_policy will perform well in Direct Lake.
-
-2. **PolicyKey uniqueness**: Cell 6 cardinality showed 72.6% but Q1d showed 100%. User confirmed only PolicyId is unique. Need to clarify if PolicyKey should be used for cross-source matching.
-
-3. **Which 3 DSIs feed CFInvoice**: Not yet identified. Would need a quick SQL query on CFInvoice grouped by DataSourceInstanceId.
-
-4. **Industry linkage**: IndustryHierarchy has SIC codes. Do they connect to parties (via some unmapped field) or are they unused in this PAS instance?
-
-5. **dim_carrier connection**: Currently joins via CompCode through dim_party (snowflake). Should we denormalize carrier hierarchy onto parties with carrier roles instead?
+| # | Question | Answer | Impact |
+|---|----------|--------|--------|
+| 1 | **Fabric SKU / capacity level** | **F16** | ✅ F16 can handle 85M fact + 20M dim_policy via Direct Lake. Row limit: 300M per table. Total model: ~1.5B rows supported. |
+| 2 | **PolicyKey uniqueness** | **PolicyId is unique** (100%). PolicyKey is NOT unique (72.6% = 14.5M / 20M). | ✅ Use `PolicyId` as PK. `PolicyKey` is a business key scoped within data source. |
+| 3 | **Which 3 DSIs feed CFInvoice?** | **3 data sources** (untitled (17).json shows 3 total) | ✅ Confirmed: CFInvoice coverage is narrow (3/56 DSIs). Deferred to Phase 2 as planned. |
+| 4 | **Industry linkage path** | **SIC codes → parties** (user confirmed industry dimension needed) | ✅ **Action required**: Create `03_gold_dim_industry.ipynb`. Link via SIC code fields on party or policy tables. |
+| 5 | **dim_carrier connection strategy** | **Denormalize onto dim_party** (user prefers star schema, not snowflake) | ✅ **Decision**: Add carrier hierarchy columns to `dim_party` for parties with `GlobalPartyRole = 'Carrier'`. Drop separate `dim_carrier` table to maintain star schema pattern. |
