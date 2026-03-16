@@ -1,0 +1,182 @@
+{
+  "vwAddress": {
+    "total_rows": 3722322,
+    "columns": {
+      "AddressId": {"distinct": 3722322, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceInstanceId": {"distinct": 55, "pct": 0.0, "tier": "MEDIUM"},
+      "SourceQuery": {"distinct": 12, "pct": 0.0, "tier": "LOW"},
+      "SourceKey": {"distinct": 2993500, "pct": 80.4, "tier": "HIGH"},
+      "AddressKey": {"distinct": 3711436, "pct": 99.7, "tier": "UNIQUE_KEY"},
+      "AddressLine1": {"distinct": 1888902, "pct": 50.7, "tier": "HIGH"},
+      "AddressLine2": {"distinct": 310843, "pct": 8.4, "tier": "MEDIUM"},
+      "AddressLine3": {"distinct": 139462, "pct": 3.7, "tier": "MEDIUM"},
+      "AddressType": {"distinct": 15, "pct": 0.0, "tier": "LOW"},
+      "City": {"distinct": 151333, "pct": 4.1, "tier": "MEDIUM"},
+      "Country": {"distinct": 3175, "pct": 0.1, "tier": "MEDIUM"},
+      "EmailAddress": {"distinct": 218874, "pct": 5.9, "tier": "MEDIUM"},
+      "GeographyKey": {"distinct": 3091, "pct": 0.1, "tier": "MEDIUM"},
+      "GeographyId": {"distinct": 4655, "pct": 0.1, "tier": "MEDIUM"},
+      "GlobalCountryId": {"distinct": 249, "pct": 0.0, "tier": "MEDIUM"},
+      "GlobalCountryCode": {"distinct": 246, "pct": 0.0, "tier": "MEDIUM"},
+      "IsPrimaryAddress": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "PartyKey": {"distinct": 3076201, "pct": 82.6, "tier": "HIGH"},
+      "PartyId": {"distinct": 3113812, "pct": 83.7, "tier": "HIGH"},
+      "GlobalPartyId": {"distinct": 549219, "pct": 14.8, "tier": "MEDIUM"},
+      "PhoneNumber": {"distinct": 82160, "pct": 2.2, "tier": "MEDIUM"},
+      "PostCode": {"distinct": 340906, "pct": 9.2, "tier": "MEDIUM"},
+      "StateOrProvince": {"distinct": 2046, "pct": 0.1, "tier": "MEDIUM"},
+      "SourceLastUpdateDate": {"distinct": 476535, "pct": 12.8, "tier": "MEDIUM"},
+      "ETLCreatedDate": {"distinct": 36399, "pct": 1.0, "tier": "MEDIUM"},
+      "ETLUpdatedDate": {"distinct": 15841, "pct": 0.4, "tier": "MEDIUM"},
+      "ETLLoadedDate": {"distinct": 8103, "pct": 0.2, "tier": "MEDIUM"},
+      "IsDeleted": {"distinct": 2, "pct": 0.0, "tier": "LOW"}
+    }
+  },
+  "vwCarrierHierarchy": {
+    "total_rows": 37180,
+    "columns": {
+      "CompCode": {"distinct": 37180, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "GlobalParent": {"distinct": 28791, "pct": 77.4, "tier": "HIGH"},
+      "OperatingCompany": {"distinct": 31105, "pct": 83.7, "tier": "HIGH"},
+      "CarrierName": {"distinct": 36993, "pct": 99.5, "tier": "UNIQUE_KEY"},
+      "CountryCode": {"distinct": 210, "pct": 0.6, "tier": "MEDIUM"},
+      "GlobalParentId": {"distinct": 28949, "pct": 77.9, "tier": "HIGH"},
+      "OperatingCompanyId": {"distinct": 31240, "pct": 84.0, "tier": "HIGH"},
+      "GlobalCarrierId": {"distinct": 37178, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "ETLUpdatedDate": {"distinct": 501, "pct": 1.3, "tier": "MEDIUM"}
+    }
+  },
+  "vwCFInvoice": {
+    "total_rows": 9744807,
+    "columns": {
+      "DataSourceInstanceId": {"distinct": 3, "pct": 0.0, "tier": "LOW"},
+      "DocumentKey": {"distinct": 9744807, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "TransactionId": {"distinct": 8126641, "pct": 83.4, "tier": "HIGH"},
+      "Company": {"distinct": 80, "pct": 0.0, "tier": "MEDIUM"},
+      "CompanyCode": {"distinct": 46, "pct": 0.0, "tier": "MEDIUM"},
+      "CustomerNumber": {"distinct": 73671, "pct": 0.8, "tier": "MEDIUM"},
+      "DocumentNumber": {"distinct": 8459035, "pct": 86.8, "tier": "HIGH"},
+      "DocumentType": {"distinct": 1, "pct": 0.0, "tier": "CONSTANT"},
+      "DocumentDate": {"distinct": 3131, "pct": 0.0, "tier": "MEDIUM"},
+      "DocumentDueDate": {"distinct": 4676, "pct": 0.0, "tier": "MEDIUM"},
+      "Currency": {"distinct": 104, "pct": 0.0, "tier": "MEDIUM"},
+      "DocumentAmount": {"distinct": 1831206, "pct": 18.8, "tier": "MEDIUM"},
+      "CorporateAmount": {"distinct": 1284264, "pct": 13.2, "tier": "MEDIUM"},
+      "DirectSettlement": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "GlobalPartyRole": {"distinct": 6, "pct": 0.0, "tier": "LOW"},
+      "PartyId": {"distinct": 73669, "pct": 0.8, "tier": "MEDIUM"},
+      "SourceLastUpdateDate": {"distinct": 7619, "pct": 0.1, "tier": "MEDIUM"},
+      "ETLCreatedDate": {"distinct": 1472, "pct": 0.0, "tier": "MEDIUM"},
+      "ETLUpdatedDate": {"distinct": 1472, "pct": 0.0, "tier": "MEDIUM"},
+      "ETLExportedDate": {"distinct": 796, "pct": 0.0, "tier": "MEDIUM"}
+    }
+  },
+  "vwCFParty": {
+    "total_rows": 70579,
+    "columns": {
+      "DataSourceInstanceId": {"distinct": 3, "pct": 0.0, "tier": "LOW"},
+      "CustomerNumber": {"distinct": 66088, "pct": 93.6, "tier": "HIGH"},
+      "CustomerName": {"distinct": 52301, "pct": 74.1, "tier": "HIGH"},
+      "CountryCode": {"distinct": 206, "pct": 0.3, "tier": "MEDIUM"},
+      "InterCompanyFlag": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "PartyId": {"distinct": 66088, "pct": 93.6, "tier": "HIGH"},
+      "ETLCreatedDate": {"distinct": 6, "pct": 0.0, "tier": "LOW"},
+      "ETLUpdatedDate": {"distinct": 7, "pct": 0.0, "tier": "LOW"},
+      "ETLExportedDate": {"distinct": 6, "pct": 0.0, "tier": "LOW"}
+    }
+  },
+  "vwDataSourceInstance": {
+    "total_rows": 81,
+    "columns": {
+      "DataSourceInstanceId": {"distinct": 81, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceInstanceKey": {"distinct": 81, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceInstanceName": {"distinct": 81, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceId": {"distinct": 30, "pct": 37.0, "tier": "MEDIUM"},
+      "DataSourceName": {"distinct": 32, "pct": 39.5, "tier": "MEDIUM"},
+      "SourceSystem": {"distinct": 25, "pct": 30.9, "tier": "MEDIUM"},
+      "SourceLastUpdateDate": {"distinct": 24, "pct": 29.6, "tier": "MEDIUM"},
+      "ETLCreatedDate": {"distinct": 14, "pct": 17.3, "tier": "LOW"},
+      "ETLUpdatedDate": {"distinct": 23, "pct": 28.4, "tier": "MEDIUM"},
+      "IsDeleted": {"distinct": 2, "pct": 2.5, "tier": "LOW"},
+      "IsIMRSource": {"distinct": 2, "pct": 2.5, "tier": "LOW"},
+      "IsEnabled": {"distinct": 2, "pct": 2.5, "tier": "LOW"}
+    }
+  },
+  "vwFinancialGeography": {
+    "total_rows": 31019,
+    "columns": {
+      "FinancialGeographyId": {"distinct": 31019, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceInstanceId": {"distinct": 55, "pct": 0.2, "tier": "MEDIUM"},
+      "SourceQuery": {"distinct": 3, "pct": 0.0, "tier": "LOW"},
+      "SourceKey": {"distinct": 30951, "pct": 99.8, "tier": "UNIQUE_KEY"},
+      "FinancialGeographyKey": {"distinct": 30948, "pct": 99.8, "tier": "UNIQUE_KEY"},
+      "FinancialGeography": {"distinct": 17755, "pct": 57.2, "tier": "HIGH"},
+      "GlobalFinancialGeographyId": {"distinct": 202, "pct": 0.7, "tier": "MEDIUM"},
+      "FinancialGeographyCode": {"distinct": 25310, "pct": 81.6, "tier": "HIGH"},
+      "FinancialGeographyDescription": {"distinct": 26670, "pct": 86.0, "tier": "HIGH"},
+      "Level1": {"distinct": 218, "pct": 0.7, "tier": "MEDIUM"},
+      "Level2": {"distinct": 786, "pct": 2.5, "tier": "MEDIUM"},
+      "Level3": {"distinct": 738, "pct": 2.4, "tier": "MEDIUM"},
+      "Level4": {"distinct": 1310, "pct": 4.2, "tier": "MEDIUM"},
+      "Level5": {"distinct": 2890, "pct": 9.3, "tier": "MEDIUM"},
+      "IsActive": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "SourceLastUpdateDate": {"distinct": 3839, "pct": 12.4, "tier": "MEDIUM"},
+      "ETLCreatedDate": {"distinct": 2575, "pct": 8.3, "tier": "MEDIUM"},
+      "ETLUpdatedDate": {"distinct": 635, "pct": 2.0, "tier": "MEDIUM"},
+      "ETLLoadedDate": {"distinct": 538, "pct": 1.7, "tier": "MEDIUM"},
+      "IsDeleted": {"distinct": 2, "pct": 0.0, "tier": "LOW"}
+    }
+  },
+  "vwProduct": {
+    "total_rows": 31565,
+    "columns": {
+      "ProductId": {"distinct": 31565, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceInstanceId": {"distinct": 54, "pct": 0.2, "tier": "MEDIUM"},
+      "SourceQuery": {"distinct": 5, "pct": 0.0, "tier": "LOW"},
+      "SourceKey": {"distinct": 26570, "pct": 84.2, "tier": "HIGH"},
+      "ProductKey": {"distinct": 26484, "pct": 83.9, "tier": "HIGH"},
+      "Product": {"distinct": 18221, "pct": 57.7, "tier": "HIGH"},
+      "GlobalProductClassId": {"distinct": 16, "pct": 0.1, "tier": "LOW"},
+      "GlobalProductClass": {"distinct": 15, "pct": 0.0, "tier": "LOW"},
+      "GlobalProductLineId": {"distinct": 73, "pct": 0.2, "tier": "MEDIUM"},
+      "GlobalProductLine": {"distinct": 72, "pct": 0.2, "tier": "MEDIUM"},
+      "GlobalProductId": {"distinct": 330, "pct": 1.0, "tier": "MEDIUM"},
+      "GlobalProduct": {"distinct": 329, "pct": 1.0, "tier": "MEDIUM"},
+      "IsMDSMappable": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "ParentKey": {"distinct": 291, "pct": 0.9, "tier": "MEDIUM"},
+      "ParentId": {"distinct": 279, "pct": 0.9, "tier": "MEDIUM"},
+      "ProductDescription": {"distinct": 21736, "pct": 68.9, "tier": "HIGH"},
+      "SourceLastUpdateDate": {"distinct": 8619, "pct": 27.3, "tier": "MEDIUM"},
+      "ETLCreatedDate": {"distinct": 10165, "pct": 32.2, "tier": "MEDIUM"},
+      "ETLUpdatedDate": {"distinct": 1690, "pct": 5.4, "tier": "MEDIUM"},
+      "ETLLoadedDate": {"distinct": 616, "pct": 2.0, "tier": "MEDIUM"},
+      "IsDeleted": {"distinct": 2, "pct": 0.0, "tier": "LOW"}
+    }
+  },
+  "vwPolicyLayer": {
+    "total_rows": 91178,
+    "columns": {
+      "PolicyLayerId": {"distinct": 91178, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "DataSourceInstanceId": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "SourceQuery": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "SourceKey": {"distinct": 91178, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "PolicyLayerKey": {"distinct": 91178, "pct": 100.0, "tier": "UNIQUE_KEY"},
+      "CurrencyKey": {"distinct": 80, "pct": 0.1, "tier": "MEDIUM"},
+      "CurrencyId": {"distinct": 79, "pct": 0.1, "tier": "MEDIUM"},
+      "GlobalCurrencyId": {"distinct": 79, "pct": 0.1, "tier": "MEDIUM"},
+      "GlobalCurrencyCode": {"distinct": 79, "pct": 0.1, "tier": "MEDIUM"},
+      "IsUnlimited": {"distinct": 2, "pct": 0.0, "tier": "LOW"},
+      "LimitBasis": {"distinct": 52, "pct": 0.1, "tier": "MEDIUM"},
+      "PolicyKey": {"distinct": 43166, "pct": 47.3, "tier": "MEDIUM"},
+      "PolicyId": {"distinct": 43166, "pct": 47.3, "tier": "MEDIUM"},
+      "PolicyLayerExcess": {"distinct": 1601, "pct": 1.8, "tier": "MEDIUM"},
+      "PolicyLayerLimit": {"distinct": 2589, "pct": 2.8, "tier": "MEDIUM"},
+      "PolicyLayerNum": {"distinct": 33, "pct": 0.0, "tier": "MEDIUM"},
+      "SourceLastUpdateDate": {"distinct": 53784, "pct": 59.0, "tier": "HIGH"},
+      "ETLCreatedDate": {"distinct": 1764, "pct": 1.9, "tier": "MEDIUM"},
+      "ETLUpdatedDate": {"distinct": 1840, "pct": 2.0, "tier": "MEDIUM"},
+      "ETLLoadedDate": {"distinct": 16, "pct": 0.0, "tier": "LOW"},
+      "IsDeleted": {"distinct": 2, "pct": 0.0, "tier": "LOW"}
+    }
+  }
+}
