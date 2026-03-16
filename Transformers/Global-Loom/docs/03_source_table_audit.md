@@ -45,24 +45,25 @@
 
 **What it does NOT have**: Any financial columns. Zero. All money lives in the detail table.
 
-**Columns we keep** (24):
+**Columns we keep** (25):
 
 | Column | Type | Purpose |
 |--------|------|---------|
 | TransactionId | int | PK |
 | TransactionKey | string | Business key (scoped to DSI) |
+| SourceKey | string | Original source system key (for traceability back to source) |
 | DataSourceInstanceId | int | FK → dim_data_source |
 | PolicyId | int | FK → dim_policy |
 | ProductId | int | FK → dim_product |
-| GlobalFinancialGeographyId | int | FK → dim_geography |
-| GlobalFinancialSegmentId | int | FK → dim_financial_segment |
-| GlobalLegalEntityId | int | Legal entity reference |
-| ClientPartyId | int | Denormalized FK → dim_party (client) |
-| InsuredPartyId | int | Denormalized FK → dim_party (insured) |
-| ReinsuredPartyId | int | Denormalized FK → dim_party (reinsured) |
-| GlobalProductClass | string | Denormalized from product (for quick slicing) |
-| GlobalProductLine | string | Denormalized from product |
-| GlobalProduct | string | Denormalized from product |
+| GlobalFinancialGeographyId | int | FK → dim_geography (we keep **Global** version, drop local Key/Id) |
+| GlobalFinancialSegmentId | int | FK → dim_financial_segment (we keep **Global** version, drop local Key/Id) |
+| GlobalLegalEntityId | int | ⚠️ Orphan FK — no dim_legal_entity table exists in PAS. Just a raw int (91 distinct values). Could create a junk dim from distinct values later. |
+| ClientPartyId | int | FK → dim_party — **ACTIVE** relationship in Power BI |
+| InsuredPartyId | int | FK → dim_party — **INACTIVE** relationship (use `USERELATIONSHIP()` in DAX) |
+| ReinsuredPartyId | int | FK → dim_party — **INACTIVE** relationship (use `USERELATIONSHIP()` in DAX) |
+| GlobalProductClass | string | Denormalized TEXT copy from product (NOT an FK — just for quick slicing without joining dim_product) |
+| GlobalProductLine | string | Denormalized TEXT copy (same — convenience, not a relationship) |
+| GlobalProduct | string | Denormalized TEXT copy (same) |
 | TransactionDate | timestamp | When the transaction happened |
 | InvoiceDate | timestamp | When the invoice was raised |
 | TransactionDateKey | int | Derived YYYYMMDD → dim_date |
@@ -75,9 +76,31 @@
 | IsDeleted | boolean | Soft delete |
 | IsParentDeleted | boolean | Parent record deleted |
 
-**Columns we drop** (25): SourceQuery, SourceKey, ClientPartyKey, InsuredPartyKey, ReinsuredPartyKey, FinancialGeographyKey, FinancialGeographyId, FinancialSegmentKey, FinancialSegmentId, LegalEntityKey, LegalEntityId, OwnershipOrganisationKey, OwnershipOrganisationId, PolicyKey, PolicySectionKey, PolicySectionId, TransactionStatusKey, TransactionStatusId, ProductKey, GlobalProductClassId, GlobalProductLineId, GlobalProductId, SourceLastUpdateDate, ETLCreatedDate, ETLUpdatedDate, ETLLoadedDate
+> **⚠️ Power BI: Role-Playing Party Dimensions**
+>
+> Power BI allows only **1 active relationship** between two tables. Since ClientPartyId, InsuredPartyId, and ReinsuredPartyId all point to dim_party:
+>
+> | FK Column | Relationship | How to use in DAX |
+> |-----------|-------------|-------------------|
+> | ClientPartyId | ✅ **Active** | Works automatically in visuals |
+> | InsuredPartyId | ⏸️ **Inactive** | `CALCULATE([Measure], USERELATIONSHIP(fact_transaction[InsuredPartyId], dim_party[PartyId]))` |
+> | ReinsuredPartyId | ⏸️ **Inactive** | `CALCULATE([Measure], USERELATIONSHIP(fact_transaction[ReinsuredPartyId], dim_party[PartyId]))` |
+>
+> **Alternative**: For multi-role analysis, use `bridge_policy_party` filtered by `GlobalPartyRole` — it handles all 12 roles natively.
 
-**Why we drop them**: Redundant Key/Id pairs (we keep Global* versions), audit columns, Source* columns that are internal ETL metadata.
+> **⚠️ Product Text Columns (GlobalProductClass/Line/Product)**
+>
+> These are **NOT FK relationships** to dim_product. They are denormalized text copies sitting on the fact row for convenience.
+> The actual FK is `ProductId → dim_product.ProductId`. These text columns let you slice by product class
+> without joining dim_product (faster for simple reports). If dim_product joins perform well, these could be dropped to slim the fact table.
+
+**Columns we drop** (24): SourceQuery, ClientPartyKey, InsuredPartyKey, ReinsuredPartyKey, FinancialGeographyKey, FinancialGeographyId, FinancialSegmentKey, FinancialSegmentId, LegalEntityKey, LegalEntityId, OwnershipOrganisationKey, OwnershipOrganisationId, PolicyKey, PolicySectionKey, PolicySectionId, TransactionStatusKey, TransactionStatusId, ProductKey, GlobalProductClassId, GlobalProductLineId, GlobalProductId, SourceLastUpdateDate, ETLCreatedDate, ETLUpdatedDate, ETLLoadedDate
+
+**Why we drop them**: Redundant Key/Id pairs (we keep Global* versions), audit columns. Note: we keep SourceKey for traceability.
+
+> **Clarification: We do NOT drop geography or segment.**
+> We drop the **local** versions (FinancialGeographyKey, FinancialGeographyId) and keep the **Global** version (GlobalFinancialGeographyId).
+> The Global ID is what joins to our dim tables. The local Key/Id versions join to vwFinancialGeography (31K rows, wrong grain).
 
 ---
 
@@ -216,6 +239,19 @@
 **Columns we drop** (9): SourceQuery, PartyKey, PolicyKey, PartyRoleKey, PartyRoleId, SourceLastUpdateDate, ETLCreatedDate, ETLUpdatedDate, ETLLoadedDate
 
 **Cross-sell filter**: `WHERE GlobalPartyRole = 'Client' AND IsPrimaryParty = true`
+
+> **Why this filter?** The bridge has 48.7M rows because every party-role combination gets a row:
+>
+> ```
+> Policy ABC-001 has 4 rows in bridge_policy_party:
+>   → "Acme Corp"     | GlobalPartyRole = 'Client'  | IsPrimaryParty = true   ← WE WANT THIS
+>   → "Acme Sub Ltd"  | GlobalPartyRole = 'Client'  | IsPrimaryParty = false  ← skip (secondary client)
+>   → "AIG"           | GlobalPartyRole = 'Carrier'  | IsPrimaryParty = false  ← skip (not a client)
+>   → "WTW London"    | GlobalPartyRole = 'Broker'   | IsPrimaryParty = false  ← skip (not a client)
+> ```
+>
+> - **`GlobalPartyRole = 'Client'`** → We only care what **clients** buy, not what carriers underwrite
+> - **`IsPrimaryParty = true`** → Each policy has ONE primary client. Without this, the same policy counts twice (once for Acme Corp, once for Acme Sub), inflating the cross-sell matrix
 
 ---
 

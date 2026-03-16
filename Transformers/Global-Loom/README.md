@@ -207,6 +207,30 @@ notebooks/facts/03_gold_fact_transaction.ipynb           # 85M rows (30 min)
 df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("table_name")
 ```
 
+### Notebook Presentation
+- **No emojis**: Humans don't add emojis when coding. Avoid all emojis in:
+  - Print statements
+  - Markdown headers
+  - Comments
+  - Variable names
+- **Professional tone**: Code should look human-written, not AI-generated
+- **Use plain text instead**:
+  - ✅ `print("Config complete")` → `print("Config: {SOURCE_TABLE} → {LAKEHOUSE}.{TABLE}")`
+  - ✅ `print("Warning: long runtime")` → `print("WARNING: This takes ~30 minutes")`
+  - ✅ `print("Error: duplicates found")` → `print("ERROR: Found {dupes} duplicate records")`
+
+**Example** (human-written):
+```python
+print(f"Config: {SOURCE_TABLE} → {LAKEHOUSE}.{TABLE}")
+print(f"Rows: {df.count():,}")
+```
+
+**Example** (AI-generated):
+```python
+print(f"✅ Config: {SOURCE_TABLE} → {LAKEHOUSE}.{TABLE}")
+print(f"🎉 Super exciting config! 🚀")
+```
+
 ---
 
 ## Contact

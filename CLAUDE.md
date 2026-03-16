@@ -43,6 +43,7 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 - Safe numeric M conversion: `each try Number.From(_) otherwise 0, type nullable number`
 - Write pattern: `df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("table_name")`
 - CRM SQL: **no CTEs**. Fabric SQL: CTEs OK.
+- **No emojis**: Humans don't add emojis when coding. Avoid all emojis (keeps notebooks professional, not AI-generated)
 
 ## MCP Servers
 
