@@ -207,6 +207,40 @@ notebooks/facts/03_gold_fact_transaction.ipynb           # 85M rows (30 min)
 df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("table_name")
 ```
 
+### Notebook Source Format (CRITICAL)
+**When editing `.ipynb` files, the `source` field MUST be an array of strings, NOT a single string.**
+
+Fabric's notebook upload will fail with 400 Bad Request if source is a single string.
+
+**Correct format:**
+```json
+"source": [
+  "line1\n",
+  "line2\n",
+  "line3"
+]
+```
+
+**Wrong format (will fail upload):**
+```json
+"source": "line1\nline2\nline3"
+```
+
+If notebooks fail to upload with 400 error, run this fix:
+```python
+import json
+for nb in notebooks:
+    with open(nb, 'r') as f:
+        data = json.load(f)
+    for cell in data.get('cells', []):
+        if isinstance(cell.get('source'), str):
+            lines = cell['source'].split('\n')
+            cell['source'] = [line + '\n' if i < len(lines)-1 else line
+                             for i, line in enumerate(lines)]
+    with open(nb, 'w') as f:
+        json.dump(data, f, indent=1)
+```
+
 ### Notebook Presentation
 - **No emojis**: Humans don't add emojis when coding. Avoid all emojis in:
   - Print statements

@@ -37,6 +37,9 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 ## Critical Coding Rules
 
 - Fabric notebooks: **always `.ipynb`**, never `.py`
+- **CRITICAL - Notebook source format**: When editing `.ipynb` files, the `source` field MUST be an array of strings (one per line), NOT a single string. Fabric upload fails with 400 error otherwise.
+  - Correct: `"source": ["line1\n", "line2\n", "line3"]`
+  - Wrong: `"source": "line1\nline2\nline3"`
 - Spark SQL: `spark.sql("SELECT * FROM LakehouseName.Table_Name")`
 - Join keys: always `F.trim(F.upper())` on **both** sides — no exceptions
 - Special-char columns: backtick-quote them — `` F.col("`COL NAME`") ``
