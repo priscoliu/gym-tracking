@@ -50,11 +50,39 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 - Safe numeric M conversion: `each try Number.From(_) otherwise 0, type nullable number`
 - Write pattern: `df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("table_name")`
 - CRM SQL: **no CTEs**. Fabric SQL: CTEs OK.
-- **No emojis**: Humans don't add emojis when coding. Avoid all emojis (keeps notebooks professional, not AI-generated)
+- **No emojis in code**: No emojis in Python/PySpark, SQL, DAX measure code, print statements, notebook markdown headers, or comments. Emojis are allowed in Power BI HTML card visual output (status icons, badges rendered inside DAX string HTML).
 
 ## MCP Servers
 
 - `powerbi-modeling` — Read/Write Tables, Measures, DAX, TMDL (exe at `C:\MCP\analysis-services.powerbi-modeling-mcp-0.1.8@win32-x64\...`)
+
+## Design Context
+
+**Audience**: Mixed — daily analysts + executive stakeholders.
+**Personality**: Modern · Confident · Clear · Precise · Global
+**Tone**: Premium consulting firm deliverable. Never playful, never default BI tool aesthetic.
+**Primary outputs**: Power BI HTML cards and dashboard design.
+**Theme**: Light mode only.
+
+### Brand Colors
+- Primary: `#7C3AED` (WTW Corporate Purple)
+- Performance: Outstanding `#16A34A` · Met `#22C55E` · Near `#F59E0B` · Below `#EF4444` · Critical `#DC2626`
+- Neutrals: Text `#1E1B4B` · Body `#374151` · Muted `#6B7280` · Border `#E5E7EB` · Surface `#F9FAFB` · Canvas `#FFFFFF`
+
+### Design Principles
+1. **Data first, chrome last** — every element earns its place by aiding comprehension
+2. **Purple is the signal, white is the canvas** — use `#7C3AED` for hierarchy and accent only
+3. **Density with breathing room** — tight meaning, but key numbers need space to land
+4. **Hierarchy through weight before colour** — font size/weight first; colour for status only
+5. **Corporate credibility** — looks senior-analyst-made, not AI-generated
+
+### Anti-references (never produce)
+- Generic Power BI defaults (blue bars, no hierarchy)
+- Startup aesthetic (gradients, rounded blobs)
+- Excel dump (wall of numbers, no whitespace)
+- AI aesthetic (glowing gradients, neon, over-engineered cards, emojis)
+
+> Full spec: `.impeccable.md` · Brand detail: `.agent/skills/wtw-powerbi/references/`
 
 ## Task Routing
 

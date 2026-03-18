@@ -242,11 +242,7 @@ for nb in notebooks:
 ```
 
 ### Notebook Presentation
-- **No emojis**: Humans don't add emojis when coding. Avoid all emojis in:
-  - Print statements
-  - Markdown headers
-  - Comments
-  - Variable names
+- **No emojis in code**: Avoid emojis in print statements, markdown headers, comments, and variable names. Emojis are allowed in Power BI HTML card visual output (status icons, badges inside DAX string HTML).
 - **Professional tone**: Code should look human-written, not AI-generated
 - **Use plain text instead**:
   - ✅ `print("Config complete")` → `print("Config: {SOURCE_TABLE} → {LAKEHOUSE}.{TABLE}")`
