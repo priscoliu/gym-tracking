@@ -18,10 +18,14 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 |---|---|---|
 | Bronze | `Transformers/Alteryx-Migration/Fabric-Bronze/Billing/` | `src_Saiba_crb.m`, `src_arias_crb.m`, `src_eclipse_crb.m`, `src_eclipse_london.m`, `src_eglobal_income_report.m`, `src_eglobal_premium_report.m`, `src_gswin_crb.m` |
 | Bronze | `Transformers/Alteryx-Migration/Fabric-Bronze/CRM/` | `01_bronze_pipeline_crm.json` (Fabric Data Pipeline) |
-| Silver | `Transformers/Alteryx-Migration/Fabric-Silver/Chloe/` | `02_silver_clean_eglobal.m`, `02_silver_notebook_eclipse.ipynb`, `02_silver_notebook_arias.ipynb`, `02_silver_notebook_gswin.ipynb`, `02_silver_notebook_saiba.ipynb`, `ref_Chloe_eglobal_product_mapping.m` |
+| Silver | `Transformers/Alteryx-Migration/Fabric-Silver/Chloe/` | `02_silver_notebook_eclipse.ipynb`, `02_silver_notebook_arias.ipynb`, `02_silver_notebook_gswin.ipynb`, `02_silver_notebook_saiba.ipynb`, `02_silver_notebook_eglobal.ipynb`, `ref_Chloe_eglobal_product_mapping.m` |
 | Silver | `Transformers/Alteryx-Migration/Fabric-Silver/Baseline/` | *(not started — ignore)* |
 | Silver | `Transformers/Alteryx-Migration/Fabric-Silver/CRM/` | *(not started — ignore)* |
-| Gold | `Transformers/Global-Loom/` | `00_explore_pas_silver.ipynb` *(Phase 0 — PAS data profiling)* |
+| Gold | `Transformers/Global-Loom/notebooks/facts/` | `03_gold_fact_transaction.ipynb`, `03_gold_fact_invoice.ipynb` |
+| Gold | `Transformers/Global-Loom/notebooks/dimensions/` | `03_gold_dim_date.ipynb`, `03_gold_dim_policy.ipynb`, `03_gold_dim_party.ipynb`, `03_gold_dim_product.ipynb`, `03_gold_dim_geography.ipynb`, `03_gold_dim_financial_segment.ipynb`, `03_gold_dim_data_source.ipynb` |
+| Gold | `Transformers/Global-Loom/notebooks/bridge/` | `03_gold_bridge_policy_party.ipynb` |
+| Gold | `Transformers/Global-Loom/exploration/` | `00_explore_pas_silver.ipynb`, `00_explore_deep_dive.ipynb` *(Phase 0 — PAS profiling)* |
+| Gold | `Transformers/Global-Loom/docs/` | `INDEX.md`, `EXECUTIVE_SUMMARY.md`, `ACTION_ITEMS.md`, `FILE_STRUCTURE.md`, `OPTIMIZATION_SUMMARY.md`, `00_data_exploration_results.md`, `01_star_schema_plan.md`, `02_validation_summary.md`, `03_source_table_audit.md` |
 | Source | `Transformers/Alteryx-Migration/Source-Analysis/` | Original Alteryx `.yxmd` |
 
 ## Naming Conventions (strict)

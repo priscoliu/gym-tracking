@@ -1,6 +1,6 @@
 # Global Loom — PAS Data Warehouse
 
-> **Quick Navigation**: See [INDEX.md](INDEX.md) for complete file directory
+> **Quick Navigation**: See [docs/INDEX.md](docs/INDEX.md) for complete file directory
 
 ## Project Overview
 
@@ -22,9 +22,9 @@
 ## 📁 Project Files
 
 ### For Stakeholders
-- **[EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md)** — Business-focused summary (for your boss)
-- **[ACTION_ITEMS.md](ACTION_ITEMS.md)** — What needs to be done next
-- **[INDEX.md](INDEX.md)** — Complete file directory & navigation
+- **[docs/EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md)** — Business-focused summary (for your boss)
+- **[docs/ACTION_ITEMS.md](docs/ACTION_ITEMS.md)** — What needs to be done next
+- **[docs/INDEX.md](docs/INDEX.md)** — Complete file directory & navigation
 
 ### Documentation (Read in Order)
 1. **[docs/00_data_exploration_results.md](docs/00_data_exploration_results.md)** — 471M rows profiled
@@ -143,7 +143,7 @@
 
 ## Next Steps
 
-See [ACTION_ITEMS.md](ACTION_ITEMS.md) for detailed instructions.
+See [docs/ACTION_ITEMS.md](docs/ACTION_ITEMS.md) for detailed instructions.
 
 **Quick Summary**:
 1. Investigate SIC code linkage (run SQL queries)
