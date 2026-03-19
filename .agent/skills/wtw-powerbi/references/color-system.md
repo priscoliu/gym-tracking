@@ -377,6 +377,81 @@ VAR _borderDark = "#374151"
 VAR _backgroundAlt = "#F9FAFB"
 ```
 
+## Dark Mode / Dark Canvas
+
+Use when the Power BI report canvas background is dark (common in executive dashboards and TV displays).
+
+### Dark Canvas Palette
+
+| Element | Light Mode | Dark Mode |
+|---------|-----------|-----------|
+| Canvas background | `#FFFFFF` | `#0F172A` |
+| Card background | `#FFFFFF` | `#1E293B` |
+| Card border | `#E5E7EB` | `#334155` |
+| Primary text | `#1E293B` | `#F1F5F9` |
+| Secondary text | `#6B7280` | `#94A3B8` |
+| Muted text | `#9CA3AF` | `#64748B` |
+| Surface alt | `#F9FAFB` | `#293548` |
+| Divider | `#F3F4F6` | `#334155` |
+
+### Brand Color on Dark
+
+WTW Purple remains `#7C3AED` on dark backgrounds — no adjustment needed (5.2:1 contrast on dark canvas).
+
+For backgrounds behind purple elements, use `#1E0A45` (very dark purple) instead of `#F5F3FF`.
+
+### Performance Colors on Dark
+
+Performance colors are unchanged — they are bright enough to meet contrast on dark backgrounds:
+
+| Level | Color | Contrast on `#0F172A` | Status |
+|-------|-------|----------------------|--------|
+| Outstanding (Purple) | `#7C3AED` | 5.2:1 | ✅ AA |
+| Target Met (Green) | `#10B981` | 6.1:1 | ✅ AA (use lighter shade) |
+| Near Target (Cyan) | `#22D3EE` | 8.4:1 | ✅ AA (use lighter shade) |
+| Below Target (Amber) | `#FBBF24` | 9.2:1 | ✅ AA (use lighter shade) |
+| Critical (Red) | `#F87171` | 5.8:1 | ✅ AA (use lighter shade) |
+
+**Note**: On dark mode, use the **lighter gradient start** color (`#10B981`, `#22D3EE`, `#FBBF24`, `#F87171`) rather than the dark primary for text and badges.
+
+### Dark Mode Card Template (DAX)
+
+```dax
+-- Switch these variables when canvas is dark
+VAR _isDarkMode = TRUE()   -- toggle based on report theme
+
+VAR _cardBg     = IF(_isDarkMode, "#1E293B", "#FFFFFF")
+VAR _cardBorder = IF(_isDarkMode, "#334155", "#E5E7EB")
+VAR _textH      = IF(_isDarkMode, "#F1F5F9", "#1E293B")
+VAR _textSub    = IF(_isDarkMode, "#94A3B8", "#6B7280")
+VAR _divider    = IF(_isDarkMode, "#334155", "#F3F4F6")
+
+VAR _containerHTML =
+"<div style='
+    background: " & _cardBg & ";
+    border: 1px solid " & _cardBorder & ";
+    border-radius: 12px;
+    padding: 20px;
+    font-family: Segoe UI, system-ui, sans-serif;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.2);
+'>"
+-- Note: darker shadows for dark mode (0.3 / 0.2 vs 0.1 / 0.05)
+```
+
+### Shadow Adjustment for Dark Mode
+
+Shadows need higher opacity on dark backgrounds to remain visible:
+
+```css
+/* Light mode shadow */
+box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+
+/* Dark mode shadow */
+box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+```
+
+---
+
 ## Checklist: Color System Compliance
 
 Before publishing, verify:

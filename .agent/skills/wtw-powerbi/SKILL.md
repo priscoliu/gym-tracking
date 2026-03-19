@@ -1,225 +1,95 @@
 ---
 name: wtw-powerbi
-description: WTW-branded Power BI design standards including purple color system, multi-layer shadows, typography scale, grid layouts, and DAX patterns for creating professional reports and HTML card components.
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - mcp__powerbi-modeling__measure_operations
-  - mcp__powerbi-modeling__dax_query_operations
-  - mcp__powerbi-modeling__table_operations
-  - mcp__powerbi-modeling__column_operations
+description: WTW-branded Power BI design system for professional reports. Use when creating or reviewing Power BI reports, HTML card components (DAX-generated), KPI scorecards, performance measures, DAX patterns (YTD, YoY, vs Target, color coding), Power Query M code for Fabric Lakehouse connections, semantic model design (star schema, Dim_Date), or any WTW-branded visual layout (purple color system, grid, typography, shadows, dark mode). Also use when building a WTW design system or applying brand guidelines to any report or dashboard.
 ---
 
-# Power BI Design System & Best Practices
+# WTW Power BI Design System
 
-Comprehensive design system for creating professional, WTW-branded Power BI reports with consistent visual standards and DAX patterns.
+Professional design system for WTW-branded Power BI reports. Prioritise clarity, brand consistency, and performance-based visual feedback.
 
-## WTW Brand Essentials
+## WTW Brand Philosophy
 
-**Primary Brand Color**: WTW Corporate Purple `#7C3AED`
+WTW reports should communicate authority and precision. Every visual choice earns its place — no decoration for its own sake. The WTW purple signals performance excellence; other colors communicate health. Dense data is made readable through hierarchy, not simplification. Reports should feel like tools, not slideshows.
 
-**Standard Canvas Sizes**:
+**Guard against generic AI aesthetics**: Avoid centered layouts with purple gradient banners, uniform rounded corners on everything, Inter/Roboto fonts, and KPI cards that show a single number with no comparison context.
 
-- Presentations & Dashboards: `1280 x 720px`
-- Complex Reports: `1440 x 1080px`
+## Brand Essentials
 
-**Core Principles**:
+- **Primary color**: WTW Corporate Purple `#7C3AED`
+- **Canvas**: `1280×720px` (presentations) or `1440×1080px` (complex reports)
+- **Grid**: 12-column, 60–80px side margins
+- **Font**: Segoe UI — Regular (400) for body, Semibold (600) for titles, Bold (700) for KPI values
 
-- 12-column grid system for alignment
-- Multi-layer shadow system for depth
-- Performance-based color coding
-- PascalCase for measures: `[Measure Name]`
-- Underscore prefix for DAX variables: `_variableName`
-
-## Quick Start
-
-### Typography Scale
-
-| Size | Pixels | Use Case |
-|------|--------|----------|
-| `text-xs` | 12px | Axis labels, captions |
-| `text-sm` | 14px | Body text, secondary labels |
-| `text-md` | 16px | Visual titles, paragraphs |
-| `text-lg` | 18px | Sub-headings, card values |
-| `display-sm` | 24px | Main KPI values |
-| `display-md` | 30px | Medium headings |
-| `display-lg` | 36px | Large dashboard titles |
-| `display-xl` | 54px | High-impact numbers |
-
-### Performance Color System
-
-| Level | Threshold | Primary Color | Background | Use Case |
-|-------|-----------|---------------|------------|----------|
-| **Outstanding** | ≥115% | `#7C3AED` (WTW Purple) | `#F3F4F6` | Exceptional performance |
-| **Target Met** | 100-114% | `#059669` (Green) | `#ECFDF5` | Goal achieved |
-| **Near Target** | 90-99% | `#0891B2` (Cyan) | `#F0F9FF` | Approaching goal |
-| **Below Target** | 80-89% | `#F59E0B` (Amber) | `#FFFBEB` | Needs attention |
-| **Critical** | <80% | `#DC2626` (Red) | `#FEF2F2` | Urgent action |
-
-### Shadows (Multi-Layer)
-
-**Outer container (premium)**:
-
-```css
-box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-```
-
-**Inner cards (subtle)**:
-
-```css
-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-```
+Full token reference: [references/tokens.md](references/tokens.md)
 
 ## Reference Guides
 
-### Design Standards
-
-- **Grid & Spacing**: See [references/design-standards.md](references/design-standards.md)
-  - 12-column grid calculations
-  - Spacing system (4px/8px base units)
-  - Standard card widths
-  - Visual padding guidelines
-
-### DAX Patterns
-
-- **Measures & Variables**: See [references/dax-patterns.md](references/dax-patterns.md)
-  - Performance level detection logic
-  - Color palette variables
-  - Standard measure patterns (YTD, YoY, vs Target)
-  - Text hierarchy colors
-
-### HTML Cards
-
-- **Components & Layouts**: See [references/html-cards.md](references/html-cards.md)
-  - Container structures
-  - Grid layouts (3-column, 4-column)
-  - Progress bars with benchmarks
-  - Status badges
-  - Summary panels
+### Design Tokens
+- **All values in one place**: See [references/tokens.md](references/tokens.md)
+  - CSS variables, color palette, spacing scale, typography, shadows, border radii
 
 ### Color System
+- **Complete palette**: See [references/color-system.md](references/color-system.md)
+  - Performance color thresholds (115% / 100% / 90% / 80%)
+  - Gradient definitions, neutral text hierarchy
+  - Dark mode / dark canvas palette
+  - Accessibility (WCAG AA pre-validated combinations)
 
-- **Complete Palette**: See [references/color-system.md](references/color-system.md)
-  - WTW purple variations
-  - Performance color thresholds
-  - Gradient definitions
-  - Neutral text hierarchy
-  - Accessibility guidelines
+### Report Modes
+- **Pick a mode first**: See [references/report-modes.md](references/report-modes.md)
+  - Executive (1280×720, ≤6 visuals, purple dominant, large font scale)
+  - Operational (1440×1080, 8–15 visuals, performance colours, dense tables)
+  - Presentation (1280×720, ≤4 visuals, purple header bars, one story per page)
+
+### Design Standards
+- **Layout & spacing**: See [references/design-standards.md](references/design-standards.md)
+  - 12-column grid calculations, standard card widths
+  - Spacing system (4px/8px base units), visual padding
+  - Shadow system, border radius, modal pop-up pattern, minimize redundancy rules
+
+### DAX Patterns
+- **Measures & logic**: See [references/dax-patterns.md](references/dax-patterns.md)
+  - Performance detection, color mapping, gradient variables
+  - YTD, QTD, MTD, YoY, MoM, vs Target measures
+  - Status badges, dynamic titles, number formatting
+  - DAX optimisation best practices
+
+### HTML Cards
+- **DAX-generated components**: See [references/html-cards.md](references/html-cards.md)
+  - Container structure, grid layouts (2/3/4-column)
+  - Progress bars with benchmark lines, status badges
+  - Summary panels, typography patterns
+  - Complete Executive Summary Card example
+
+### Components
+- **Extended UI library**: See [references/components.md](references/components.md)
+  - Page headers, navigation bars, filter panels
+  - Data tables, alert banners, loading skeletons, tooltips
+
+### Interactions & Animation
+- **Motion patterns**: See [references/interactions.md](references/interactions.md)
+  - CSS transitions, hover states
+  - Progress bar animations, loading states
+  - Micro-interactions for HTML cards
 
 ### Data Modeling
-
-- **Semantic Model Design**: See [references/data-modeling.md](references/data-modeling.md)
-  - Star schema decision tree
-  - Fact/dimension table patterns
-  - Dim_Date calendar table template (Australian FY)
-  - Relationship design (DateKey, role-playing, multi-fact)
-  - Rollup row handling
-  - Validation checklist
+- **Semantic model design**: See [references/data-modeling.md](references/data-modeling.md)
+  - Star schema decision tree, fact/dimension patterns
+  - Dim_Date calendar template (Australian FY)
+  - Role-playing dimensions, multi-fact relationships
+  - Rollup row handling, validation checklist
 
 ### Power Query (M Code)
+- **Lakehouse connection patterns**: See [references/power-query.md](references/power-query.md)
+  - Lakehouse connection boilerplate, column operations
+  - Type casting, currency cleaning, null handling
+  - Filtering, unpivoting, standard fact table recipe
 
-- **M Code Patterns**: See [references/power-query.md](references/power-query.md)
-  - Lakehouse connection boilerplate
-  - Column operations (select, rename, reorder)
-  - Type casting and currency cleaning
-  - Null handling patterns
-  - Filtering and unpivoting
-  - Standard fact table recipe
+## Assets
 
-## Best Practices
+- **Starter template**: `assets/wtw-card-template.html` — HTML scaffold with all WTW tokens pre-wired
 
-### Report Organization
-
-- Group related visuals in Selection pane with clear labels
-- Use consistent naming: `[Section] - [Visual Type] - [Description]`
-- Limit visuals per page: ≤15 for optimal performance
-- Always display active date filter prominently
-
-### KPI Cards
-
-- Never show isolated metrics — always include comparison context
-- Show target comparison, previous period, and variance
-- Use appropriate font size from typography scale
-- Apply performance color coding
-
-### Visual Selection
-
-- **KPI Cards**: Single high-level metrics with context
-- **Bar/Column**: Comparing ≤20 categories
-- **Line Charts**: Continuous time series, trends
-- **Tables/Matrix**: Detailed drill-down (use sparingly)
-- **Avoid**: 3D charts, pie charts with >5 slices, dual-axis charts
-
-### Report Navigation Pattern
-
-```
-┌─────────────────────────────────────┐
-│  Logo | Report Title | Date Filter  │ ← Header (54px margin)
-├─────────────────────────────────────┤
-│  [KPI Cards Section - 32px gap]     │ ← display-sm text
-├─────────────────────────────────────┤
-│  [Main Visual Section]              │ ← 16px padding per visual
-├─────────────────────────────────────┤
-│  [Detail Tables/Drill-down]         │
-└─────────────────────────────────────┘
-```
-
-**Page Types**:
-
-1. **Executive Overview**: High-level KPIs only
-2. **Operational Dashboard**: Mix of KPIs and trend charts
-3. **Detailed Analysis**: Tables, drill-through enabled
-4. **Documentation**: Data dictionary, refresh schedule
-
-### Data Labels Strategy
-
-- Dense charts: Use tooltips, avoid all data labels
-- Simple charts: Show key data labels only
-- Alternative: Add summary table below for exact values
-
-## Common DAX Patterns
-
-### Performance Detection
-
-```dax
-VAR _achievementRatio = DIVIDE([Actual], [Target], 0)
-VAR _performanceLevel =
-    SWITCH(TRUE(),
-        _achievementRatio >= 1.15, "outstanding",
-        _achievementRatio >= 1.0, "target_met",
-        _achievementRatio >= 0.9, "near_target",
-        _achievementRatio >= 0.8, "below_target",
-        "critical"
-    )
-```
-
-### Dynamic Title with Filter Context
-
-```dax
-Dynamic Title =
-VAR _SelectedPeriod = SELECTEDVALUE('Date'[Year Month])
-RETURN
-    IF(
-        ISFILTERED('Date'[Year Month]),
-        "Sales Performance - " & _SelectedPeriod,
-        "Sales Performance - All Periods"
-    )
-```
-
-### Status Badge Logic
-
-```dax
-VAR _icon = SWITCH(TRUE(),
-    _achievementRatio >= 1.15, "⭐",
-    _achievementRatio >= 1.0, "🎯",
-    _achievementRatio >= 0.9, "📈",
-    _achievementRatio >= 0.8, "⚠️",
-    "🚨"
-)
-```
-
-## Checklist Before Publishing
+## Publishing Checklist
 
 - [ ] All visuals aligned to 12-column grid
 - [ ] Consistent font sizes (typography scale)
@@ -227,16 +97,8 @@ VAR _icon = SWITCH(TRUE(),
 - [ ] Visual padding set to 16px
 - [ ] All visuals labeled in Selection pane
 - [ ] Date range visible on canvas
-- [ ] KPIs include comparison context
+- [ ] KPIs include comparison context (target + prior period)
+- [ ] Performance colors follow standard thresholds
 - [ ] Decimal places appropriate for metric type
 - [ ] Performance Analyzer run (no visual >3s load)
-- [ ] Cross-filtering behavior tested
-
-## Resources
-
-- **Design Standards**: [references/design-standards.md](references/design-standards.md)
-- **DAX Patterns**: [references/dax-patterns.md](references/dax-patterns.md)
-- **HTML Cards**: [references/html-cards.md](references/html-cards.md)
-- **Color System**: [references/color-system.md](references/color-system.md)
-- **Data Modeling**: [references/data-modeling.md](references/data-modeling.md)
-- **Power Query**: [references/power-query.md](references/power-query.md)
+- [ ] Cross-filtering behaviour tested

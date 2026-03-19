@@ -13,6 +13,7 @@ Read the user's request and classify it into one or more categories:
 | Task Type | Trigger Keywords | Workflow / Skill to Load |
 |---|---|---|
 | **Alteryx → Fabric Migration** | alteryx, migration, pyspark, notebook, eclipse, eglobal, fabric silver | Read `.agent/workflows/alteryx-migration.md` |
+| **Global Loom / Gold Layer** | global loom, PAS, gold layer, star schema, dim_, fact_ | Read `.agent/workflows/global-loom.md` |
 | **Power BI Measures / DAX** | DAX, measure, KPI, scorecard, HTML card, Power BI | Read `.agent/skills/wtw-powerbi/SKILL.md` |
 | **Excel / Spreadsheet** | xlsx, spreadsheet, excel, csv | Read `.agent/skills/xlsx/SKILL.md` |
 | **PowerPoint** | pptx, presentation, slides, deck | Read `.agent/skills/pptx/SKILL.md` |
