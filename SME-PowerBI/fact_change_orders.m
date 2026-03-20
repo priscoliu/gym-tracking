@@ -2,8 +2,8 @@ let
     // ═══════════════════════════════════════════════════════
     // FACT_CHANGE_ORDERS — Change Requests (Technology page)
     // ═══════════════════════════════════════════════════════
-    // Spend = SUM(ApprovedCost) where Status is open/in-progress
-    // Due date is free text — kept as-is (not a real date)
+    // Added: ApprovedDateKey (FK → dim_date)
+    // Approved Cost column removed from source by stakeholder
 
     // === SOURCE ===
     Source = Lakehouse.Contents(null),
@@ -20,14 +20,12 @@ let
     #"Renamed" = Table.RenameColumns(#"Filtered junk", {
         {"Change Request", "ChangeRequestDesc"},
         {"Change Request Number", "ChangeRequestNumber"},
-        {"Requirements and Acceptance Criteria", "Requirements"},
         {"Approved date", "ApprovedDate"},
         {"Target Release Date to UAT", "TargetReleaseUAT"},
         {"Release Date _Actual Release to Prod_", "ActualReleaseProd"},
-        {"Approved Cost", "ApprovedCost"},
         {"Cost Type", "CostType"},
         {"% Completion | Time and Materials", "CompletionPct"},
-        {"Due date", "DueDateNote"}
+        {"Due date _Based on change order_", "DueDateNote"}
     }),
 
     // === STEP 3: Trim text ===
@@ -35,19 +33,16 @@ let
         {"ChangeRequestNumber", each Text.Trim(_ ?? ""), type text},
         {"ChangeRequestDesc",   each Text.Trim(_ ?? ""), type text},
         {"Status",              each Text.Trim(_ ?? ""), type text},
-        {"Requirements",        each Text.Trim(_ ?? ""), type text},
         {"TargetReleaseUAT",    each Text.Trim(_ ?? ""), type text},
         {"CostType",            each Text.Trim(_ ?? ""), type text},
         {"CompletionPct",       each Text.Trim(_ ?? ""), type text},
         {"DueDateNote",         each Text.Trim(_ ?? ""), type text}
     }),
-
-    // === STEP 4: Handle nulls for cost ===
-    #"Null cost" = Table.ReplaceValue(#"Trimmed", null, 0,
-        Replacer.ReplaceValue, {"ApprovedCost"}),
+    // === STEP 4: Handle nulls — no cost column anymore ===
+    #"Cleaned" = #"Trimmed",
 
     // === STEP 5: Add IsOpen flag ===
-    #"Added IsOpen" = Table.AddColumn(#"Null cost", "IsOpen", each
+    #"Added IsOpen" = Table.AddColumn(#"Cleaned", "IsOpen", each
         [Status] <> "Completed" and [Status] <> "Closed" and [Status] <> "Cancelled",
         type logical),
 
@@ -56,21 +51,27 @@ let
         {"ChangeRequestNumber", type text},
         {"ChangeRequestDesc", type text},
         {"Status", type text},
-        {"Requirements", type text},
         {"ApprovedDate", type date},
         {"TargetReleaseUAT", type text},
         {"ActualReleaseProd", type date},
-        {"ApprovedCost", Currency.Type},
         {"CostType", type text},
         {"CompletionPct", type text},
         {"DueDateNote", type text}
     }),
 
+    // === STEP 7: Add ApprovedDateKey (YYYYMMDD int → FK to dim_date) ===
+    #"Added DateKey" = Table.AddColumn(#"Set types", "ApprovedDateKey", each
+        if [ApprovedDate] = null then null
+        else Date.Year([ApprovedDate]) * 10000
+           + Date.Month([ApprovedDate]) * 100
+           + Date.Day([ApprovedDate]),
+        Int64.Type),
+
     // === FINAL: Reorder ===
-    #"Reordered" = Table.ReorderColumns(#"Set types", {
+    #"Reordered" = Table.ReorderColumns(#"Added DateKey", {
         "ChangeRequestNumber", "ChangeRequestDesc", "Status", "IsOpen",
-        "ApprovedDate", "TargetReleaseUAT", "ActualReleaseProd", "DueDateNote",
-        "ApprovedCost", "CostType", "CompletionPct", "Requirements"
+        "ApprovedDateKey", "ApprovedDate", "TargetReleaseUAT", "ActualReleaseProd", "DueDateNote",
+        "CostType", "CompletionPct"
     })
 in
     #"Reordered"

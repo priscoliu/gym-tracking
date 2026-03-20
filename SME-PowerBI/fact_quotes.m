@@ -1,7 +1,8 @@
 let
     // ═══════════════════════════════════════════════════════
-    // FACT_QUOTES — Lean (8 columns)
+    // FACT_QUOTES — Lean (11 columns)
     // ═══════════════════════════════════════════════════════
+    // Added: InsuredName (FK → dim_clients), CreationDateKey (FK → dim_date), IsConverted
 
     // === SOURCE ===
     Source = Lakehouse.Contents(null),
@@ -14,7 +15,7 @@ let
 
     // === STEP 2: Keep only required columns ===
     #"Selected columns" = Table.SelectColumns(#"Filtered", {
-        "QuoteType", "CreationDate", "LastModifiedDate",
+        "Insured", "QuoteType", "CreationDate", "LastModifiedDate",
         "PolicyNumber", "QuoteReference", "QuoteStatus",
         "BasePremium", "TotalPremium"
     }),
@@ -37,8 +38,14 @@ let
          type number}
     }),
 
-    // === STEP 4: Set types ===
-    #"Set types" = Table.TransformColumnTypes(#"Cleaned currency", {
+    // === STEP 4: Rename Insured → InsuredName ===
+    #"Renamed" = Table.RenameColumns(#"Cleaned currency", {
+        {"Insured", "InsuredName"}
+    }),
+
+    // === STEP 5: Set types ===
+    #"Set types" = Table.TransformColumnTypes(#"Renamed", {
+        {"InsuredName", type text},
         {"QuoteType", type text},
         {"CreationDate", type date},
         {"LastModifiedDate", type date},
@@ -49,15 +56,32 @@ let
         {"TotalPremium", Currency.Type}
     }),
 
-    // === STEP 5: Trim text ===
+    // === STEP 6: Trim text + UPPER InsuredName (match dim_clients) ===
     #"Trimmed" = Table.TransformColumns(#"Set types", {
-        {"QuoteType",      each Text.Trim(_ ?? ""), type text},
-        {"PolicyNumber",   each Text.Trim(_ ?? ""), type text},
-        {"QuoteReference", each Text.Trim(_ ?? ""), type text},
-        {"QuoteStatus",    each Text.Trim(_ ?? ""), type text}
+        {"InsuredName",     each Text.Upper(Text.Trim(Text.Clean(_ ?? ""))), type text},
+        {"QuoteType",       each Text.Trim(_ ?? ""), type text},
+        {"PolicyNumber",    each Text.Trim(_ ?? ""), type text},
+        {"QuoteReference",  each Text.Trim(_ ?? ""), type text},
+        {"QuoteStatus",     each Text.Trim(_ ?? ""), type text}
     }),
 
-    // === STEP 6: Sort by QuoteReference ===
-    #"Sorted" = Table.Sort(#"Trimmed", {{"QuoteReference", Order.Ascending}})
+    // === STEP 7: Add CreationDateKey (YYYYMMDD int → FK to dim_date) ===
+    #"Added DateKey" = Table.AddColumn(#"Trimmed", "CreationDateKey", each
+        if [CreationDate] = null then null
+        else Date.Year([CreationDate]) * 10000
+           + Date.Month([CreationDate]) * 100
+           + Date.Day([CreationDate]),
+        Int64.Type),
+
+    // === STEP 8: Add IsConverted flag (Complete = converted to sale) ===
+    #"Added IsConverted" = Table.AddColumn(#"Added DateKey", "IsConverted", each
+        [QuoteStatus] = "Complete", type logical),
+
+    // === FINAL: Reorder ===
+    #"Reordered" = Table.ReorderColumns(#"Added IsConverted", {
+        "InsuredName", "QuoteReference", "CreationDateKey", "CreationDate",
+        "LastModifiedDate", "QuoteType", "QuoteStatus", "IsConverted",
+        "PolicyNumber", "BasePremium", "TotalPremium"
+    })
 in
-    #"Sorted"
+    #"Reordered"

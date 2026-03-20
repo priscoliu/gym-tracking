@@ -1,7 +1,8 @@
 let
     // ═══════════════════════════════════════════════════════
-    // FACT_SALES — Lean (8 columns)
+    // FACT_SALES — Lean (10 columns)
     // ═══════════════════════════════════════════════════════
+    // Added: InsuredName (FK → dim_clients), TransactionDateKey (FK → dim_date)
 
     // === SOURCE ===
     Source = Lakehouse.Contents(null),
@@ -11,13 +12,14 @@ let
 
     // === STEP 1: Keep only required columns ===
     #"Selected columns" = Table.SelectColumns(Raw, {
-        "Policy Number", "Transaction Type", "Transaction Date",
+        "Insured Name", "Policy Number", "Transaction Type", "Transaction Date",
         "Invoice Number / Closing Reference", "Risk Class",
         "Base Premium", "TOTAL", "Commission"
     }),
 
     // === STEP 2: Rename ===
     #"Renamed" = Table.RenameColumns(#"Selected columns", {
+        {"Insured Name", "InsuredName"},
         {"Policy Number", "PolicyNumber"},
         {"Transaction Date", "TransactionDate"},
         {"Transaction Type", "TransactionType"},
@@ -30,6 +32,7 @@ let
 
     // === STEP 3: Set types ===
     #"Set types" = Table.TransformColumnTypes(#"Renamed", {
+        {"InsuredName", type text},
         {"PolicyNumber", type text},
         {"TransactionDate", type date},
         {"TransactionType", type text},
@@ -40,8 +43,9 @@ let
         {"Commission", Currency.Type}
     }),
 
-    // === STEP 4: Trim text ===
+    // === STEP 4: Trim text + UPPER InsuredName (match dim_clients) ===
     #"Trimmed" = Table.TransformColumns(#"Set types", {
+        {"InsuredName",     each Text.Upper(Text.Trim(Text.Clean(_ ?? ""))), type text},
         {"PolicyNumber",    each Text.Trim(_ ?? ""), type text},
         {"TransactionType", each Text.Trim(_ ?? ""), type text},
         {"CoverageType",    each Text.Trim(_ ?? ""), type text},
@@ -60,14 +64,22 @@ let
     // === STEP 6: Filter out "Policy" rollup rows (avoid double-counting) ===
     #"Filtered rows" = Table.SelectRows(#"Null to zero", each [CoverageType] <> "Policy"),
 
-    // === STEP 7: Reorder ===
-    #"Reordered" = Table.ReorderColumns(#"Filtered rows", {
-        "PolicyNumber", "TransactionDate", "TransactionType",
-        "CoverageType", "InvoiceNumber",
-        "BasePremium", "TotalPremium", "Commission"
-    }),
+    // === STEP 7: Rename CoverageType → ProductClass ===
+    #"Renamed product" = Table.RenameColumns(#"Filtered rows", {{"CoverageType", "ProductClass"}}),
 
-    // === STEP 8: Final rename CoverageType → ProductClass ===
-    #"Renamed columns" = Table.RenameColumns(#"Reordered", {{"CoverageType", "ProductClass"}})
+    // === STEP 8: Add TransactionDateKey (YYYYMMDD int → FK to dim_date) ===
+    #"Added DateKey" = Table.AddColumn(#"Renamed product", "TransactionDateKey", each
+        if [TransactionDate] = null then null
+        else Date.Year([TransactionDate]) * 10000
+           + Date.Month([TransactionDate]) * 100
+           + Date.Day([TransactionDate]),
+        Int64.Type),
+
+    // === FINAL: Reorder ===
+    #"Reordered" = Table.ReorderColumns(#"Added DateKey", {
+        "InsuredName", "PolicyNumber", "TransactionDateKey", "TransactionDate",
+        "TransactionType", "ProductClass", "InvoiceNumber",
+        "BasePremium", "TotalPremium", "Commission"
+    })
 in
-    #"Renamed columns"
+    #"Reordered"

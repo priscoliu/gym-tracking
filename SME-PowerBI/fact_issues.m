@@ -2,6 +2,7 @@ let
     // ═══════════════════════════════════════════════════════
     // FACT_ISSUES — uBind Issues (Technology page)
     // ═══════════════════════════════════════════════════════
+    // Added: RaisedDateKey (FK → dim_date)
     // Backlog = Status is "Open"
     // No criticality column in source data
 
@@ -50,9 +51,17 @@ let
         {"FixedDate", type date}
     }),
 
+    // === STEP 6: Add RaisedDateKey (YYYYMMDD int → FK to dim_date) ===
+    #"Added DateKey" = Table.AddColumn(#"Set types", "RaisedDateKey", each
+        if [RaisedDate] = null then null
+        else Date.Year([RaisedDate]) * 10000
+           + Date.Month([RaisedDate]) * 100
+           + Date.Day([RaisedDate]),
+        Int64.Type),
+
     // === FINAL: Reorder ===
-    #"Reordered" = Table.ReorderColumns(#"Set types", {
-        "TicketNumber", "RaisedDate", "FixedDate",
+    #"Reordered" = Table.ReorderColumns(#"Added DateKey", {
+        "TicketNumber", "RaisedDateKey", "RaisedDate", "FixedDate",
         "Status", "IsOpen", "DaysOpen",
         "Description", "Reporter"
     })

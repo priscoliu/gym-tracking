@@ -33,10 +33,16 @@ let
         [Insured] <> "" and [Insured] <> null
     ),
 
-    // === STEP 5: Merge with Sales for address details ===
+    // === STEP 5: Load Sales source directly for address lookup ===
+    SalesSource = Lakehouse.Contents(null),
+    SalesNav1 = SalesSource{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    SalesNav2 = SalesNav1{[lakehouseId = "0ebd6604-a5db-4624-b535-497cd55663c1"]}[Data],
+    SalesRaw = SalesNav2{[Id = "src_sales_marketing", ItemKind = "Table"]}[Data],
+
+    // === STEP 6: Merge with Sales for address details ===
     #"Merged" = Table.NestedJoin(
         #"Filtered blanks", {"Insured"},
-        clean_sales_marketing, {"Insured Name"},
+        SalesRaw, {"Insured Name"},
         "SalesData",
         JoinKind.LeftOuter
     ),

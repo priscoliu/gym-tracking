@@ -2,6 +2,7 @@ let
     // ═══════════════════════════════════════════════════════
     // FACT_PROJECT_TASKS — Project Plan (Delivery page)
     // ═══════════════════════════════════════════════════════
+    // Added: StartDateKey (FK → dim_date)
     // Dates come as "Thu 12/04/25" (DD/MM/YY) — strip day name, parse date
     // Duration comes as "84 days?" — strip "days" and "?"
 
@@ -130,9 +131,17 @@ let
         {"Predecessors", Int64.Type}
     }),
 
+    // === STEP 9: Add StartDateKey (YYYYMMDD int → FK to dim_date) ===
+    #"Added DateKey" = Table.AddColumn(#"Set types", "StartDateKey", each
+        if [Start] = null then null
+        else Date.Year([Start]) * 10000
+           + Date.Month([Start]) * 100
+           + Date.Day([Start]),
+        Int64.Type),
+
     // === FINAL: Reorder ===
-    #"Reordered" = Table.ReorderColumns(#"Set types", {
-        "TaskName", "Start", "Finish", "ActualFinish", "EffectiveFinish",
+    #"Reordered" = Table.ReorderColumns(#"Added DateKey", {
+        "TaskName", "StartDateKey", "Start", "Finish", "ActualFinish", "EffectiveFinish",
         "Duration", "ActualDuration", "PctComplete",
         "MilestoneHorizon", "DaysUntilFinish", "IsCritical", "IsDelayed",
         "BaselineStart", "BaselineFinish",
