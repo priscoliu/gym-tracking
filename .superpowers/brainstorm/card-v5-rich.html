@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sales Summary Card — Rich</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Segoe UI, system-ui, -apple-system, sans-serif;
+    background: #E4E8EE;
+    padding: 48px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    -webkit-font-smoothing: antialiased;
+    color: #111827;
+  }
+  .page-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #9CA3AF;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* ══════════════════════════════
+     CARD SHELL
+  ══════════════════════════════ */
+  .card {
+    width: 514px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.9) inset,
+      0 2px 4px rgba(0,0,0,0.04),
+      0 8px 28px rgba(0,0,0,0.09);
+    overflow: hidden;
+  }
+
+  /* ══════════════════════════════
+     ZONE 1 — HERO + KPI CHIPS
+  ══════════════════════════════ */
+  .zone-hero {
+    padding: 20px 22px 18px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+  }
+  .card-period {
+    font-size: 9px;
+    color: #B0BAC6;
+    letter-spacing: 0.2px;
+  }
+  .hero-label {
+    font-size: 9px;
+    font-weight: 400;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+  }
+  .hero-value {
+    font-size: 44px;
+    font-weight: 700;
+    color: #7C3AED;
+    line-height: 1;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 18px;
+  }
+  /* KPI chips */
+  .chips {
+    display: flex;
+    gap: 8px;
+  }
+  .chip {
+    flex: 1;
+    background: #F8F9FC;
+    border: 1px solid #ECEEF2;
+    border-radius: 10px;
+    padding: 11px 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chip-icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chip-icon.purple { background: #EDE9FE; }
+  .chip-icon.green  { background: #D1FAE5; }
+  .chip-icon.blue   { background: #DBEAFE; }
+  .chip-text {}
+  .chip-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip-lbl {
+    font-size: 9px;
+    font-weight: 400;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 3px;
+  }
+
+  /* ══════════════════════════════
+     ZONE 2 — BUSINESS MIX CHART
+  ══════════════════════════════ */
+  .zone-mix {
+    border-top: 1px solid #F0F2F5;
+    background: #FAFBFD;
+    padding: 16px 22px 14px;
+  }
+  .zone-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .mix-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .mix-row:last-child { margin-bottom: 0; }
+  .mix-type {
+    font-size: 11px;
+    color: #6B7280;
+    width: 92px;
+    flex-shrink: 0;
+    letter-spacing: 0.1px;
+  }
+  .mix-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #ECEEF2;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .mix-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+  }
+  .mix-value {
+    font-size: 11px;
+    font-weight: 600;
+    width: 58px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+    flex-shrink: 0;
+  }
+  .mix-pct {
+    font-size: 10px;
+    color: #9CA3AF;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ══════════════════════════════
+     ZONE 3 — RETENTION + COMMISSION
+  ══════════════════════════════ */
+  .zone-footer {
+    border-top: 1px solid #F0F2F5;
+    background: #FAFBFD;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .footer-kpi {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-kpi + .footer-kpi {
+    border-left: 1px solid #ECEEF2;
+    padding-left: 20px;
+    margin-left: 4px;
+  }
+  /* Ring gauge */
+  .ring-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+  .ring-outer {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+  }
+  .ring-inner {
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 34px;
+    height: 34px;
+    background: #FAFBFD;
+    border-radius: 50%;
+  }
+  .footer-kpi-text {}
+  .footer-kpi-label {
+    font-size: 9px;
+    font-weight: 500;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 3px;
+  }
+  .footer-kpi-value {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .footer-kpi-sub {
+    font-size: 9px;
+    color: #9CA3AF;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-label">Sales Summary Card — Rich · 514px</p>
+
+<div class="card">
+
+  <!-- ── ZONE 1: HERO + KPI CHIPS ── -->
+  <div class="zone-hero">
+
+    <div class="card-header">
+      <span class="card-title">Sales Summary</span>
+      <span class="card-period">All Periods</span>
+    </div>
+
+    <div class="hero-label">Total Premium</div>
+    <div class="hero-value">$2,450,000</div>
+
+    <div class="chips">
+
+      <!-- Policies chip -->
+      <div class="chip">
+        <div class="chip-icon purple">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="2" y="1" width="10" height="12" rx="2" stroke="#7C3AED" stroke-width="1.4"/>
+            <path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="#7C3AED" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="chip-text">
+          <div class="chip-val">312</div>
+          <div class="chip-lbl">Policies</div>
+        </div>
+      </div>
+
+      <!-- Clients chip -->
+      <div class="chip">
+        <div class="chip-icon green">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="4.5" r="2.5" stroke="#059669" stroke-width="1.4"/>
+            <path d="M1.5 13c0-2.8 2.5-4.5 5.5-4.5s5.5 1.7 5.5 4.5" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="chip-text">
+          <div class="chip-val">189</div>
+          <div class="chip-lbl">Clients</div>
+        </div>
+      </div>
+
+      <!-- Avg Premium chip -->
+      <div class="chip">
+        <div class="chip-icon blue">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="5.5" stroke="#2563EB" stroke-width="1.4"/>
+            <text x="7" y="10.5" text-anchor="middle" font-size="7" font-weight="700" fill="#2563EB" font-family="Segoe UI,system-ui">$</text>
+          </svg>
+        </div>
+        <div class="chip-text">
+          <div class="chip-val">$7,853</div>
+          <div class="chip-lbl">Avg Premium</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ZONE 2: BUSINESS MIX CHART ── -->
+  <div class="zone-mix">
+    <div class="zone-label">Business Mix</div>
+
+    <!-- New Business: 38% of total → bar width relative to Renewals (max) = 73% -->
+    <div class="mix-row">
+      <span class="mix-type">New Business</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill" style="width:73%; background:#7C3AED;"></div>
+      </div>
+      <span class="mix-value" style="color:#7C3AED;">$932K</span>
+      <span class="mix-pct">38%</span>
+    </div>
+
+    <!-- Renewals: 52% → 100% (max) -->
+    <div class="mix-row">
+      <span class="mix-type">Renewals</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill" style="width:100%; background:#059669;"></div>
+      </div>
+      <span class="mix-value" style="color:#059669;">$1.27M</span>
+      <span class="mix-pct">52%</span>
+    </div>
+
+    <!-- Endorsements: 8% → 15.5% -->
+    <div class="mix-row">
+      <span class="mix-type">Endorsements</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill" style="width:15.5%; background:#D97706;"></div>
+      </div>
+      <span class="mix-value" style="color:#D97706;">$198K</span>
+      <span class="mix-pct">8%</span>
+    </div>
+
+    <!-- Cancellations: 2% → 3.6% -->
+    <div class="mix-row">
+      <span class="mix-type">Cancellations</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill" style="width:3.6%; background:#DC2626;"></div>
+      </div>
+      <span class="mix-value" style="color:#DC2626;">$46K</span>
+      <span class="mix-pct">2%</span>
+    </div>
+
+  </div>
+
+  <!-- ── ZONE 3: RETENTION + COMMISSION ── -->
+  <div class="zone-footer">
+
+    <!-- Retention with ring gauge -->
+    <div class="footer-kpi">
+      <div class="ring-wrap">
+        <div class="ring-outer" style="background: conic-gradient(#7C3AED 267.1deg, #ECEEF2 0);"></div>
+        <div class="ring-inner"></div>
+      </div>
+      <div class="footer-kpi-text">
+        <div class="footer-kpi-label">Retention Rate</div>
+        <div class="footer-kpi-value" style="color:#7C3AED;">74.2%</div>
+        <div class="footer-kpi-sub">of renewals retained</div>
+      </div>
+    </div>
+
+    <!-- Commission -->
+    <div class="footer-kpi">
+      <div class="ring-wrap">
+        <div class="ring-outer" style="background: conic-gradient(#059669 44.6deg, #ECEEF2 0);"></div>
+        <div class="ring-inner"></div>
+      </div>
+      <div class="footer-kpi-text">
+        <div class="footer-kpi-label">Commission Rate</div>
+        <div class="footer-kpi-value" style="color:#059669;">12.4%</div>
+        <div class="footer-kpi-sub">of total premium</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<p class="page-label" style="font-size:10px;">Happy with this? Say yes and I'll write the DAX.</p>
+
+</body>
+</html>

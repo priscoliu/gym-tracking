@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sales Summary Card — Modern</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Segoe UI, system-ui, -apple-system, sans-serif;
+    background: #ECEEF1;
+    padding: 56px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .page-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #9CA3AF;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* ─── CARD SHELL ─── */
+  .card {
+    width: 560px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.8) inset,
+      0 2px 4px rgba(0,0,0,0.04),
+      0 8px 32px rgba(0,0,0,0.08);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── ZONE 1 ─── */
+  .zone-top {
+    padding: 24px 24px 20px;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #111827;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+  .card-period {
+    font-size: 10px;
+    font-weight: 400;
+    color: #B0B8C4;
+    letter-spacing: 0.2px;
+  }
+
+  .hero-block {
+    margin-bottom: 22px;
+  }
+  .hero-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .hero-value {
+    font-size: 52px;
+    font-weight: 700;
+    color: #7C3AED;
+    line-height: 1;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid #F3F4F6;
+    padding-top: 16px;
+  }
+  .meta-item {
+    flex: 1;
+    padding-right: 20px;
+  }
+  .meta-item + .meta-item {
+    padding-left: 20px;
+    padding-right: 20px;
+    border-left: 1px solid #F3F4F6;
+  }
+  .meta-item:last-child {
+    padding-right: 0;
+  }
+  .meta-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .meta-lbl {
+    font-size: 10px;
+    font-weight: 400;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  /* ─── ZONE 2 ─── */
+  .zone-bottom {
+    background: #F9FAFB;
+    border-top: 1px solid #F0F1F3;
+    padding: 6px 24px 0;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .row:last-of-type {
+    border-bottom: none;
+  }
+  .row-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6B7280;
+    letter-spacing: 0.1px;
+  }
+  .row-value {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .c-nb  { color: #7C3AED; }
+  .c-rn  { color: #059669; }
+  .c-en  { color: #D97706; }
+  .c-cn  { color: #DC2626; }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    background: #F9FAFB;
+    border-top: 1px solid #F0F1F3;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .footer-stat {
+    white-space: nowrap;
+  }
+  .footer-stat-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .footer-stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .footer-divider {
+    width: 1px;
+    height: 28px;
+    background: #E5E7EB;
+    flex-shrink: 0;
+  }
+  .mix-wrap {
+    flex: 1;
+  }
+  .mix-labels-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .mix-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #9CA3AF;
+  }
+  .mix-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: #E9EAEC;
+    overflow: hidden;
+    display: flex;
+  }
+  .mix-nb { width: 38%; background: #7C3AED; border-radius: 2px 0 0 2px; }
+  .mix-rn { width: 52%; background: #059669; }
+  .mix-gap { flex: 1; }
+</style>
+</head>
+<body>
+
+<p class="page-label">Sales Summary Card — Modern Direction</p>
+
+<div class="card">
+
+  <!-- ZONE 1: TOTALS -->
+  <div class="zone-top">
+    <div class="card-header">
+      <span class="card-title">Sales Summary</span>
+      <span class="card-period">All Periods</span>
+    </div>
+
+    <div class="hero-block">
+      <div class="hero-label">Total Premium</div>
+      <div class="hero-value">$2,450,000</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <div class="meta-val">312</div>
+        <div class="meta-lbl">Policies</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val">189</div>
+        <div class="meta-lbl">Clients</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val">$7,853</div>
+        <div class="meta-lbl">Avg Premium</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 2: BREAKDOWN -->
+  <div class="zone-bottom">
+    <div class="row">
+      <span class="row-label">New Business</span>
+      <span class="row-value c-nb">$932,000</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Renewals</span>
+      <span class="row-value c-rn">$1,274,000</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Endorsements</span>
+      <span class="row-value c-en">$198,000</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Cancellations</span>
+      <span class="row-value c-cn">$46,000</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-stat">
+      <div class="footer-stat-label">Commission</div>
+      <div class="footer-stat-value" style="color:#059669;">12.4%</div>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-stat">
+      <div class="footer-stat-label">Retention</div>
+      <div class="footer-stat-value" style="color:#7C3AED;">74.2%</div>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="mix-wrap">
+      <div class="mix-labels-row">
+        <span class="mix-label" style="color:#7C3AED;">NB 38%</span>
+        <span class="mix-label" style="color:#059669;">Renewals 52%</span>
+      </div>
+      <div class="mix-bar">
+        <div class="mix-nb"></div>
+        <div class="mix-rn"></div>
+        <div class="mix-gap"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="page-label" style="font-size:10px; margin-top:4px;">Happy with this direction? Say yes and I'll write the DAX.</p>
+
+</body>
+</html>

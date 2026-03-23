@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sales Summary — v8 Final · 514px</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+    background: #F4F5F7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+    gap: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .tag { font-size: 9px; font-weight: 600; color: #9CA3AF; letter-spacing: 1px; text-transform: uppercase; font-family: 'Manrope', sans-serif; }
+
+  /* ══════════════════════════════════
+     CARD
+  ══════════════════════════════════ */
+  .card {
+    width: 514px;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 22px 22px 20px;
+    box-shadow: 0 20px 40px rgba(11, 18, 21, 0.04);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+  .header-title {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #0B1215;
+    letter-spacing: -0.01em;
+  }
+  .header-period {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.675rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6B7280;
+  }
+
+  /* ── HERO: total premium + commission accent ── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .hero-label {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.675rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6B7280;
+    margin-bottom: 3px;
+  }
+  .hero-value {
+    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    font-size: 2.65rem;
+    font-weight: 700;
+    color: #0B1215;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Zest Lime gradient block — the card's signature accent */
+  .commission-block {
+    background: linear-gradient(135deg, #536200 0%, #D9F836 100%);
+    border-radius: 14px;
+    padding: 12px 15px;
+    text-align: right;
+    min-width: 112px;
+    flex-shrink: 0;
+  }
+  .cb-label {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #3E4900;
+    opacity: 0.75;
+    margin-bottom: 2px;
+  }
+  .cb-value {
+    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3E4900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .cb-sub {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.625rem;
+    color: #3E4900;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  /* ── COUNTS STRIP ── */
+  /* Tonal surface — separation without borders */
+  .counts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #F4F5F7;
+    border-radius: 12px;
+    padding: 9px 0;
+    margin-bottom: 18px;
+  }
+  .count-item {
+    text-align: center;
+    padding: 7px 8px;
+    position: relative;
+  }
+  /* Subtle tonal tick — not a line, just a shade shift */
+  .count-item + .count-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 18%; bottom: 18%;
+    width: 1px;
+    background: #E0E3E5;
+  }
+  .count-value {
+    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0B1215;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+  .count-label {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6B7280;
+    margin-top: 2px;
+  }
+
+  /* ── BUSINESS MIX ── */
+  .mix-section { margin-bottom: 18px; }
+  .section-title {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #9CA3AF;
+    margin-bottom: 11px;
+  }
+  .mix-row {
+    display: grid;
+    grid-template-columns: 92px 1fr 76px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .mix-row:last-child { margin-bottom: 0; }
+  .mix-label {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0B1215;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mix-bar-track {
+    width: 100%;
+    height: 6px;
+    background: #F4F5F7;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .mix-bar-fill { height: 100%; border-radius: 3px; }
+  /* NB = Zest Lime (the primary/growth series) */
+  .fill-nb { background: #D9F836; }
+  /* Renewals, Endorsements = muted secondary */
+  .fill-rn { background: #CED5DA; }
+  .fill-en { background: #CED5DA; }
+  /* Cancellations = semantic red */
+  .fill-cn { background: #DC2626; }
+
+  .mix-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+  .mix-amount {
+    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #0B1215;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .mix-pct {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #9CA3AF;
+    min-width: 20px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Zest Lime dot on NB row */
+  .dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #D9F836;
+    margin-right: 4px;
+    vertical-align: middle;
+    position: relative; top: -1px;
+  }
+
+  /* ── BOTTOM STRIP ── */
+  .bottom-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .bottom-card {
+    background: #F4F5F7;
+    border-radius: 12px;
+    padding: 13px 15px;
+  }
+  .bottom-label {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6B7280;
+    margin-bottom: 4px;
+  }
+  .bottom-value {
+    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #0B1215;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .bottom-sub {
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: 0.675rem;
+    color: #9CA3AF;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<p class="tag">Sales Summary Card — v8 Final · 514px · DAX-ready</p>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="header-title">Sales Summary</span>
+    <span class="header-period">All Periods</span>
+  </div>
+
+  <!-- HERO: Total Premium + Commission Accent -->
+  <div class="hero">
+    <div>
+      <div class="hero-label">Total Premium</div>
+      <div class="hero-value">$2,450,000</div>
+    </div>
+    <div class="commission-block">
+      <div class="cb-label">Commission</div>
+      <div class="cb-value">$304K</div>
+      <div class="cb-sub">12.4% of premium</div>
+    </div>
+  </div>
+
+  <!-- COUNTS STRIP: 4 KPIs on surface bg -->
+  <div class="counts">
+    <div class="count-item">
+      <div class="count-value">312</div>
+      <div class="count-label">Policies</div>
+    </div>
+    <div class="count-item">
+      <div class="count-value">189</div>
+      <div class="count-label">Clients</div>
+    </div>
+    <div class="count-item">
+      <div class="count-value">$7.9K</div>
+      <div class="count-label">Avg Premium</div>
+    </div>
+    <div class="count-item">
+      <div class="count-value">38%</div>
+      <div class="count-label">NB Mix</div>
+    </div>
+  </div>
+
+  <!-- BUSINESS MIX: bars relative to Renewals (max) -->
+  <div class="mix-section">
+    <div class="section-title">Premium by Type</div>
+
+    <div class="mix-row">
+      <span class="mix-label"><span class="dot"></span>New Business</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill fill-nb" style="width:73.1%;"></div>
+      </div>
+      <div class="mix-meta">
+        <span class="mix-amount">$932K</span>
+        <span class="mix-pct">38%</span>
+      </div>
+    </div>
+
+    <div class="mix-row">
+      <span class="mix-label">Renewals</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill fill-rn" style="width:100%;"></div>
+      </div>
+      <div class="mix-meta">
+        <span class="mix-amount">$1.27M</span>
+        <span class="mix-pct">52%</span>
+      </div>
+    </div>
+
+    <div class="mix-row">
+      <span class="mix-label">Endorsements</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill fill-en" style="width:15.6%;"></div>
+      </div>
+      <div class="mix-meta">
+        <span class="mix-amount">$198K</span>
+        <span class="mix-pct">8%</span>
+      </div>
+    </div>
+
+    <div class="mix-row">
+      <span class="mix-label">Cancellations</span>
+      <div class="mix-bar-track">
+        <div class="mix-bar-fill fill-cn" style="width:3.6%;"></div>
+      </div>
+      <div class="mix-meta">
+        <span class="mix-amount">$46K</span>
+        <span class="mix-pct">2%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM STRIP: retention + commission rate -->
+  <div class="bottom-strip">
+    <div class="bottom-card">
+      <div class="bottom-label">Retention Rate</div>
+      <div class="bottom-value">74.2%</div>
+      <div class="bottom-sub">of renewals retained</div>
+    </div>
+    <div class="bottom-card">
+      <div class="bottom-label">Commission Rate</div>
+      <div class="bottom-value">12.4%</div>
+      <div class="bottom-sub">of total premium</div>
+    </div>
+  </div>
+
+</div>
+
+<p class="tag" style="font-size:8px;">Happy with this? Say yes to write the DAX.</p>
+
+</body>
+</html>

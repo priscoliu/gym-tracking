@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sales Summary — Fresh Direction</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Segoe UI, system-ui, -apple-system, sans-serif;
+    background: #E2E6EC;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 48px;
+    -webkit-font-smoothing: antialiased;
+    color: #0F172A;
+  }
+  .tag {
+    font-size: 10px; font-weight: 500; color: #94A3B8;
+    letter-spacing: 0.8px; text-transform: uppercase;
+  }
+
+  /* ════════════════════════════════════════
+     CARD
+  ════════════════════════════════════════ */
+  .card {
+    width: 514px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.04),
+      0 6px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  /* ────────────────────────────────────────
+     TOP BAND: Full-bleed segmented mix bar
+     Leads with the visual — chart first
+  ──────────────────────────────────────── */
+  .mix-band {
+    display: flex;
+    height: 8px;
+  }
+  .mix-band-nb     { width: 38.04%; background: #7C3AED; }
+  .mix-band-rn     { width: 52.04%; background: #10B981; }
+  .mix-band-en     { width: 8.08%;  background: #F59E0B; }
+  .mix-band-cn     { width: 1.84%;  background: #F43F5E; }
+
+  /* ────────────────────────────────────────
+     HERO SECTION
+  ──────────────────────────────────────── */
+  .hero-section {
+    padding: 18px 22px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .hero-left {}
+  .hero-eyebrow {
+    font-size: 9px; font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 6px;
+  }
+  .hero-number {
+    font-size: 48px; font-weight: 800;
+    color: #0F172A;
+    line-height: 1;
+    letter-spacing: -2.5px;
+    font-variant-numeric: tabular-nums;
+    /* Purple tint on number only */
+    background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-label {
+    font-size: 10px; font-weight: 400;
+    color: #94A3B8;
+    letter-spacing: 0.4px;
+    margin-top: 5px;
+  }
+
+  /* Mini mix legend top-right */
+  .mix-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 4px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-name {
+    font-size: 10px; color: #6B7280;
+    flex: 1;
+    min-width: 80px;
+  }
+  .legend-val {
+    font-size: 10px; font-weight: 600;
+    color: #374151;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend-pct {
+    font-size: 9px; color: #9CA3AF;
+    width: 26px; text-align: right;
+  }
+
+  /* ────────────────────────────────────────
+     KPI ROW
+  ──────────────────────────────────────── */
+  .kpi-row {
+    display: flex;
+    align-items: stretch;
+    padding: 0 22px;
+    margin-top: 18px;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    gap: 0;
+  }
+  .kpi-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .kpi-item + .kpi-item {
+    border-left: 1px solid #F1F5F9;
+    padding-left: 18px;
+    margin-left: 18px;
+  }
+  .kpi-val {
+    font-size: 20px; font-weight: 700;
+    color: #0F172A;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-lbl {
+    font-size: 9px; color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ────────────────────────────────────────
+     FOOTER: Retention + Commission
+  ──────────────────────────────────────── */
+  .footer {
+    display: flex;
+    background: #FAFBFD;
+    border-top: 1px solid #F1F5F9;
+  }
+  .footer-cell {
+    flex: 1;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-cell + .footer-cell {
+    border-left: 1px solid #F1F5F9;
+  }
+
+  /* Micro ring via conic-gradient */
+  .micro-ring {
+    position: relative;
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+  }
+  .micro-ring-outer {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+  }
+  .micro-ring-hole {
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 28px; height: 28px;
+    background: #FAFBFD;
+    border-radius: 50%;
+  }
+
+  .footer-cell-text {}
+  .footer-cell-label {
+    font-size: 9px; font-weight: 500;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 2px;
+  }
+  .footer-cell-value {
+    font-size: 24px; font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .footer-cell-sub {
+    font-size: 9px; color: #94A3B8;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<p class="tag">Sales Summary Card — v6 · fresh structure · 514px</p>
+
+<div class="card">
+
+  <!-- ① Full-bleed segmented mix bar — visual first -->
+  <div class="mix-band">
+    <div class="mix-band-nb"></div>
+    <div class="mix-band-rn"></div>
+    <div class="mix-band-en"></div>
+    <div class="mix-band-cn"></div>
+  </div>
+
+  <!-- ② Hero + mix legend side by side -->
+  <div class="hero-section">
+
+    <div class="hero-left">
+      <div class="hero-eyebrow">Sales Summary · All Periods</div>
+      <div class="hero-number">$2,450,000</div>
+      <div class="hero-label">Total Premium</div>
+    </div>
+
+    <div class="mix-legend">
+      <div class="legend-row">
+        <div class="legend-dot" style="background:#7C3AED;"></div>
+        <span class="legend-name">New Business</span>
+        <span class="legend-val">$932K</span>
+        <span class="legend-pct">38%</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-dot" style="background:#10B981;"></div>
+        <span class="legend-name">Renewals</span>
+        <span class="legend-val">$1.27M</span>
+        <span class="legend-pct">52%</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-dot" style="background:#F59E0B;"></div>
+        <span class="legend-name">Endorsements</span>
+        <span class="legend-val">$198K</span>
+        <span class="legend-pct">8%</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-dot" style="background:#F43F5E;"></div>
+        <span class="legend-name">Cancellations</span>
+        <span class="legend-val">$46K</span>
+        <span class="legend-pct">2%</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ③ KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-item">
+      <div class="kpi-val">312</div>
+      <div class="kpi-lbl">Policies</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-val">189</div>
+      <div class="kpi-lbl">Clients</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-val">$7,853</div>
+      <div class="kpi-lbl">Avg Premium</div>
+    </div>
+  </div>
+
+  <!-- ④ Footer: retention ring + commission ring -->
+  <div class="footer">
+
+    <div class="footer-cell">
+      <div class="micro-ring">
+        <div class="micro-ring-outer" style="background: conic-gradient(#7C3AED 267deg, #E9EBF0 0);"></div>
+        <div class="micro-ring-hole"></div>
+      </div>
+      <div class="footer-cell-text">
+        <div class="footer-cell-label">Retention Rate</div>
+        <div class="footer-cell-value" style="color:#7C3AED;">74.2%</div>
+        <div class="footer-cell-sub">renewals retained</div>
+      </div>
+    </div>
+
+    <div class="footer-cell">
+      <div class="micro-ring">
+        <div class="micro-ring-outer" style="background: conic-gradient(#10B981 44.6deg, #E9EBF0 0);"></div>
+        <div class="micro-ring-hole"></div>
+      </div>
+      <div class="footer-cell-text">
+        <div class="footer-cell-label">Commission Rate</div>
+        <div class="footer-cell-value" style="color:#10B981;">12.4%</div>
+        <div class="footer-cell-sub">of total premium</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<p class="tag" style="font-size:9px;">Say yes to write the DAX measure</p>
+
+</body>
+</html>
