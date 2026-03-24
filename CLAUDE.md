@@ -54,7 +54,7 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 
 ## MCP Servers
 
-- `powerbi-modeling` — Read/Write Tables, Measures, DAX, TMDL (exe at `C:\MCP\analysis-services.powerbi-modeling-mcp-0.1.8@win32-x64\...`)
+- `powerbi-modeling` — Read/Write Tables, Measures, DAX, TMDL (v0.2.2, exe at `C:\MCP\powerbi-modeling-mcp\extension\server\powerbi-modeling-mcp.exe`)
 
 ## Design Context
 
