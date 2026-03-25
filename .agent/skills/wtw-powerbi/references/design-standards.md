@@ -68,16 +68,16 @@ Based on 1280px canvas with 12-column grid:
 
 ## Spacing & Padding Standards
 
-Use **4px or 8px base units** for all spacing to maintain consistency.
+We have two distinct architectural spacing approaches. **Always ask the user** whether they prefer **Corporate** (tight, standard) or **Modern** (breathable, generous).
 
-### Vertical Spacing
+### Vertical Spacing (Corporate vs Modern)
 
-| Setting | Value | Usage |
-|---------|-------|-------|
-| **Vertical Page Margin** | 54px (48px alternate) | Empty space at top/bottom of report page |
-| **Section Padding** | 32px | Vertical gap between major visual groups |
-| **Visual Padding** | 16px | Internal padding for all native visuals (charts, tables) |
-| **Card Padding** | 20px | Internal padding for HTML card containers |
+| Setting | Corporate Value | Modern Value | Usage |
+|---------|-----------------|--------------|-------|
+| **Vertical Page Margin** | 48px | 54px | Empty space at top/bottom of report page |
+| **Section Padding** | 24px | 32px | Gap between major visual groups |
+| **Card Padding** | 16px | 32px | Internal padding for HTML card containers |
+| **Visual Padding** | 16px | 24px | Internal padding for native visuals |
 
 ### Horizontal Spacing
 

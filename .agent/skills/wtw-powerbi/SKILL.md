@@ -29,6 +29,8 @@ Full token reference: [references/tokens.md](references/tokens.md)
   - CSS variables, color palette, spacing scale, typography, shadows, border radii
 
 ### Color System
+- **Default color profile**: WTW Corporate Purple (`#7C3AED`) is the standard default for thematic elements, alongside the WTW green performance palette.
+- **CRITICAL**: Whenever you are triggered to review or apply anything related to **color**, you MUST FIRST ask the user if they have a new color profile or if they want to stick with the default WTW style.
 - **Complete palette**: See [references/color-system.md](references/color-system.md)
   - Performance color thresholds (115% / 100% / 90% / 80%)
   - Gradient definitions, neutral text hierarchy
@@ -42,10 +44,12 @@ Full token reference: [references/tokens.md](references/tokens.md)
   - Presentation (1280×720, ≤4 visuals, purple header bars, one story per page)
 
 ### Design Standards
-- **Layout & spacing**: See [references/design-standards.md](references/design-standards.md)
+- **Layout & Spacing Systems**: See [references/design-standards.md](references/design-standards.md)
+  - **CRITICAL**: When asked to review or apply Spacing, Borders, & Shadows, **ALWAYS ASK** the user which style they prefer:
+    - **Corporate**: Strict 16px padding, 8px outer radius, tight (4px/8px) base spacing. Shadows use strict multi-layered elevation (`box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 8px 16px rgba(0,0,0,0.04), 0 24px 32px rgba(0,0,0,0.06);`).
+    - **Modern**: Breathable 32px padding, 20px border radius, generous gaps (24px). Shadows use soft ambient depth (`box-shadow: 0 20px 40px -8px rgba(0,0,0,0.08);`).
   - 12-column grid calculations, standard card widths
-  - Spacing system (4px/8px base units), visual padding
-  - Shadow system, border radius, modal pop-up pattern, minimize redundancy rules
+  - Modal pop-up pattern, minimize redundancy rules
 
 ### DAX Patterns
 - **Measures & logic**: See [references/dax-patterns.md](references/dax-patterns.md)
