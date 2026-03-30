@@ -69,6 +69,72 @@ VAR _innerCardHTML =
 - `border-radius`: 8px (smaller than outer container)
 - `box-shadow`: Subtle inner shadow
 
+## Auto-Scale Layout (Responsive)
+
+By default, cards use fixed pixel dimensions. For cards that should **fill and scale with the Power BI visual frame** when resized, use the auto-scale pattern instead.
+
+**How it works:** `html/body` fill the iframe, a wrapper div absorbs shadow bleed via padding, and the card fills 100% of the remaining wrapper content area via flexbox.
+
+```css
+/* CSS block — use <style> tag approach (see Best Practices) */
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+*          { margin: 0; padding: 0; box-sizing: border-box; }  /* full reset — required */
+.wrap      { width: 100%; height: 100vh; padding: 8px 28px 56px 28px; }
+.sc        { width: 100%; height: 100%; display: flex; flex-direction: column; }
+```
+
+**Key rules:**
+- `height: 100vh` on `.wrap` equals the visual frame height inside the Power BI iframe
+- `width: 100%` on `.sc` stretches to fill the visual width automatically
+- `height: 100%` on `.sc` fills the wrapper's content area (frame minus padding)
+- `display: flex; flex-direction: column` on `.sc` enables vertical space distribution
+- Fixed sections use `flex-shrink: 0` — they never compress
+- Scrollable/expandable sections use `flex: 1; min-height: 0` — they absorb all remaining height
+
+**Vertically stretching a section to fill remaining space:**
+```css
+.fixed-section  { flex-shrink: 0; }   /* header, KPI strip — never compress */
+.flex-section   { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.scrollable     { flex: 1; overflow-y: auto; min-height: 0; }
+```
+
+> **Note:** Remove any hardcoded `height` from the Power BI visual format pane — the card no longer needs it when using auto-scale.
+
+---
+
+## Shadow Clipping Prevention
+
+Power BI clips HTML visual content at the visual's bounding box. `box-shadow` renders **outside** the element bounds, so deep shadows get hard-cropped by the frame edge.
+
+**The fix:** wrap the card in a container whose padding gives the shadow room to bleed, keeping the shadow fully inside the visual frame.
+
+**Shadow math:**
+```
+Shadow layer:   0  offset-y  blur  color
+─────────────────────────────────────────
+Layer 1:        0    2px      4px   rgba(0,0,0,.02)   →  ~6px  below element
+Layer 2:        0    8px     16px   rgba(0,0,0,.04)   →  ~24px below element
+Layer 3:        0   12px     20px   rgba(0,0,0,.05)   →  ~32px below element  ← deepest
+
+Sides (no X offset, 20px blur):               →  ~16px left/right
+```
+
+**Wrapper padding formula:**
+```
+bottom padding ≥ max(offset-y) + max(blur)  →  12 + 20 = 32px → use 24px (shadow near-invisible at edge)
+side padding   ≥ max(blur)                  →  20px → use 16px
+top padding    = small safety margin        →  6px
+```
+
+**Standard wrapper for the WTW corporate shadow:**
+```css
+.wrap { padding: 6px 16px 24px 16px; }
+```
+
+> **Critical:** The `*{margin:0;padding:0}` CSS reset MUST cover all elements — not just `html,body`. Without it, browser defaults (e.g. `<ul>` gets `padding-left: 40px`) will misalign list-based content inside the card.
+
+---
+
 ## Grid Layouts
 
 ### 4-Column Metrics Grid
@@ -359,7 +425,100 @@ VAR _contextHTML =
 
 ## Complete Card Examples
 
-### Executive Summary Card (6-column, 580px)
+### Sales Summary Card (Auto-Scale, Production Example)
+
+This example shows the **complete workflow**: create base measures, create YTD measures, then create the HTML card that references them.
+
+#### Step 1: Create Base Measures
+
+```dax
+// Core metric measures (in "Core Metrics" table)
+Sales Total Premium = SUM(fact_sales[Premium])
+Sales Commission = SUM(fact_sales[Commission])
+Sales Policy Count = DISTINCTCOUNT(fact_sales[PolicyID])
+Sales Quotes Count = DISTINCTCOUNT(fact_quotes[QuoteID])
+```
+
+#### Step 2: Create YTD Measures
+
+**IMPORTANT**: YTD measures require a date table relationship. HTML cards should **always reference YTD/time-intelligence measures**, not base measures directly.
+
+```dax
+// YTD measures (in "Core Metrics" table, displayFolder: "SME Sales\YTD")
+Sales Premium YTD = TOTALYTD([Sales Total Premium], dim_date[Date])
+Sales Commission YTD = TOTALYTD([Sales Commission], dim_date[Date])
+Sales Quotes YTD = TOTALYTD([Sales Quotes Count], dim_date[Date])
+```
+
+#### Step 3: Create HTML Card Measure
+
+The card measure references the YTD measures created in Step 2:
+
+```dax
+Sales Summary Card =
+// -- YTD measures (use these for the card) ----------------------------
+VAR _totalPremiumYTD = [Sales Premium YTD]
+VAR _commissionYTD   = [Sales Commission YTD]
+VAR _quotesCountYTD  = [Sales Quotes YTD]
+
+// -- Other measures ----------------------------------------------------
+VAR _commPct        = [Sales Commission %]
+VAR _policyCount    = [Sales Policy Count]
+VAR _clientCount    = [Sales Client Count]
+VAR _avgPremium     = [Sales Avg Premium]
+VAR _nbMixPct       = [Sales NB Mix %]
+VAR _premiumWTD     = [Sales Premium WTD]
+VAR _quotesWTD      = [Sales Quotes WTD]
+
+// -- Smart currency format (absolute) -----------------------------------
+VAR _fmtTotal =
+    IF( _totalPremiumYTD >= 1000000,
+        "$" & FORMAT( _totalPremiumYTD / 1000000, "0.##" ) & "M",
+    IF( _totalPremiumYTD >= 1000,
+        "$" & FORMAT( _totalPremiumYTD / 1000, "0.#" ) & "K",
+        "$" & FORMAT( _totalPremiumYTD, "#,##0" ) ) )
+
+VAR _fmtComm =
+    IF( _commissionYTD >= 1000000,
+        "$" & FORMAT( _commissionYTD / 1000000, "0.##" ) & "M",
+    IF( _commissionYTD >= 1000,
+        "$" & FORMAT( _commissionYTD / 1000, "0.#" ) & "K",
+        "$" & FORMAT( _commissionYTD, "#,##0" ) ) )
+
+// ... (rest of formatting logic)
+
+// -- CSS with auto-scale layout -----------------------------------------
+VAR _css =
+    "<style>"
+    & "html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}"
+    & "*{margin:0;padding:0;box-sizing:border-box}"
+    & ".wrap{width:100%;height:100vh;padding:6px 16px 24px 16px}"
+    & ".sc{width:100%;height:100%;background:#fff;border-radius:20px;padding:32px;font-family:'Segoe UI',system-ui,sans-serif;box-shadow:0 2px 4px rgba(0,0,0,.02),0 8px 16px rgba(0,0,0,.04),0 12px 20px rgba(0,0,0,.05);display:flex;flex-direction:column}"
+    & ".hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-shrink:0}"
+    & "/* ... more CSS classes ... */"
+    & "</style>"
+
+// -- HTML ---------------------------------------------------------------
+VAR _html =
+    "<div class='wrap'><div class='sc'>"
+    & "<div class='hdr'>"
+      & "<div class='mg'>"
+        & "<div>"
+          & "<span class='mlb'>Sales YTD</span>"
+          & "<div class='mv'>" & _fmtTotal & "</div>"
+          & "<div class='md'>" & _arrow & _fmtWTD & " <span class='mper'>WTD</span></div>"
+        & "</div>"
+      & "</div>"
+    & "</div>"
+    & "<!-- ... more HTML ... -->"
+    & "</div></div>"
+
+RETURN _css & _html
+```
+
+**Key principle**: The HTML card measure should **only format and display** data. All calculation logic (YTD, WTD, ratios, etc.) should be in separate reusable measures.
+
+### Executive Summary Card (6-column, 580px, Fixed Size)
 
 ```dax
 Executive Summary Card =
@@ -437,11 +596,11 @@ RETURN
 
 ### HTML/CSS Guidelines
 
-1. **Always use inline styles** — Power BI doesn't support `<style>` tags
-2. **Use double quotes for attributes** — Single quotes for CSS values
+1. **Prefer `<style>` tag + CSS classes over inline styles** — The Power BI HTML visual is a full iframe; `<style>` tags work. CSS classes produce far shorter DAX strings, are easier to maintain, and enable pseudo-elements (`::-webkit-scrollbar`, `:hover`) that inline styles cannot do. Use inline styles only for dynamic DAX values (colors, widths, percentages).
+2. **Always include a full CSS reset** — `*{margin:0;padding:0;box-sizing:border-box}` must cover `*`, not just `html,body`. Missing this causes browser defaults (e.g. `ul` indent) to misalign content.
 3. **Close all tags** — HTML must be well-formed
 4. **Use `box-sizing: border-box`** — Includes padding in width/height
-5. **Test on different canvas sizes** — Ensure responsiveness
+5. **Test on different canvas sizes** — Use auto-scale layout for resizable visuals
 
 ### Performance Tips
 
@@ -461,13 +620,15 @@ RETURN
 ## Checklist: HTML Card Implementation
 
 Before deploying HTML cards, verify:
-- [ ] Inline styles only (no `<style>` tags)
+- [ ] CSS reset: `*{margin:0;padding:0;box-sizing:border-box}` covers ALL elements (not just `html,body`)
 - [ ] All HTML tags properly closed
-- [ ] `box-sizing: border-box` set on containers
-- [ ] Grid-aligned widths (268px, 364px, 580px, 796px, 1160px)
+- [ ] Shadow clipping: wrapper padding ≥ shadow reach (`8px 28px 56px 28px` for WTW corporate shadow)
+- [ ] Auto-scale: `html/body` at `100%`, `.wrap` at `100vh`, `.sc` at `width:100%;height:100%` if resizable
+- [ ] Fixed sections: `flex-shrink:0` | Expanding sections: `flex:1;min-height:0`
+- [ ] `<style>` tag used for static CSS classes; inline styles only for DAX-dynamic values
 - [ ] Multi-layer shadows applied (outer + inner)
 - [ ] Performance colors from standard palette
 - [ ] Typography uses standard scale (12px → 72px)
 - [ ] Text contrast meets WCAG AA (4.5:1)
-- [ ] Numbers formatted consistently with FORMAT()
+- [ ] Numbers formatted consistently with smart FORMAT() (exact / K / M based on magnitude)
 - [ ] DAX variables used to avoid recalculation
