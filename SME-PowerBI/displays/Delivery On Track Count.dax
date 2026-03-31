@@ -1,9 +1,0 @@
--- Table:  Core Metrics
--- Folder: SME Delivery\Tasks
--- In-flight tasks (not complete) that are not delayed
-Delivery On Track Count =
-CALCULATE(
-    COUNTROWS(fact_project_tasks),
-    fact_project_tasks[IsDelayed] = FALSE,
-    fact_project_tasks[PctComplete] < 100
-)

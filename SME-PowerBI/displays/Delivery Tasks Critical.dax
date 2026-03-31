@@ -1,7 +1,0 @@
--- Table:  Core Metrics
--- Folder: SME Delivery\Tasks
-Delivery Tasks Critical =
-CALCULATE(
-    COUNTROWS(fact_project_tasks),
-    fact_project_tasks[IsCritical] = TRUE
-)
