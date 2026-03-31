@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Project Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1),
+                        0 4px 6px -2px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 1400px;
+            height: auto;
+            touch-action: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="ganttCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('ganttCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const logicalWidth  = 1400;
+    const logicalHeight = 1000;
+    canvas.width  = logicalWidth  * 2;
+    canvas.height = logicalHeight * 2;
+    ctx.scale(2, 2);
+
+    const colors = {
+        bg:            '#ffffff',
+        border:        '#ececec',
+        borderStrong:  '#d1d5db',
+        textDark:      '#1e1b4b',
+        textBody:      '#374151',
+        textMuted:     '#6b7280',
+        blue:          '#1877f2',
+        groupRowBg:    '#f8fafc',
+        activeRow:     '#f3f0ff',
+        hoverRow:      '#faf9ff',
+        tooltipBg:     'rgba(255,255,255,0.99)',
+        tooltipBorder: '#e2e8f0',
+        shadow:        'rgba(15,10,40,0.10)',
+        chartBg:       '#FAFBFD'   // subtle tint for chart area
+    };
+
+    const themeColors = {
+        'NEXT 30 DAYS': '234, 179, 8',
+        'Strategy':     '24, 119, 242',
+        'Design':       '139, 92, 246',
+        'Development':  '252, 129, 101',
+        'Testing':      '52, 211, 153',
+        'Launch':       '239, 68, 68'
+    };
+
+    let state = {
+        showExtraColumns: true,
+        showSubTasks:     true,
+        timeView:         'Days',
+        hoveredVIdx:      -1,
+        isOverBar:        false,
+        mousePos:         { x: 0, y: 0 },
+        scrollY:          0,
+        scrollDays:       0
+    };
+
+    let isDragging  = false;
+    let lastMouseX  = 0;
+    let lastMouseY  = 0;
+
+    const layout = {
+        headerTier1: 12,
+        headerTier2: 48,
+        listWidth:   620,
+        rowHeight:   44
+    };
+
+    const timelineStartDate = new Date(2020, 0, 1);
+    const timelineEndDate   = new Date(2030, 11, 31);
+    const totalTimelineDays = (timelineEndDate - timelineStartDate) / (1000 * 60 * 60 * 24);
+
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+        const p = dateStr.split('/');
+        return new Date(2000 + parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
+    }
+
+    function formatFullDate(date) {
+        if (!date) return '—';
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${String(date.getDate()).padStart(2,'0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    function getDaysSinceStart(date) {
+        return (date - timelineStartDate) / (1000 * 60 * 60 * 24);
+    }
+
+    function getPpd() {
+        return state.timeView === 'Days' ? 18 : state.timeView === 'Years' ? 4 : 0.5;
+    }
+
+    const statusStyles = {
+        L:  { bg: '#c6efce', color: '#1E6024', text: 'L',  label: 'Low' },
+        M:  { bg: '#ffeb9c', color: '#7A5A00', text: 'M',  label: 'Medium' },
+        H:  { bg: '#f8cbad', color: '#843515', text: 'H',  label: 'High' },
+        VH: { bg: '#ffbfc1', color: '#7A181C', text: 'VH', label: 'Very High' }
+    };
+
+    const tasks = [
+        { type: 'group', title: 'NEXT 30 DAYS', progress: 4,   horizon: 'NEXT 30 DAYS' },
+        { type: 'task',  title: 'Extended Occupation', start: '04/12/26', end: '31/03/27', days: '118 d', statusIcon: statusStyles.M, progress: 25, textColor: '#7c3aed', assignee: 'Alex Chen' },
+        { type: 'group', title: 'Strategy',     progress: 98,  horizon: 'Strategy' },
+        { type: 'task',  title: 'Goals',                 start: '23/11/26', end: '28/11/26', days: '6 d',   progress: 100, statusIcon: statusStyles.L, assignee: 'Jordan Smith' },
+        { type: 'task',  title: 'Target Audience',       start: '23/11/26', end: '27/11/26', days: '4 d',   progress: 100, checkmark: true, statusIcon: statusStyles.M, assignee: '' },
+        { type: 'task',  title: 'Terms of Reference',    start: '25/11/26', end: '27/11/26', days: '2 d',   progress: 80,  avatar: true,    statusIcon: statusStyles.H,  assignee: 'Casey Lee' },
+        { type: 'group', title: 'Design',       progress: 25,  horizon: 'Design' },
+        { type: 'task',  title: 'User Experience',       start: '26/11/26', end: '29/11/26', days: '3 d',   progress: 60,  active: true, avatar: true, statusIcon: statusStyles.VH, assignee: 'Sam Rivera' },
+        { type: 'task',  title: 'User Interface',        start: '02/12/26', end: '08/12/26', days: '6 d',   progress: 40,  statusIcon: statusStyles.L, assignee: 'Alex Chen' },
+        { type: 'task',  title: 'Icons Pack',            start: '02/12/26', end: '05/12/26', days: '3 d',   progress: 0,   avatar: true,    statusIcon: statusStyles.M,  assignee: '' },
+        { type: 'task',  title: 'Style Guide',           start: '05/12/26', end: '11/12/26', days: '6 d',   progress: 0,   statusIcon: statusStyles.H,  assignee: 'Jordan Smith' },
+        { type: 'group', title: 'Development',  progress: 0,   horizon: 'Development' },
+        { type: 'task',  title: 'Back-End',              start: '04/12/26', end: '11/12/26', days: '7 d',   progress: 0,   avatar: true,    statusIcon: statusStyles.VH, assignee: 'Casey Lee' },
+        { type: 'task',  title: 'API',                   start: '04/12/26', end: '08/12/26', days: '4 d',   progress: 0,   avatar: true,    statusIcon: statusStyles.M,  assignee: 'Sam Rivera' },
+        { type: 'task',  title: 'Front-End',             start: '09/12/26', end: '17/12/26', days: '8 d',   progress: 0,   avatar: true,    statusIcon: statusStyles.L,  assignee: '' },
+        { type: 'group', title: 'Testing',      progress: 0,   horizon: 'Testing' },
+        { type: 'task',  title: 'User Experience Testing', start: '10/12/26', end: '18/12/26', days: '8 d', progress: 0,   statusIcon: statusStyles.H,  assignee: 'Jordan Smith' },
+        { type: 'task',  title: 'Functional Testing',     start: '10/12/26', end: '18/12/26', days: '8 d', progress: 0,   statusIcon: statusStyles.VH, assignee: 'Alex Chen' },
+        { type: 'group', title: 'Launch',       progress: 0,   horizon: 'Launch' },
+        { type: 'task',  title: 'Grand Opening',          start: '18/12/26', end: '22/12/26', days: '4 d', progress: 0,   statusIcon: statusStyles.L,  assignee: 'Sam Rivera' }
+    ];
+
+    // Precompute bar geometry
+    let minGanttStart = Infinity;
+    tasks.forEach(task => {
+        if (task.type === 'task' && task.start && task.end) {
+            const s = parseDate(task.start);
+            const e = parseDate(task.end);
+            task.ganttStart  = getDaysSinceStart(s);
+            task.ganttLength = (e - s) / (1000 * 60 * 60 * 24);
+            if (task.ganttStart < minGanttStart) minGanttStart = task.ganttStart;
+        }
+    });
+
+    let currentGroupObj = null;
+    tasks.forEach((task, index) => {
+        if (task.type === 'group') {
+            currentGroupObj = task;
+            const rgb = themeColors[task.title] || '100, 116, 139';
+            task.baseColor = `rgb(${rgb})`;
+            task.barColor  = `rgba(${rgb}, 1.0)`;
+            let minS = Infinity, maxE = -Infinity;
+            for (let j = index + 1; j < tasks.length; j++) {
+                if (tasks[j].type === 'group') break;
+                if (tasks[j].type === 'task') {
+                    const s = getDaysSinceStart(parseDate(tasks[j].start));
+                    const e = getDaysSinceStart(parseDate(tasks[j].end));
+                    if (s < minS) minS = s;
+                    if (e > maxE) maxE = e;
+                }
+            }
+            if (minS !== Infinity) {
+                task.ganttStart  = minS;
+                task.ganttLength = maxE - minS;
+                task.days        = Math.round(task.ganttLength) + ' d';
+                if (task.ganttStart < minGanttStart) minGanttStart = task.ganttStart;
+            }
+        } else {
+            task.horizon   = currentGroupObj ? currentGroupObj.title : 'Uncategorized';
+            const rgb      = themeColors[task.horizon] || '100, 116, 139';
+            task.baseColor = `rgb(${rgb})`;
+            task.barColor  = `rgba(${rgb}, 1.0)`;
+        }
+    });
+
+    const initPpd = getPpd();
+    state.scrollDays = Math.max(0, minGanttStart - (40 / initPpd));
+
+    // ─── Draw helpers ────────────────────────────────────────────────────────
+
+    function drawRect(x, y, w, h, fill) {
+        ctx.fillStyle = fill;
+        ctx.fillRect(x, y, w, h);
+    }
+
+    function drawLine(x1, y1, x2, y2, stroke = colors.border, lw = 1) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke();
+    }
+
+    const F = "'Segoe UI', Inter, system-ui, sans-serif";
+    function wtf(spec) {
+        return spec.replace(/(-apple-system,\s*BlinkMacSystemFont,\s*)?["']?sans-serif["']?/g, F);
+    }
+
+    function drawText(text, x, y, font, fill = colors.textDark, align = 'left') {
+        ctx.font = wtf(font); ctx.fillStyle = fill;
+        ctx.textAlign = align; ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y);
+    }
+
+    function drawRoundRect(x, y, w, h, r, fill) {
+        if (w <= 0 || h <= 0) return;
+        r = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y,     x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x,     y + h, r);
+        ctx.arcTo(x,     y + h, x,     y,     r);
+        ctx.arcTo(x,     y,     x + w, y,     r);
+        ctx.closePath();
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    }
+
+    function drawCircle(x, y, radius, stroke, fill = 'transparent') {
+        ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
+        if (fill !== 'transparent') { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+    }
+
+    // ─── Circular progress indicator ─────────────────────────────────────────
+    function drawProgressCircle(cx, cy, radius, progress, barColor, textCol) {
+        const bgColor = '#e5e7eb';
+        const lw = 3;
+
+        // Background circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = bgColor;
+        ctx.lineWidth = lw;
+        ctx.stroke();
+
+        // Progress arc
+        if (progress > 0) {
+            const startA = -Math.PI / 2;
+            const endA   = startA + (progress / 100) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, startA, endA);
+            ctx.strokeStyle = barColor;
+            ctx.lineWidth = lw;
+            ctx.stroke();
+        }
+
+        // Fill center with color proportional to progress
+        if (progress > 0) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius - lw / 2 - 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = barColor;
+            ctx.globalAlpha = 0.12;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        // Text in center
+        const fontSize = radius > 10 ? 9 : 7;
+        drawText(progress + '%', cx, cy, `600 ${fontSize}px sans-serif`, textCol, 'center');
+    }
+
+    // ─── Toggle buttons ──────────────────────────────────────────────────────
+
+    function drawSegmentedToggle(x, y, w, h, r, type, isExpanded) {
+        ctx.save();
+        const activeBlue = '#2563eb';
+        ctx.beginPath();
+        ctx.moveTo(x + r, y); ctx.arcTo(x+w,y,x+w,y+h,r);
+        ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r);
+        ctx.closePath(); ctx.clip();
+
+        ctx.fillStyle = isExpanded ? '#ffffff' : activeBlue; ctx.fillRect(x, y, w/2, h);
+        ctx.fillStyle = isExpanded ? activeBlue : '#ffffff'; ctx.fillRect(x+w/2, y, w/2, h);
+        ctx.restore();
+
+        ctx.beginPath(); ctx.moveTo(x+w/2, y); ctx.lineTo(x+w/2, y+h);
+        ctx.strokeStyle = colors.borderStrong; ctx.lineWidth = 1; ctx.stroke();
+
+        ctx.beginPath();
+        drawRoundRect(x, y, w, h, r, null);
+        ctx.strokeStyle = colors.borderStrong; ctx.lineWidth = 1; ctx.stroke();
+
+        const leftColor  = isExpanded ? '#94a3b8' : '#ffffff';
+        const rightColor = isExpanded ? '#ffffff'  : '#94a3b8';
+        const cxL = x+w/4, cy = y+h/2, cxR = x+(w*3)/4;
+        ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+        if (type === 'tasks') {
+            ctx.beginPath(); ctx.strokeStyle = leftColor;
+            ctx.moveTo(cxL-4,cy+2); ctx.lineTo(cxL,cy-2); ctx.lineTo(cxL+4,cy+2); ctx.stroke();
+            ctx.beginPath(); ctx.strokeStyle = rightColor;
+            ctx.moveTo(cxR-4,cy-4); ctx.lineTo(cxR,cy); ctx.lineTo(cxR+4,cy-4);
+            ctx.moveTo(cxR-4,cy+1); ctx.lineTo(cxR,cy+5); ctx.lineTo(cxR+4,cy+1); ctx.stroke();
+        } else {
+            ctx.beginPath(); ctx.strokeStyle = leftColor;
+            ctx.moveTo(cxL+2,cy-4); ctx.lineTo(cxL-2,cy); ctx.lineTo(cxL+2,cy+4); ctx.stroke();
+            ctx.beginPath(); ctx.strokeStyle = rightColor;
+            ctx.moveTo(cxR-4,cy-4); ctx.lineTo(cxR,cy); ctx.lineTo(cxR-4,cy+4);
+            ctx.moveTo(cxR+1,cy-4); ctx.lineTo(cxR+5,cy); ctx.lineTo(cxR+1,cy+4); ctx.stroke();
+        }
+    }
+
+    function draw3SegmentToggle(x, y, w, h, r, options, selected) {
+        const segW = w / options.length;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
+        ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r);
+        ctx.closePath(); ctx.clip();
+
+        options.forEach((opt, i) => {
+            const sel = opt === selected;
+            ctx.fillStyle = sel ? colors.blue : '#ffffff';
+            ctx.fillRect(x + i*segW, y, segW, h);
+            drawText(opt, x+i*segW+segW/2, y+h/2,
+                sel ? 'bold 12px sans-serif' : '12px sans-serif',
+                sel ? '#ffffff' : colors.textBody, 'center');
+        });
+        ctx.restore();
+
+        for (let i = 1; i < options.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(x+i*segW, y); ctx.lineTo(x+i*segW, y+h);
+            ctx.strokeStyle = colors.borderStrong; ctx.lineWidth = 1; ctx.stroke();
+        }
+
+        ctx.beginPath();
+        drawRoundRect(x, y, w, h, r, null);
+        ctx.strokeStyle = colors.borderStrong; ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    // ─── Derived layout helpers ───────────────────────────────────────────────
+
+    function getVisibleTasks() {
+        return tasks.filter(t => state.showSubTasks || t.type !== 'task');
+    }
+
+    function getContentTop() {
+        return layout.headerTier1 + layout.headerTier2 + 40;
+    }
+
+    function getMaxScrollY(visibleCount) {
+        return Math.max(0, visibleCount * layout.rowHeight - (logicalHeight - getContentTop()));
+    }
+
+    // ─── Main render ─────────────────────────────────────────────────────────
+
+    function render() {
+        layout.listWidth = state.showExtraColumns ? 620 : 250;
+        const ppd        = getPpd();
+        const listTop    = layout.headerTier1 + layout.headerTier2;
+        const contentTop = listTop + 40;
+        const visibleTasks   = getVisibleTasks();
+        const vCount         = visibleTasks.length;
+        const contentHeight  = vCount * layout.rowHeight;
+        const timelineX      = layout.listWidth;
+        const scrollPx       = -state.scrollDays * ppd;
+
+        ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+        drawRect(0, 0, logicalWidth, logicalHeight, colors.bg);
+
+        // Build index map (original → visible index)
+        const indexMap = new Map();
+        let vi = 0;
+        tasks.forEach((t, i) => {
+            if (!state.showSubTasks && t.type === 'task') { indexMap.set(i, -1); }
+            else { indexMap.set(i, vi++); }
+        });
+
+        // ── Scrolled content area ─────────────────────────────────────────
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, contentTop, logicalWidth, logicalHeight - contentTop);
+        ctx.clip();
+        ctx.translate(0, -state.scrollY);
+
+        // ── Chart background fill ─────────────────────────────────────────
+        drawRect(timelineX, contentTop, logicalWidth - timelineX, contentHeight + layout.rowHeight, colors.chartBg);
+
+        // Row highlights
+        const activeOrigIdx = tasks.findIndex(t => t.active);
+        const activeVIdx    = activeOrigIdx >= 0 ? indexMap.get(activeOrigIdx) : -1;
+
+        if (state.hoveredVIdx >= 0 && state.hoveredVIdx < vCount) {
+            drawRect(0, contentTop + state.hoveredVIdx * layout.rowHeight, logicalWidth, layout.rowHeight, colors.hoverRow);
+        }
+        if (activeVIdx !== undefined && activeVIdx >= 0) {
+            drawRect(0, contentTop + activeVIdx * layout.rowHeight, logicalWidth, layout.rowHeight, colors.activeRow);
+        }
+
+        // ── List panel ────────────────────────────────────────────────────
+        tasks.forEach((task, origIdx) => {
+            const vIdx = indexMap.get(origIdx);
+            if (vIdx === -1 || vIdx === undefined) return;
+
+            const rowY  = contentTop + vIdx * layout.rowHeight;
+            const midY  = rowY + layout.rowHeight / 2;
+            const indent = task.type === 'group' ? 24 : 44;
+
+            if (task.type === 'group') {
+                drawRect(0, rowY, layout.listWidth, layout.rowHeight, colors.groupRowBg);
+                const arrow = state.showSubTasks ? '▾' : '▸';
+                drawText(arrow, indent - 16, midY, '12px sans-serif', task.baseColor);
+            }
+
+            const titleColor = task.textColor || (task.type === 'group' ? colors.textDark : colors.textBody);
+            const titleFont  = task.type === 'group' ? '600 14px sans-serif' : '14px sans-serif';
+            drawText(task.title, indent, midY, titleFont, titleColor);
+
+            if (state.showExtraColumns) {
+                const colColor = task.textColor || colors.textBody;
+                if (task.type === 'task') {
+                    drawText(task.start || '', 250, midY, '14px sans-serif', colColor);
+                    drawText(task.end   || '', 330, midY, '14px sans-serif', colColor);
+                }
+                drawText(task.days || '', 410, midY, '14px sans-serif', colColor);
+
+                if (task.statusIcon) {
+                    const s = task.statusIcon;
+                    drawRoundRect(482, midY - 10, 26, 20, 4, s.bg);
+                    drawText(s.text, 495, midY, 'bold 10px sans-serif', s.color, 'center');
+                }
+
+                // ── Circular progress indicator ───────────────────────
+                if (task.progress !== undefined) {
+                    const cX = 565;
+                    const circleR = 12;
+                    drawProgressCircle(cX, midY, circleR, task.progress, task.barColor, colors.textBody);
+                }
+            }
+            drawLine(0, rowY + layout.rowHeight, layout.listWidth, rowY + layout.rowHeight, '#f3f4f6');
+        });
+
+        // ── Timeline bars ─────────────────────────────────────────────────
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(timelineX, contentTop - layout.rowHeight * 2, logicalWidth - timelineX, contentHeight + layout.rowHeight * 4);
+        ctx.clip();
+
+        for (let year = 2020; year <= 2030; year++) {
+            for (let m = 0; m < 12; m++) {
+                const mx = timelineX + getDaysSinceStart(new Date(year, m, 1)) * ppd + scrollPx;
+                if (mx > timelineX - 2 && mx < logicalWidth + 2) {
+                    const isJan = m === 0;
+                    drawLine(mx, contentTop, mx, contentTop + contentHeight,
+                        isJan ? '#d1d5db' : colors.border, 1);
+                }
+            }
+        }
+
+        tasks.forEach((task, origIdx) => {
+            const vIdx = indexMap.get(origIdx);
+            if (vIdx === undefined || vIdx === -1 || task.ganttStart === undefined) return;
+
+            const barPixX = timelineX + task.ganttStart * ppd + scrollPx;
+            const barPixW = Math.max(4, task.ganttLength * ppd);
+            if (barPixX + barPixW < timelineX || barPixX > logicalWidth + 200) return;
+
+            const rowY = contentTop + vIdx * layout.rowHeight;
+            const midY = rowY + layout.rowHeight / 2;
+
+            if (task.type === 'group') {
+                // ── Group bar: line + diamond endpoints ───────────────
+                drawLine(barPixX, midY, barPixX + barPixW, midY, task.baseColor, 3);
+
+                // Left diamond
+                ctx.save(); ctx.fillStyle = task.baseColor;
+                ctx.beginPath();
+                ctx.moveTo(barPixX, midY - 5); ctx.lineTo(barPixX + 5, midY);
+                ctx.lineTo(barPixX, midY + 5); ctx.lineTo(barPixX - 5, midY);
+                ctx.closePath(); ctx.fill(); ctx.restore();
+
+                // Right diamond
+                ctx.save(); ctx.fillStyle = task.baseColor;
+                ctx.beginPath();
+                ctx.moveTo(barPixX + barPixW, midY - 5); ctx.lineTo(barPixX + barPixW + 5, midY);
+                ctx.lineTo(barPixX + barPixW, midY + 5); ctx.lineTo(barPixX + barPixW - 5, midY);
+                ctx.closePath(); ctx.fill(); ctx.restore();
+
+                // Label OUTSIDE the bar (to the right)
+                ctx.save(); ctx.beginPath();
+                ctx.rect(timelineX, contentTop, logicalWidth - timelineX, contentHeight); ctx.clip();
+                const labelX = barPixX + barPixW + 14;
+                if (labelX < logicalWidth - 10) {
+                    drawText(`${task.title} (${task.days})`, labelX, midY, '600 12px sans-serif', task.baseColor);
+                }
+                ctx.restore();
+            } else {
+                // ── Task bar: rounded pill ────────────────────────────
+                const barH = 18;
+                const barY = rowY + (layout.rowHeight - barH) / 2;
+                const progressW = barPixW * (task.progress / 100);
+
+                // Light background fill
+                drawRoundRect(barPixX, barY, barPixW, barH, 9, `rgba(${themeColors[task.horizon] || '100,116,139'}, 0.15)`);
+
+                // Progress fill
+                if (task.progress > 0) {
+                    drawRoundRect(barPixX, barY, progressW, barH, 9, task.barColor);
+                }
+
+                // Outline
+                ctx.beginPath();
+                drawRoundRect(barPixX, barY, barPixW, barH, 9, null);
+                ctx.strokeStyle = task.barColor; ctx.lineWidth = 1.5; ctx.stroke();
+
+                // Label OUTSIDE the bar (to the right)
+                ctx.save(); ctx.beginPath();
+                ctx.rect(timelineX, contentTop, logicalWidth - timelineX, contentHeight); ctx.clip();
+                const labelX = barPixX + barPixW + 10;
+                if (labelX < logicalWidth - 10) {
+                    drawText(`${task.title} (${task.days})`, labelX, barY + barH/2, '12px sans-serif', task.baseColor);
+                }
+                ctx.restore();
+            }
+        });
+
+        // Today line
+        const todayX = timelineX + getDaysSinceStart(new Date()) * ppd + scrollPx;
+        if (todayX >= timelineX && todayX <= logicalWidth) {
+            drawLine(todayX, contentTop, todayX, contentTop + contentHeight, colors.blue, 1.5);
+        }
+
+        ctx.restore();
+        ctx.restore();
+
+        // ── Sticky chrome ─────────────────────────────────────────────────
+        drawRect(0, 0, logicalWidth, contentTop, colors.bg);
+
+        // Chart header background
+        drawRect(timelineX, listTop, logicalWidth - timelineX, 40, colors.chartBg);
+
+        const t2Y = layout.headerTier1 + layout.headerTier2 / 2;
+        const tglY = t2Y - 12;
+
+        drawSegmentedToggle(24,  tglY, 72, 24, 12, 'tasks',   state.showSubTasks);
+        drawSegmentedToggle(108, tglY, 72, 24, 12, 'columns', state.showExtraColumns);
+
+        const todayBtnX  = logicalWidth - 300;
+        drawRoundRect(todayBtnX - 60, tglY, 50, 24, 12, '#ffffff');
+        ctx.beginPath(); drawRoundRect(todayBtnX - 60, tglY, 50, 24, 12, null);
+        ctx.strokeStyle = colors.borderStrong; ctx.lineWidth = 1; ctx.stroke();
+        drawText('Today', todayBtnX - 35, t2Y, '12px sans-serif', colors.textBody, 'center');
+
+        draw3SegmentToggle(todayBtnX, tglY, 160, 24, 12, ['Days','Years','All'], state.timeView);
+
+        // Dividers
+        drawLine(0, listTop,    logicalWidth, listTop,    colors.border);
+        drawLine(0, contentTop, logicalWidth, contentTop, colors.border);
+        drawLine(timelineX, listTop, timelineX, logicalHeight, colors.border);
+
+        drawText('Task',  40,  listTop+20, '600 12px sans-serif', colors.textMuted);
+        if (state.showExtraColumns) {
+            drawText('Start',    250, listTop+20, '600 12px sans-serif', colors.textMuted);
+            drawText('End',      330, listTop+20, '600 12px sans-serif', colors.textMuted);
+            drawText('Days',     410, listTop+20, '600 12px sans-serif', colors.textMuted);
+            drawText('Status',   481, listTop+20, '600 12px sans-serif', colors.textMuted);
+            drawText('Progress', 540, listTop+20, '600 12px sans-serif', colors.textMuted);
+        }
+
+        ctx.save(); ctx.beginPath(); ctx.rect(timelineX, listTop, logicalWidth - timelineX, 40); ctx.clip();
+        for (let year = 2020; year <= 2030; year++) {
+            for (let m = 0; m < 12; m++) {
+                const mx = timelineX + getDaysSinceStart(new Date(year, m, 1)) * ppd + scrollPx;
+                if (mx < timelineX - 200 || mx > logicalWidth + 200) continue;
+                if (m === 0) {
+                    drawLine(mx, listTop + 8, mx, listTop + 40, colors.border);
+                    drawText(String(year), mx + 8, listTop + 22, '600 12px sans-serif', colors.textDark);
+                } else if (ppd * 30 > 28) {
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    drawText(months[m], mx + 4, listTop + 33, '10px sans-serif', colors.textMuted);
+                }
+            }
+        }
+        ctx.restore();
+
+        // Today flag
+        const todayFlagX = timelineX + getDaysSinceStart(new Date()) * ppd + scrollPx;
+        if (todayFlagX >= timelineX && todayFlagX <= logicalWidth) {
+            const fw = 46, fh = 22, fy = listTop + 8, fr = 5;
+            ctx.save(); ctx.beginPath(); ctx.moveTo(todayFlagX, fy); ctx.lineTo(todayFlagX + fw - fr, fy);
+            ctx.arcTo(todayFlagX+fw, fy, todayFlagX+fw, fy+fr, fr);
+            ctx.arcTo(todayFlagX+fw, fy+fh, todayFlagX+fw-fr, fy+fh, fr);
+            ctx.lineTo(todayFlagX, fy+fh); ctx.closePath();
+            ctx.fillStyle = colors.blue; ctx.fill(); ctx.restore();
+            drawText('Today', todayFlagX + fw/2, fy + fh/2, 'bold 10px sans-serif', '#ffffff', 'center');
+        }
+
+        // Tooltip
+        if (state.isOverBar && state.hoveredVIdx >= 0 && state.hoveredVIdx < vCount) {
+            const task = visibleTasks[state.hoveredVIdx];
+            if (task) drawTooltip(task);
+        }
+
+        // Scrollbar
+        const maxSY = getMaxScrollY(vCount);
+        if (maxSY > 0) {
+            const trackH = logicalHeight - contentTop;
+            const thumbH = Math.max(40, trackH * (trackH / contentHeight));
+            const thumbY = contentTop + (state.scrollY / maxSY) * (trackH - thumbH);
+            drawRoundRect(logicalWidth - 5, contentTop, 3, trackH, 2, '#f0f0f0');
+            drawRoundRect(logicalWidth - 5, thumbY, 3, thumbH, 2, '#c7c7c7');
+        }
+    }
+
+    function drawTooltip(task) {
+        const pad = 16, lineH = 24, w = 250;
+        const rows = [
+            { label: 'Horizon',  value: task.horizon || task.title },
+            { label: 'Task',     value: task.title },
+            { label: 'Start',    value: formatFullDate(parseDate(task.start)) },
+            { label: 'End',      value: formatFullDate(parseDate(task.end)) },
+            { label: 'Duration', value: task.days || '—' },
+            { label: 'Assignee', value: task.assignee || 'Unassigned' },
+            { label: 'Progress', value: (task.progress ?? 0) + '%' },
+            { label: 'Risk',     value: task.statusIcon ? task.statusIcon.label : '—' }
+        ];
+        const h = rows.length * lineH + pad * 2;
+        let tx = state.mousePos.x + 16, ty = state.mousePos.y + 16;
+        if (tx + w > logicalWidth - 8) tx = state.mousePos.x - w - 16;
+        if (ty + h > logicalHeight - 8) ty = state.mousePos.y - h - 16;
+
+        ctx.save(); ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(0,0,0,0.05)'; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 4;
+        drawRoundRect(tx, ty, w, h, 10, colors.tooltipBg); ctx.restore();
+        ctx.save(); ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(0,0,0,0.10)'; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 10;
+        drawRoundRect(tx, ty, w, h, 10, 'rgba(255,255,255,0)'); ctx.restore();
+
+        ctx.beginPath(); drawRoundRect(tx, ty, w, h, 10, null);
+        ctx.strokeStyle = colors.tooltipBorder; ctx.lineWidth = 1; ctx.stroke();
+
+        rows.forEach((row, i) => {
+            const ry = ty + pad + i * lineH + lineH / 2;
+            drawText(row.label, tx + pad, ry, '12px sans-serif', colors.textMuted);
+            drawText(row.value, tx + pad + 80, ry, '600 12px sans-serif', colors.textDark);
+        });
+    }
+
+    function getCanvasPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - rect.left) * (logicalWidth  / rect.width),
+            y: (e.clientY - rect.top)  * (logicalHeight / rect.height)
+        };
+    }
+
+    canvas.addEventListener('mousedown', e => {
+        const { x, y } = getCanvasPos(e);
+        const tglY = layout.headerTier1 + layout.headerTier2/2 - 12;
+        const todayBtnX = logicalWidth - 300;
+        const ppd = getPpd();
+
+        if (x >= 24 && x <= 96 && y >= tglY && y <= tglY+24) { state.showSubTasks = x >= 60; render(); return; }
+        if (x >= 108 && x <= 180 && y >= tglY && y <= tglY+24) { state.showExtraColumns = x >= 144; render(); return; }
+        if (x >= todayBtnX-60 && x <= todayBtnX-10 && y >= tglY && y <= tglY+24) {
+            state.scrollDays = Math.max(0, getDaysSinceStart(new Date()) - (100/ppd)); render(); return;
+        }
+        if (x >= todayBtnX && x <= todayBtnX+160 && y >= tglY && y <= tglY+24) {
+            const views = ['Days','Years','All'];
+            state.timeView = views[Math.floor((x - todayBtnX) / (160/3))];
+            state.scrollDays = Math.max(0, minGanttStart - (40/getPpd())); render(); return;
+        }
+
+        isDragging = true; lastMouseX = x; lastMouseY = y;
+        canvas.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'default'; });
+
+    canvas.addEventListener('mousemove', e => {
+        const { x, y } = getCanvasPos(e);
+        state.mousePos = { x, y };
+        const contentTop = getContentTop(), visTasks = getVisibleTasks(), vCount = visTasks.length, maxSY = getMaxScrollY(vCount), ppd = getPpd(), timelineX = layout.listWidth, scrollPx = -state.scrollDays * ppd;
+
+        if (isDragging) {
+            if (lastMouseX > timelineX) {
+                state.scrollDays -= (x - lastMouseX) / ppd;
+                state.scrollDays = Math.max(0, Math.min(totalTimelineDays - (logicalWidth - timelineX)/ppd, state.scrollDays));
+            }
+            state.scrollY = Math.max(0, Math.min(maxSY, state.scrollY - (y - lastMouseY)));
+            lastMouseX = x; lastMouseY = y; render(); return;
+        }
+        lastMouseX = x; lastMouseY = y;
+
+        let newHoveredVIdx = -1, isOverBar = false;
+        if (y > contentTop) {
+            newHoveredVIdx = Math.floor((y + state.scrollY - contentTop) / layout.rowHeight);
+            if (newHoveredVIdx >= 0 && newHoveredVIdx < vCount) {
+                const task = visTasks[newHoveredVIdx];
+                if (task && task.ganttStart !== undefined) {
+                    const barX = timelineX + task.ganttStart * ppd + scrollPx, barW = Math.max(4, task.ganttLength * ppd), barH = 18;
+                    const barTY = contentTop + newHoveredVIdx * layout.rowHeight + (layout.rowHeight - barH)/2 - state.scrollY;
+                    if (x >= barX && x <= barX+barW && y >= barTY && y <= barTY+barH) isOverBar = true;
+                }
+            } else newHoveredVIdx = -1;
+        }
+        if (newHoveredVIdx !== state.hoveredVIdx || isOverBar !== state.isOverBar) {
+            state.hoveredVIdx = newHoveredVIdx; state.isOverBar = isOverBar; render();
+        }
+    });
+
+    canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        const vCount = getVisibleTasks().length, maxSY = getMaxScrollY(vCount);
+        if (e.shiftKey) {
+            state.scrollDays += e.deltaY / getPpd();
+            state.scrollDays = Math.max(0, Math.min(totalTimelineDays - (logicalWidth - layout.listWidth)/getPpd(), state.scrollDays));
+        } else state.scrollY = Math.max(0, Math.min(maxSY, state.scrollY + e.deltaY));
+        render();
+    }, { passive: false });
+
+    render();
+</script>
+</body>
+</html>

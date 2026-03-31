@@ -1,0 +1,7 @@
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Tasks
+Delivery Tasks Not Started =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[PctComplete] = 0
+)

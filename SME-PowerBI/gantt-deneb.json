@@ -1,0 +1,175 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "WTW Polished Gantt Chart for Deneb",
+  "data": {"name": "dataset"},
+  "config": {
+    "font": "'Segoe UI', Inter, system-ui, sans-serif",
+    "view": {"stroke": "transparent"},
+    "concat": {"spacing": 8},
+    "axis": {
+      "domainColor": "#e5e7eb",
+      "gridColor": "#f3f4f6",
+      "tickColor": "#e5e7eb",
+      "labelColor": "#6b7280",
+      "labelFontSize": 11,
+      "titleColor": "#6b7280",
+      "titleFontSize": 12,
+      "titleFontWeight": 600
+    }
+  },
+  "transform": [
+    {"calculate": "datum['PctComplete'] + '%'", "as": "ProgressText"},
+    {"calculate": "datum['IsCritical'] == true ? 'Critical' : datum['IsDelayed'] == true ? 'Delayed' : 'On Track'", "as": "StatusLabel"},
+    {"calculate": "datum['Critical'] == 'Yes' || datum['IsCritical'] == true ? '#ef4444' : datum['IsDelayed'] == true ? '#eab308' : '#34d399'", "as": "StatusColor"}
+  ],
+  "hconcat": [
+    {
+      "width": 180,
+      "title": {"text": "Task", "anchor": "start", "color": "#6b7280", "fontSize": 12, "fontWeight": 600, "offset": 10},
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 13},
+      "encoding": {
+        "y": {
+          "field": "TaskName",
+          "type": "nominal",
+          "axis": null,
+          "sort": {"field": "Index", "order": "ascending"}
+        },
+        "text": {"field": "TaskName", "type": "nominal"},
+        "color": {"value": "#374151"}
+      }
+    },
+    {
+      "width": 50,
+      "title": {"text": "Days", "anchor": "start", "color": "#6b7280", "fontSize": 12, "fontWeight": 600, "offset": 10},
+      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 12},
+      "encoding": {
+        "y": {
+          "field": "TaskName",
+          "type": "nominal",
+          "axis": null,
+          "sort": {"field": "Index", "order": "ascending"}
+        },
+        "text": {"field": "Duration", "type": "nominal"},
+        "color": {"value": "#374151"}
+      }
+    },
+    {
+      "width": 55,
+      "title": {"text": "Progress", "anchor": "start", "color": "#6b7280", "fontSize": 12, "fontWeight": 600, "offset": 10},
+      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 12},
+      "encoding": {
+        "y": {
+          "field": "TaskName",
+          "type": "nominal",
+          "axis": null,
+          "sort": {"field": "Index", "order": "ascending"}
+        },
+        "text": {"field": "ProgressText", "type": "nominal"},
+        "color": {"value": "#374151"}
+      }
+    },
+    {
+      "title": {"text": "Timeline", "anchor": "start", "color": "#6b7280", "fontSize": 12, "fontWeight": 600, "offset": 10},
+      "width": 500,
+      "layer": [
+        {
+          "mark": {
+            "type": "bar",
+            "height": 18,
+            "cornerRadius": 9,
+            "opacity": 0.2,
+            "tooltip": true
+          },
+          "encoding": {
+            "y": {
+              "field": "TaskName",
+              "type": "nominal",
+              "axis": null,
+              "sort": {"field": "Index", "order": "ascending"}
+            },
+            "x": {
+              "field": "Start",
+              "type": "temporal",
+              "axis": {"title": null, "grid": true, "format": "%b %Y", "orient": "top", "gridColor": "#f3f4f6", "labelAngle": 0}
+            },
+            "x2": {"field": "EffectiveFinish"},
+            "color": {
+              "field": "MilestoneHorizon",
+              "type": "nominal",
+              "scale": {
+                "domain": ["NEXT 30 DAYS", "Strategy", "Design", "Development", "Testing", "Launch"],
+                "range": ["#eab308", "#1877f2", "#8b5cf6", "#fc8165", "#34d399", "#ef4444"]
+              },
+              "legend": null
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "bar",
+            "height": 18,
+            "cornerRadius": 9,
+            "tooltip": true
+          },
+          "encoding": {
+            "y": {
+              "field": "TaskName",
+              "type": "nominal",
+              "axis": null,
+              "sort": {"field": "Index", "order": "ascending"}
+            },
+            "x": {"field": "Start", "type": "temporal"},
+            "x2": {
+              "field": "EffectiveFinish"
+            },
+            "color": {
+              "field": "MilestoneHorizon",
+              "type": "nominal",
+              "scale": {
+                "domain": ["NEXT 30 DAYS", "Strategy", "Design", "Development", "Testing", "Launch"],
+                "range": ["#eab308", "#1877f2", "#8b5cf6", "#fc8165", "#34d399", "#ef4444"]
+              },
+              "legend": null
+            },
+            "opacity": {
+              "field": "PctComplete",
+              "type": "quantitative",
+              "scale": {"domain": [0, 100], "range": [0, 1]},
+              "legend": null
+            }
+          }
+        },
+        {
+          "mark": {"type": "rule", "strokeDash": [4, 4], "strokeWidth": 1.5},
+          "data": {"values": [{}]},
+          "encoding": {
+            "x": {"datum": {"expr": "now()"}, "type": "temporal"},
+            "color": {"value": "#1877f2"}
+          }
+        },
+        {
+          "mark": {"type": "text", "align": "left", "dx": 6, "fontSize": 11, "baseline": "middle"},
+          "encoding": {
+            "y": {
+              "field": "TaskName",
+              "type": "nominal",
+              "axis": null,
+              "sort": {"field": "Index", "order": "ascending"}
+            },
+            "x": {"field": "EffectiveFinish", "type": "temporal"},
+            "text": {"field": "TaskName", "type": "nominal"},
+            "color": {
+              "field": "MilestoneHorizon",
+              "type": "nominal",
+              "scale": {
+                "domain": ["NEXT 30 DAYS", "Strategy", "Design", "Development", "Testing", "Launch"],
+                "range": ["#eab308", "#1877f2", "#8b5cf6", "#fc8165", "#34d399", "#ef4444"]
+              },
+              "legend": null
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

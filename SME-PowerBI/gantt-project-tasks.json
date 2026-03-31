@@ -1,0 +1,423 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "WTW Project Delivery Gantt",
+  "autosize": {"type": "fit", "contains": "padding"},
+  "padding": {"left": 0, "top": 0, "right": 16, "bottom": 16},
+  "background": "#FFFFFF",
+
+  "signals": [
+    {"name": "leftW",  "value": 310},
+    {"name": "rowH",   "value": 34},
+    {"name": "grpH",   "value": 38},
+    {"name": "topOff", "value": 48},
+    {"name": "barPad", "value": 6},
+    {"name": "today",  "update": "now()"},
+    {"name": "xMin",   "update": "extent(pluck(data('tasks'), 'Start'))[0]"},
+    {"name": "xMax",   "update": "extent(pluck(data('tasks'), 'EffectiveFinish'))[1]"}
+  ],
+
+  "data": [
+    {
+      "name": "dataset"
+    },
+    {
+      "name": "tasks",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum['Start'] != null && datum['EffectiveFinish'] != null"
+        },
+        {
+          "type": "formula", "as": "horizonSort",
+          "expr": "datum['MilestoneHorizon'] === 'Overdue' ? 0 : datum['MilestoneHorizon'] === 'Next 30 Days' ? 1 : datum['MilestoneHorizon'] === 'Next 60 Days' ? 2 : datum['MilestoneHorizon'] === 'Next 90 Days' ? 3 : 4"
+        },
+        {
+          "type": "formula", "as": "barColor",
+          "expr": "datum['IsCritical'] ? '#DC2626' : datum['IsDelayed'] ? '#F59E0B' : datum['PctComplete'] >= 1 ? '#22C55E' : '#7C3AED'"
+        },
+        {
+          "type": "formula", "as": "lightColor",
+          "expr": "datum['IsCritical'] ? '#FEE2E2' : datum['IsDelayed'] ? '#FEF3C7' : datum['PctComplete'] >= 1 ? '#DCFCE7' : '#EDE9FE'"
+        },
+        {
+          "type": "formula", "as": "rowBg",
+          "expr": "0"
+        },
+        {
+          "type": "collect",
+          "sort": {"field": ["horizonSort", "Start"], "order": ["ascending", "ascending"]}
+        },
+        {
+          "type": "window",
+          "ops": ["row_number"],
+          "as": ["rowNum"]
+        },
+        {
+          "type": "formula", "as": "rowBg",
+          "expr": "datum.rowNum % 2 === 0 ? '#F9FAFB' : '#FFFFFF'"
+        },
+        {
+          "type": "formula", "as": "taskY",
+          "expr": "topOff + datum.horizonSort * grpH + (datum.rowNum - 1) * rowH + grpH"
+        }
+      ]
+    },
+    {
+      "name": "groups",
+      "source": "tasks",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["MilestoneHorizon", "horizonSort"],
+          "ops": ["min", "count"],
+          "fields": ["rowNum", "TaskName"],
+          "as": ["firstRowNum", "taskCount"]
+        },
+        {
+          "type": "collect",
+          "sort": {"field": "horizonSort"}
+        },
+        {
+          "type": "formula", "as": "headerY",
+          "expr": "topOff + datum.horizonSort * grpH + (datum.firstRowNum - 1) * rowH + grpH / 2"
+        },
+        {
+          "type": "formula", "as": "headerColor",
+          "expr": "datum['MilestoneHorizon'] === 'Overdue' ? '#DC2626' : datum['MilestoneHorizon'] === 'Next 30 Days' ? '#F59E0B' : '#6B7280'"
+        }
+      ]
+    },
+    {
+      "name": "weekTicks",
+      "transform": [
+        {
+          "type": "sequence",
+          "start": {"signal": "xMin"},
+          "stop": {"signal": "xMax"},
+          "step": 604800000
+        },
+        {
+          "type": "formula", "as": "tickDate",
+          "expr": "toDate(datum.data)"
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "xScale",
+      "type": "time",
+      "domain": {
+        "fields": [
+          {"data": "tasks", "field": "Start"},
+          {"data": "tasks", "field": "EffectiveFinish"}
+        ]
+      },
+      "range": [{"signal": "leftW + 16"}, {"signal": "width"}],
+      "nice": "week"
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "rect",
+      "encode": {
+        "enter": {
+          "x": {"value": 0}, "y": {"value": 0},
+          "width": {"signal": "leftW"},
+          "height": {"signal": "height"},
+          "fill": {"value": "#F9FAFB"}
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "encode": {
+        "enter": {
+          "x": {"value": 0}, "y": {"value": 0},
+          "width": {"signal": "width"},
+          "height": {"signal": "topOff"},
+          "fill": {"value": "#FFFFFF"}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": {"value": 0}, "x2": {"signal": "width"},
+          "y": {"signal": "topOff"}, "y2": {"signal": "topOff"},
+          "stroke": {"value": "#E5E7EB"}, "strokeWidth": {"value": 1}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "from": {"data": "weekTicks"},
+      "encode": {
+        "enter": {
+          "x": {"scale": "xScale", "field": "tickDate"},
+          "y": {"signal": "topOff"},
+          "y2": {"signal": "height"},
+          "stroke": {"value": "#F3F4F6"},
+          "strokeWidth": {"value": 1}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "weekTicks"},
+      "encode": {
+        "enter": {
+          "x": {"scale": "xScale", "field": "tickDate"},
+          "y": {"signal": "topOff / 2 + 10"},
+          "text": {"signal": "timeFormat(datum.tickDate, '%d %b')"},
+          "fill": {"value": "#9CA3AF"},
+          "fontSize": {"value": 9},
+          "font": {"value": "Segoe UI"},
+          "align": {"value": "center"},
+          "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": {"value": 10}, "y": {"signal": "topOff / 2"},
+          "text": {"value": "TASK"},
+          "fill": {"value": "#9CA3AF"}, "fontSize": {"value": 9},
+          "fontWeight": {"value": "600"}, "font": {"value": "Segoe UI"},
+          "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": {"value": 218}, "y": {"signal": "topOff / 2"},
+          "text": {"value": "DAYS"},
+          "fill": {"value": "#9CA3AF"}, "fontSize": {"value": 9},
+          "fontWeight": {"value": "600"}, "font": {"value": "Segoe UI"},
+          "align": {"value": "center"}, "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": {"value": 272}, "y": {"signal": "topOff / 2"},
+          "text": {"value": "PROGRESS"},
+          "fill": {"value": "#9CA3AF"}, "fontSize": {"value": 9},
+          "fontWeight": {"value": "600"}, "font": {"value": "Segoe UI"},
+          "align": {"value": "center"}, "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": {"signal": "leftW"}, "y": {"value": 0},
+          "y2": {"signal": "height"},
+          "stroke": {"value": "#E5E7EB"}, "strokeWidth": {"value": 1}
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"field": "taskY"},
+          "width": {"signal": "width"},
+          "height": {"signal": "rowH"},
+          "fill": {"field": "rowBg"}
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "from": {"data": "groups"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"signal": "datum.headerY - grpH / 2"},
+          "width": {"signal": "width"},
+          "height": {"signal": "grpH"},
+          "fill": {"value": "#F3F4F6"}
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "from": {"data": "groups"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"signal": "datum.headerY - grpH / 2"},
+          "width": {"value": 3},
+          "height": {"signal": "grpH"},
+          "fill": {"field": "headerColor"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "groups"},
+      "encode": {
+        "enter": {
+          "x": {"value": 10},
+          "y": {"signal": "datum.headerY - 7"},
+          "text": {"field": "MilestoneHorizon"},
+          "fill": {"field": "headerColor"},
+          "fontSize": {"value": 11}, "fontWeight": {"value": "700"},
+          "font": {"value": "Segoe UI"}, "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "groups"},
+      "encode": {
+        "enter": {
+          "x": {"value": 10},
+          "y": {"signal": "datum.headerY + 8"},
+          "text": {"signal": "datum.taskCount + ' task' + (datum.taskCount !== 1 ? 's' : '')"},
+          "fill": {"value": "#9CA3AF"},
+          "fontSize": {"value": 9}, "font": {"value": "Segoe UI"},
+          "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 10},
+          "y": {"signal": "datum.taskY + rowH / 2"},
+          "text": {"signal": "truncate(datum['TaskName'], 30)"},
+          "fill": {"value": "#1E2536"},
+          "fontSize": {"value": 11}, "font": {"value": "Segoe UI"},
+          "baseline": {"value": "middle"}, "limit": {"value": 185}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 218},
+          "y": {"signal": "datum.taskY + rowH / 2"},
+          "text": {"signal": "datum['Duration'] != null ? datum['Duration'] + 'd' : '—'"},
+          "fill": {"value": "#6B7280"},
+          "fontSize": {"value": 10}, "font": {"value": "Segoe UI"},
+          "align": {"value": "center"}, "baseline": {"value": "middle"}
+        }
+      }
+    },
+    {
+      "type": "arc",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 258},
+          "y": {"signal": "datum.taskY + rowH / 2"},
+          "innerRadius": {"value": 9}, "outerRadius": {"value": 13},
+          "startAngle": {"value": 0}, "endAngle": {"value": 6.2832},
+          "fill": {"value": "#E5E7EB"}
+        }
+      }
+    },
+    {
+      "type": "arc",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 258},
+          "y": {"signal": "datum.taskY + rowH / 2"},
+          "innerRadius": {"value": 9}, "outerRadius": {"value": 13},
+          "startAngle": {"value": -1.5708},
+          "endAngle": {"signal": "-1.5708 + datum['PctComplete'] * 6.2832"},
+          "fill": {"field": "barColor"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 280},
+          "y": {"signal": "datum.taskY + rowH / 2"},
+          "text": {"signal": "format(datum['PctComplete'], '.0%')"},
+          "fill": {"value": "#6B7280"},
+          "fontSize": {"value": 9}, "font": {"value": "Segoe UI"},
+          "baseline": {"value": "middle"}, "align": {"value": "left"}
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"scale": "xScale", "field": "Start"},
+          "x2": {"scale": "xScale", "field": "EffectiveFinish"},
+          "y": {"signal": "datum.taskY + barPad"},
+          "height": {"signal": "rowH - barPad * 2"},
+          "fill": {"field": "lightColor"},
+          "cornerRadius": {"value": 4}
+        }
+      }
+    },
+    {
+      "type": "rect",
+      "from": {"data": "tasks"},
+      "encode": {
+        "enter": {
+          "x": {"scale": "xScale", "field": "Start"},
+          "width": {"signal": "max(0, (scale('xScale', datum['EffectiveFinish']) - scale('xScale', datum['Start'])) * datum['PctComplete'])"},
+          "y": {"signal": "datum.taskY + barPad"},
+          "height": {"signal": "rowH - barPad * 2"},
+          "fill": {"field": "barColor"},
+          "cornerRadius": {"value": 4}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": {"scale": "xScale", "signal": "today"},
+          "y": {"value": 0},
+          "y2": {"signal": "height"},
+          "stroke": {"value": "#7C3AED"},
+          "strokeWidth": {"value": 1.5},
+          "strokeDash": {"value": [4, 3]}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": {"scale": "xScale", "signal": "today"},
+          "y": {"signal": "topOff / 2 - 4"},
+          "text": {"value": "Today"},
+          "fill": {"value": "#7C3AED"},
+          "fontSize": {"value": 9}, "fontWeight": {"value": "600"},
+          "font": {"value": "Segoe UI"},
+          "align": {"value": "center"}, "baseline": {"value": "middle"}
+        }
+      }
+    }
+  ]
+}

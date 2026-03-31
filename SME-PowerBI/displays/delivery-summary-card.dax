@@ -1,0 +1,315 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- DELIVERY SUMMARY CARD — DAX Measures
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Tasks  |  SME Delivery\HTML Cards
+-- Source: fact_project_tasks
+--
+-- Status logic (matches gantt-polished.html statusStyles):
+--   IsCritical=TRUE  AND IsDelayed=TRUE  → VH  #ffbfc1 / #7A181C
+--   IsCritical=TRUE  AND IsDelayed=FALSE → H   #f8cbad / #843515
+--   IsCritical=FALSE AND IsDelayed=TRUE  → M   #ffeb9c / #7A5A00
+--   IsCritical=FALSE AND IsDelayed=FALSE → L   #c6efce / #1E6024
+--
+-- Horizon colors (match gantt-polished themeColors):
+--   30 Days / Beyond / Complete → #eab308 / #6b7280 / #059669
+--   Strategy   → #1877f2
+--   Design     → #8b5cf6
+--   Development→ #fc8165
+--   Testing    → #34d399
+--   Launch     → #ef4444
+-- ═══════════════════════════════════════════════════════════════════
+
+
+-- ─── SUPPORT MEASURES (SME Delivery\Tasks) ───────────────────────
+
+Delivery Task Count =
+COUNTROWS(fact_project_tasks)
+
+
+Delivery Tasks Complete =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[PctComplete] = 100
+)
+
+
+Delivery Tasks In Progress =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[PctComplete] > 0,
+    fact_project_tasks[PctComplete] < 100
+)
+
+
+Delivery Tasks Not Started =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[PctComplete] = 0
+)
+
+
+Delivery Tasks Delayed =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsDelayed] = TRUE
+)
+
+
+Delivery Tasks Critical =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsCritical] = TRUE
+)
+
+
+Delivery Avg Pct Complete =
+-- Returns 0–100 scale (not 0–1) to match PctComplete column
+AVERAGEX(fact_project_tasks, fact_project_tasks[PctComplete])
+
+
+Delivery Completion Rate =
+DIVIDE([Delivery Tasks Complete], [Delivery Task Count], 0)
+
+
+Delivery On Track Count =
+-- In-flight tasks (not complete) that are not delayed
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsDelayed] = FALSE,
+    fact_project_tasks[PctComplete] < 100
+)
+
+
+-- ─── STATUS BADGE COUNTS (SME Delivery\Tasks) ────────────────────
+-- Calculated status: derived from IsCritical + IsDelayed combination
+
+Delivery Status VH Count =
+-- Critical AND Delayed
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsCritical] = TRUE,
+    fact_project_tasks[IsDelayed]  = TRUE
+)
+
+
+Delivery Status H Count =
+-- Critical only (not delayed)
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsCritical] = TRUE,
+    fact_project_tasks[IsDelayed]  = FALSE
+)
+
+
+Delivery Status M Count =
+-- Delayed only (not critical)
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsCritical] = FALSE,
+    fact_project_tasks[IsDelayed]  = TRUE
+)
+
+
+Delivery Status L Count =
+-- Neither critical nor delayed
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsCritical] = FALSE,
+    fact_project_tasks[IsDelayed]  = FALSE
+)
+
+
+-- ─── HTML CARD (SME Delivery\HTML Cards) ─────────────────────────
+
+Delivery Summary Card =
+// ─── TASK COUNTS ───
+VAR _total       = [Delivery Task Count]
+VAR _done        = [Delivery Tasks Complete]
+VAR _inprog      = [Delivery Tasks In Progress]
+VAR _notstarted  = [Delivery Tasks Not Started]
+VAR _delayed     = [Delivery Tasks Delayed]
+VAR _critical    = [Delivery Tasks Critical]
+VAR _avgPct      = [Delivery Avg Pct Complete]
+VAR _compRate    = [Delivery Completion Rate]
+
+// ─── STATUS BADGE COUNTS ───
+VAR _cntVH = [Delivery Status VH Count]
+VAR _cntH  = [Delivery Status H Count]
+VAR _cntM  = [Delivery Status M Count]
+VAR _cntL  = [Delivery Status L Count]
+
+// ─── HORIZON BREAKDOWN ───
+// Count + avg completion per MilestoneHorizon
+VAR _h30n    = CALCULATE(COUNTROWS(fact_project_tasks), fact_project_tasks[MilestoneHorizon] = "30")
+VAR _h30p    = CALCULATE(AVERAGEX(FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = "30"), fact_project_tasks[PctComplete]))
+VAR _h60n    = CALCULATE(COUNTROWS(fact_project_tasks), fact_project_tasks[MilestoneHorizon] = "60")
+VAR _h60p    = CALCULATE(AVERAGEX(FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = "60"), fact_project_tasks[PctComplete]))
+VAR _h90n    = CALCULATE(COUNTROWS(fact_project_tasks), fact_project_tasks[MilestoneHorizon] = "90")
+VAR _h90p    = CALCULATE(AVERAGEX(FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = "90"), fact_project_tasks[PctComplete]))
+VAR _hBeyond = CALCULATE(COUNTROWS(fact_project_tasks), fact_project_tasks[MilestoneHorizon] = "Beyond")
+VAR _hBeyondP= CALCULATE(AVERAGEX(FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = "Beyond"), fact_project_tasks[PctComplete]))
+VAR _hDone   = CALCULATE(COUNTROWS(fact_project_tasks), fact_project_tasks[MilestoneHorizon] = "Complete")
+VAR _hDoneP  = CALCULATE(AVERAGEX(FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = "Complete"), fact_project_tasks[PctComplete]))
+
+// ─── FORMAT ───
+VAR _fmtTotal    = FORMAT(_total,    "#,##0")
+VAR _fmtDone     = FORMAT(_done,     "#,##0")
+VAR _fmtInprog   = FORMAT(_inprog,   "#,##0")
+VAR _fmtNotstart = FORMAT(_notstarted,"#,##0")
+VAR _fmtDelayed  = FORMAT(_delayed,  "#,##0")
+VAR _fmtCritical = FORMAT(_critical, "#,##0")
+VAR _fmtAvgPct   = FORMAT(_avgPct,   "0") & "%"
+VAR _fmtCompRate = FORMAT(_compRate, "0%")
+VAR _fmtVH       = FORMAT(_cntVH,    "#,##0")
+VAR _fmtH        = FORMAT(_cntH,     "#,##0")
+VAR _fmtM        = FORMAT(_cntM,     "#,##0")
+VAR _fmtL        = FORMAT(_cntL,     "#,##0")
+
+// ─── PROGRESS BAR WIDTHS (clamp 0–100) ───
+VAR _barOverall  = FORMAT(MIN(MAX(_compRate * 100, 0), 100), "0") & "%"
+VAR _bar30       = FORMAT(MIN(MAX(IF(ISBLANK(_h30p),  0, _h30p),  0), 100), "0") & "%"
+VAR _bar60       = FORMAT(MIN(MAX(IF(ISBLANK(_h60p),  0, _h60p),  0), 100), "0") & "%"
+VAR _bar90       = FORMAT(MIN(MAX(IF(ISBLANK(_h90p),  0, _h90p),  0), 100), "0") & "%"
+VAR _barBeyond   = FORMAT(MIN(MAX(IF(ISBLANK(_hBeyondP),0,_hBeyondP),0),100),"0") & "%"
+VAR _barDone     = FORMAT(MIN(MAX(IF(ISBLANK(_hDoneP), 0, _hDoneP), 0), 100), "0") & "%"
+
+// ─── HORIZON ROW HELPER ───
+// Builds one horizon progress row. Colour + label + bar + pct + count.
+// pattern: <color-swatch> <label> <progress-bar> <pct> <count>
+VAR _row30 =
+    IF(_h30n > 0,
+    "<div style='display:flex;align-items:center;gap:10px;'>" &
+    "<div style='width:10px;height:10px;border-radius:2px;background:#eab308;flex-shrink:0;'></div>" &
+    "<div style='font-size:12px;color:#374151;width:110px;flex-shrink:0;'>Next 30 Days</div>" &
+    "<div style='flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;'>" &
+    "<div style='width:" & _bar30 & ";height:100%;background:#eab308;border-radius:3px;'></div></div>" &
+    "<div style='font-size:11px;color:#9CA3AF;width:32px;text-align:right;'>" & FORMAT(IF(ISBLANK(_h30p),0,_h30p),"0") & "%</div>" &
+    "<div style='font-size:11px;color:#6B7280;width:44px;text-align:right;'>" & FORMAT(_h30n,"#,##0") & " task" & IF(_h30n=1,"","s") & "</div>" &
+    "</div>", "")
+
+VAR _row60 =
+    IF(_h60n > 0,
+    "<div style='display:flex;align-items:center;gap:10px;'>" &
+    "<div style='width:10px;height:10px;border-radius:2px;background:#1877f2;flex-shrink:0;'></div>" &
+    "<div style='font-size:12px;color:#374151;width:110px;flex-shrink:0;'>Next 60 Days</div>" &
+    "<div style='flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;'>" &
+    "<div style='width:" & _bar60 & ";height:100%;background:#1877f2;border-radius:3px;'></div></div>" &
+    "<div style='font-size:11px;color:#9CA3AF;width:32px;text-align:right;'>" & FORMAT(IF(ISBLANK(_h60p),0,_h60p),"0") & "%</div>" &
+    "<div style='font-size:11px;color:#6B7280;width:44px;text-align:right;'>" & FORMAT(_h60n,"#,##0") & " task" & IF(_h60n=1,"","s") & "</div>" &
+    "</div>", "")
+
+VAR _row90 =
+    IF(_h90n > 0,
+    "<div style='display:flex;align-items:center;gap:10px;'>" &
+    "<div style='width:10px;height:10px;border-radius:2px;background:#8b5cf6;flex-shrink:0;'></div>" &
+    "<div style='font-size:12px;color:#374151;width:110px;flex-shrink:0;'>Next 90 Days</div>" &
+    "<div style='flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;'>" &
+    "<div style='width:" & _bar90 & ";height:100%;background:#8b5cf6;border-radius:3px;'></div></div>" &
+    "<div style='font-size:11px;color:#9CA3AF;width:32px;text-align:right;'>" & FORMAT(IF(ISBLANK(_h90p),0,_h90p),"0") & "%</div>" &
+    "<div style='font-size:11px;color:#6B7280;width:44px;text-align:right;'>" & FORMAT(_h90n,"#,##0") & " task" & IF(_h90n=1,"","s") & "</div>" &
+    "</div>", "")
+
+VAR _rowBeyond =
+    IF(_hBeyond > 0,
+    "<div style='display:flex;align-items:center;gap:10px;'>" &
+    "<div style='width:10px;height:10px;border-radius:2px;background:#6b7280;flex-shrink:0;'></div>" &
+    "<div style='font-size:12px;color:#374151;width:110px;flex-shrink:0;'>Beyond</div>" &
+    "<div style='flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;'>" &
+    "<div style='width:" & _barBeyond & ";height:100%;background:#6b7280;border-radius:3px;'></div></div>" &
+    "<div style='font-size:11px;color:#9CA3AF;width:32px;text-align:right;'>" & FORMAT(IF(ISBLANK(_hBeyondP),0,_hBeyondP),"0") & "%</div>" &
+    "<div style='font-size:11px;color:#6B7280;width:44px;text-align:right;'>" & FORMAT(_hBeyond,"#,##0") & " task" & IF(_hBeyond=1,"","s") & "</div>" &
+    "</div>", "")
+
+VAR _rowDone =
+    IF(_hDone > 0,
+    "<div style='display:flex;align-items:center;gap:10px;'>" &
+    "<div style='width:10px;height:10px;border-radius:2px;background:#059669;flex-shrink:0;'></div>" &
+    "<div style='font-size:12px;color:#374151;width:110px;flex-shrink:0;'>Complete</div>" &
+    "<div style='flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;'>" &
+    "<div style='width:" & _barDone & ";height:100%;background:#059669;border-radius:3px;'></div></div>" &
+    "<div style='font-size:11px;color:#9CA3AF;width:32px;text-align:right;'>" & FORMAT(IF(ISBLANK(_hDoneP),0,_hDoneP),"0") & "%</div>" &
+    "<div style='font-size:11px;color:#6B7280;width:44px;text-align:right;'>" & FORMAT(_hDone,"#,##0") & " task" & IF(_hDone=1,"","s") & "</div>" &
+    "</div>", "")
+
+RETURN
+// ─── OUTER CARD ───
+"<div style='width:796px;padding:24px;background:linear-gradient(145deg,#FFFFFF 0%,#F9FAFB 100%);border-radius:12px;font-family:Segoe UI,system-ui,sans-serif;border:1px solid #E5E7EB;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05);box-sizing:border-box;'>" &
+
+// ─── HEADER ───
+"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;'>" &
+  "<div style='display:flex;align-items:center;gap:10px;'>" &
+    "<div style='width:4px;height:28px;background:linear-gradient(180deg,#8B5CF6 0%,#7C3AED 100%);border-radius:2px;'></div>" &
+    "<div>" &
+      "<div style='font-size:14px;font-weight:600;color:#1E293B;'>Project Delivery</div>" &
+      "<div style='font-size:11px;color:#9CA3AF;margin-top:1px;text-transform:uppercase;letter-spacing:0.4px;'>Task Health Summary</div>" &
+    "</div>" &
+  "</div>" &
+  "<div style='display:flex;gap:8px;align-items:center;'>" &
+    IF(_cntVH > 0, "<span style='font-size:10px;font-weight:700;background:#ffbfc1;color:#7A181C;padding:2px 7px;border-radius:99px;'>VH: " & _fmtVH & "</span>", "") &
+    IF(_cntH  > 0, "<span style='font-size:10px;font-weight:700;background:#f8cbad;color:#843515;padding:2px 7px;border-radius:99px;'>H: "  & _fmtH  & "</span>", "") &
+    IF(_cntM  > 0, "<span style='font-size:10px;font-weight:700;background:#ffeb9c;color:#7A5A00;padding:2px 7px;border-radius:99px;'>M: "  & _fmtM  & "</span>", "") &
+    IF(_cntL  > 0, "<span style='font-size:10px;font-weight:700;background:#c6efce;color:#1E6024;padding:2px 7px;border-radius:99px;'>L: "  & _fmtL  & "</span>", "") &
+  "</div>" &
+"</div>" &
+
+// ─── OVERALL PROGRESS BAR ───
+"<div style='margin-bottom:20px;'>" &
+  "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;'>" &
+    "<div style='font-size:12px;color:#6B7280;'>Overall Completion</div>" &
+    "<div style='font-size:24px;font-weight:700;color:#7C3AED;line-height:1;'>" & _fmtAvgPct & "</div>" &
+  "</div>" &
+  "<div style='height:8px;background:#F3F4F6;border-radius:5px;overflow:hidden;'>" &
+    "<div style='width:" & _barOverall & ";height:100%;background:linear-gradient(135deg,#8B5CF6 0%,#7C3AED 100%);border-radius:5px;'></div>" &
+  "</div>" &
+  "<div style='display:flex;justify-content:space-between;margin-top:5px;'>" &
+    "<div style='font-size:11px;color:#9CA3AF;'>" & _fmtTotal & " tasks total</div>" &
+    "<div style='font-size:11px;color:#6B7280;'>" &
+      "<span style='color:#059669;font-weight:600;'>" & _fmtDone     & " done</span> · " &
+      "<span style='color:#1877f2;font-weight:600;'>" & _fmtInprog   & " in progress</span> · " &
+      "<span style='color:#9CA3AF;'>"                 & _fmtNotstart & " not started</span>" &
+    "</div>" &
+  "</div>" &
+"</div>" &
+
+// ─── 4-COL KPI STRIP ───
+"<div style='display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:20px;'>" &
+
+  "<div style='background:#FFFFFF;padding:12px;border-radius:8px;border:1px solid #F3F4F6;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center;'>" &
+    "<div style='font-size:10px;color:#6B7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;'>Complete</div>" &
+    "<div style='font-size:22px;font-weight:700;color:#059669;'>" & _fmtDone & "</div>" &
+    "<div style='font-size:10px;color:#9CA3AF;margin-top:2px;'>" & _fmtCompRate & "</div>" &
+  "</div>" &
+
+  "<div style='background:#FFFFFF;padding:12px;border-radius:8px;border:1px solid #F3F4F6;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center;'>" &
+    "<div style='font-size:10px;color:#6B7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;'>In Progress</div>" &
+    "<div style='font-size:22px;font-weight:700;color:#1877f2;'>" & _fmtInprog & "</div>" &
+    "<div style='font-size:10px;color:#9CA3AF;margin-top:2px;'>" & FORMAT(DIVIDE(_inprog,_total,0),"0%") & "</div>" &
+  "</div>" &
+
+  "<div style='background:#FFFFFF;padding:12px;border-radius:8px;border:1px solid #F3F4F6;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center;'>" &
+    "<div style='font-size:10px;color:#6B7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;'>Delayed</div>" &
+    "<div style='font-size:22px;font-weight:700;color:#F59E0B;'>" & _fmtDelayed & "</div>" &
+    "<div style='font-size:10px;color:#9CA3AF;margin-top:2px;'>" & FORMAT(DIVIDE(_delayed,_total,0),"0%") & "</div>" &
+  "</div>" &
+
+  "<div style='background:#FFFFFF;padding:12px;border-radius:8px;border:1px solid #F3F4F6;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center;'>" &
+    "<div style='font-size:10px;color:#6B7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;'>Critical</div>" &
+    "<div style='font-size:22px;font-weight:700;color:#DC2626;'>" & _fmtCritical & "</div>" &
+    "<div style='font-size:10px;color:#9CA3AF;margin-top:2px;'>" & FORMAT(DIVIDE(_critical,_total,0),"0%") & "</div>" &
+  "</div>" &
+
+"</div>" &
+
+// ─── HORIZON BREAKDOWN ───
+"<div style='background:linear-gradient(135deg,#F5F3FF 0%,rgba(255,255,255,0.8) 100%);border:1px solid rgba(124,58,237,0.12);border-radius:8px;padding:14px 16px;'>" &
+  "<div style='font-size:11px;font-weight:600;color:#1E293B;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px;'>By Horizon</div>" &
+  "<div style='display:flex;flex-direction:column;gap:7px;'>" &
+    _row30 &
+    _row60 &
+    _row90 &
+    _rowBeyond &
+    _rowDone &
+  "</div>" &
+"</div>" &
+
+"</div>"

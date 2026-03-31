@@ -1,0 +1,491 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- GANTT POLISHED HTML — DAX Measure
+-- Rebuilt from gantt-polished.html (canvas prototype)
+-- Table:  Core Metrics
+-- Folder: SME Delivery\HTML Cards
+--
+-- Replicates exactly:
+--   · Segmented toggle buttons: Tasks (▸/▾) and Columns (◀/▶)
+--   · Today button + Days / Years / All zoom segmented toggle
+--   · Sticky header columns: Task | Start | End | Days | Status | Progress
+--   · Group rows: colored diamond marker + thin center line + label
+--   · Task rows: pill bar (track + progress fill + outline) + progress arc
+--   · Status badges: L / M / H / VH with Excel-style coloring
+--   · Dark tooltip on bar hover (Horizon · Task · Start · End · Duration · Assignee · Progress · Risk)
+--   · Today line: blue vertical rule + blue flag label
+--
+-- Semantic model columns required on fact_project_tasks:
+--   TaskName, Start, Finish, Duration, PctComplete,
+--   MilestoneHorizon, IsCritical, IsDelayed, ResourceNames
+-- ═══════════════════════════════════════════════════════════════════
+
+Delivery Gantt Polished HTML =
+
+-- ─── PROJECT BOUNDARIES ───────────────────────────────────────────
+VAR _projectStart   = CALCULATE(MIN(fact_project_tasks[Start]),  ALLSELECTED(fact_project_tasks))
+VAR _projectEnd     = CALCULATE(MAX(fact_project_tasks[Finish]), ALLSELECTED(fact_project_tasks))
+VAR _totalDays      = IF(ISBLANK(_projectStart), 1, DATEDIFF(_projectStart, _projectEnd, DAY) + 1)
+VAR _safe           = IF(_totalDays <= 0, 1, _totalDays)
+
+-- Procedural zoom: 4 px/day in Days view gives natural pixel-width expansion
+-- The outer container is overflow-x:auto, so the timeline scrolls horizontally
+VAR _timelineMinPx  = MAX(600, _totalDays * 4) & "px"
+
+-- Today marker
+VAR _todayOff       = DATEDIFF(_projectStart, TODAY(), DAY)
+VAR _todayPct       = FORMAT(DIVIDE(_todayOff, _safe) * 100, "0.0") & "%"
+VAR _showToday      = _todayOff >= 0 && _todayOff <= _totalDays
+
+-- ─── DESIGN TOKENS (gantt-polished.html) ─────────────────────────
+VAR _bg             = "#ffffff"
+VAR _border         = "#ececec"
+VAR _borderStrong   = "#d1d5db"
+VAR _textDark       = "#1e1b4b"
+VAR _textBody       = "#374151"
+VAR _textMuted      = "#6b7280"
+VAR _blue           = "#1877f2"
+VAR _groupBg        = "#f8fafc"
+VAR _rowH           = "44px"
+VAR _rowHpx         = 44
+
+-- ─── CSS ──────────────────────────────────────────────────────────
+-- Pure CSS interactivity via hidden checkbox/radio siblings (no JS required in HTML visual)
+VAR _css =
+    "<style>" &
+
+    -- Row hover
+    "  .gr { position:relative; overflow:visible; }" &
+    "  .gr:hover { background-color:#faf9ff !important; }" &
+    "  .ar { background-color:#f3f0ff !important; }" &
+
+    -- Tooltip: shown on bar-zone hover
+    "  .bz:hover .tt { display:block !important; }" &
+
+    -- Sticky list columns
+    "  .sk { position:sticky; background:inherit; z-index:20; box-shadow:1px 0 0 " & _border & "; }" &
+    "  .s0 { left:0px;   z-index:25; }" &
+    "  .s1 { left:250px; }" &
+    "  .s2 { left:330px; }" &
+    "  .s3 { left:410px; }" &
+    "  .s4 { left:490px; }" &
+    "  .s5 { left:560px; }" &
+
+    -- Tasks toggle: hide/show task rows
+    "  #ck-t:not(:checked) ~ .gw .tr { display:none !important; }" &
+
+    -- Columns toggle: hide/show extra columns
+    "  #ck-c:not(:checked) ~ .gw .cx { display:none !important; }" &
+
+    -- Tasks toggle button states
+    "  #ck-t:checked     ~ .gw .t-on  { background:#2563eb !important; color:#fff !important; }" &
+    "  #ck-t:checked     ~ .gw .t-off { background:#fff    !important; color:#9ca3af !important; }" &
+    "  #ck-t:not(:checked) ~ .gw .t-off { background:#2563eb !important; color:#fff !important; }" &
+    "  #ck-t:not(:checked) ~ .gw .t-on  { background:#fff    !important; color:#9ca3af !important; }" &
+
+    -- Columns toggle button states
+    "  #ck-c:checked     ~ .gw .c-on  { background:#2563eb !important; color:#fff !important; }" &
+    "  #ck-c:checked     ~ .gw .c-off { background:#fff    !important; color:#9ca3af !important; }" &
+    "  #ck-c:not(:checked) ~ .gw .c-off { background:#2563eb !important; color:#fff !important; }" &
+    "  #ck-c:not(:checked) ~ .gw .c-on  { background:#fff    !important; color:#9ca3af !important; }" &
+
+    -- Zoom toggle: timeline min-width per mode
+    "  #z-d:checked ~ .gw .tl { min-width:" & _timelineMinPx & " !important; }" &
+    "  #z-y:checked ~ .gw .tl { min-width:1500px !important; }" &
+    "  #z-a:checked ~ .gw .tl { min-width:400px  !important; }" &
+
+    -- Zoom button active states
+    "  #z-d:checked ~ .gw .zd { background:#2563eb !important; color:#fff !important; }" &
+    "  #z-y:checked ~ .gw .zy { background:#2563eb !important; color:#fff !important; }" &
+    "  #z-a:checked ~ .gw .za { background:#2563eb !important; color:#fff !important; }" &
+
+    -- Month/day axis label visibility per zoom mode
+    "  #z-a:checked ~ .gw .am { display:none  !important; }" &
+    "  #z-y:checked ~ .gw .am { display:block !important; }" &
+    "  #z-d:checked ~ .gw .am { display:block !important; }" &
+    "  #z-a:checked ~ .gw .ad { display:none  !important; }" &
+    "  #z-y:checked ~ .gw .ad { display:none  !important; }" &
+    "  #z-d:checked ~ .gw .ad { display:block !important; }" &
+
+    "</style>"
+
+-- ─── CHROME HEADER (matches canvas toggle chrome) ────────────────
+VAR _chrome =
+    "<div style='display:flex; justify-content:space-between; padding-bottom:12px; align-items:center;" &
+               "position:sticky; top:0; left:0; z-index:90; background:" & _bg & ";'>" &
+
+        -- Left: Tasks toggle + Columns toggle
+        "<div style='display:flex; gap:12px;'>" &
+
+            -- Tasks segmented toggle (▸ collapsed | ▾ expanded)
+            "<div style='display:flex; border:1px solid " & _borderStrong & "; border-radius:12px; overflow:hidden;'>" &
+                "<label for='ck-t' class='t-off' style='padding:4px 12px; font-size:12px; font-weight:700; border-right:1px solid " & _borderStrong & "; cursor:pointer; user-select:none;'>&#9658;</label>" &
+                "<label for='ck-t' class='t-on'  style='padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; user-select:none;'>&#9660;</label>" &
+            "</div>" &
+
+            -- Columns segmented toggle (◀ collapsed | ▶ expanded)
+            "<div style='display:flex; border:1px solid " & _borderStrong & "; border-radius:12px; overflow:hidden;'>" &
+                "<label for='ck-c' class='c-off' style='padding:4px 12px; font-size:12px; font-weight:700; border-right:1px solid " & _borderStrong & "; cursor:pointer; user-select:none;'>&#9664;</label>" &
+                "<label for='ck-c' class='c-on'  style='padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; user-select:none;'>&#9654;</label>" &
+            "</div>" &
+
+        "</div>" &
+
+        -- Right: Today anchor + Days/Years/All zoom
+        "<div style='display:flex; gap:12px; align-items:center;'>" &
+
+            "<a href='#td' style='padding:4px 16px; border:1px solid " & _borderStrong & "; border-radius:12px;" &
+               "background:" & _bg & "; color:" & _textBody & "; font-size:12px; font-weight:700;" &
+               "text-decoration:none; display:inline-block;'>Today</a>" &
+
+            -- Zoom segmented toggle
+            "<div style='display:flex; border:1px solid " & _borderStrong & "; border-radius:12px; overflow:hidden;'>" &
+                "<label for='z-d' class='zd' style='padding:4px 12px; font-size:12px; font-weight:700; border-right:1px solid " & _borderStrong & "; cursor:pointer; user-select:none; background:#fff; color:" & _textBody & ";'>Days</label>" &
+                "<label for='z-y' class='zy' style='padding:4px 12px; font-size:12px; font-weight:700; border-right:1px solid " & _borderStrong & "; cursor:pointer; user-select:none; background:#fff; color:" & _textBody & ";'>Years</label>" &
+                "<label for='z-a' class='za' style='padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; user-select:none; background:#fff; color:" & _textBody & ";'>All</label>" &
+            "</div>" &
+
+        "</div>" &
+    "</div>"
+
+-- ─── TIMELINE X-AXIS (years + months + days) ─────────────────────
+VAR _axisYears =
+    CONCATENATEX(
+        GENERATESERIES(YEAR(_projectStart), YEAR(_projectEnd) + 1),
+        VAR _yr     = [Value]
+        VAR _yrDate = DATE(_yr, 1, 1)
+        VAR _off    = DATEDIFF(_projectStart, _yrDate, DAY)
+        VAR _lp     = FORMAT(DIVIDE(_off, _safe) * 100, "0.0") & "%"
+        RETURN
+            IF(_off >= 0 && _off <= _totalDays,
+                -- Year vertical rule (solid, matches canvas Jan line)
+                "<div style='position:absolute; left:" & _lp & "; top:0; bottom:-9999px; border-left:1px solid " & _border & "; z-index:0; pointer-events:none;'></div>" &
+                -- Year label
+                "<div style='position:absolute; left:calc(" & _lp & " + 8px); top:6px; font-size:11px; font-weight:700; color:" & _textDark & "; z-index:1; white-space:nowrap;'>" & _yr & "</div>",
+            "")
+        , "", [Value], ASC
+    )
+
+VAR _firstMonth  = DATE(YEAR(_projectStart), MONTH(_projectStart), 1)
+VAR _totalMonths = DATEDIFF(_firstMonth, _projectEnd, MONTH)
+
+VAR _axisMonths =
+    CONCATENATEX(
+        GENERATESERIES(0, _totalMonths),
+        VAR _mo    = [Value]
+        VAR _mDate = EDATE(_firstMonth, _mo)
+        VAR _off   = DATEDIFF(_projectStart, _mDate, DAY)
+        VAR _lp    = FORMAT(DIVIDE(_off, _safe) * 100, "0.0") & "%"
+        VAR _name  = FORMAT(_mDate, "MMM")
+        RETURN
+            IF(_off >= 0 && _off <= _totalDays && MONTH(_mDate) <> 1,
+                "<div class='am' style='position:absolute; left:calc(" & _lp & " + 4px); top:20px; font-size:10px; color:" & _textMuted & "; z-index:1; white-space:nowrap;'>" & _name & "</div>" &
+                "<div class='am' style='position:absolute; left:" & _lp & "; top:14px; bottom:-9999px; border-left:1px dashed #f3f4f6; z-index:0; pointer-events:none;'></div>",
+            "")
+        , "", [Value], ASC
+    )
+
+VAR _axisDays =
+    IF(_totalDays <= 120,
+        CONCATENATEX(
+            GENERATESERIES(0, _totalDays),
+            VAR _dOff  = [Value]
+            VAR _dDate = _projectStart + _dOff
+            VAR _lp    = FORMAT(DIVIDE(_dOff, _safe) * 100, "0.0") & "%"
+            VAR _dn    = FORMAT(_dDate, "dd")
+            RETURN
+                IF(_dOff >= 0 && _dOff <= _totalDays && DAY(_dDate) <> 1,
+                    "<div class='ad' style='position:absolute; left:calc(" & _lp & " + 2px); top:32px; font-size:9px; color:#9ca3af; z-index:1;'>" & _dn & "</div>" &
+                    "<div class='ad' style='position:absolute; left:" & _lp & "; top:28px; bottom:-9999px; border-left:1px dashed #f8fafc; z-index:0; pointer-events:none;'></div>",
+                "")
+            , "", [Value], ASC
+        ),
+    "")
+
+-- Today flag in axis header
+VAR _axisTodayFlag =
+    IF(_showToday,
+        "<div id='td' style='position:absolute; bottom:0; left:" & _todayPct & "; border-left:1.5px solid " & _blue & "; height:14px; z-index:10; pointer-events:none;'>" &
+            "<span style='position:absolute; top:-10px; left:4px; font-size:9px; color:" & _blue & "; background:rgba(255,255,255,0.9); border-radius:4px; padding:1px 4px; font-weight:700;'>Today</span>" &
+        "</div>",
+    "")
+
+-- ─── STICKY COLUMN HEADER ROW ─────────────────────────────────────
+VAR _header =
+    "<div class='gr' style='display:flex; height:40px; align-items:center; font-size:12px; font-weight:600; color:" & _textMuted & ";" &
+               "border-bottom:1px solid " & _border & "; flex-shrink:0; background:" & _bg & "; position:sticky; top:46px; z-index:70;'>" &
+        "<div class='sk s0' style='width:250px; padding-left:24px; flex-shrink:0;'>Task</div>" &
+        "<div class='cx sk s1' style='width:80px;  flex-shrink:0;'>Start</div>" &
+        "<div class='cx sk s2' style='width:80px;  flex-shrink:0;'>End</div>" &
+        "<div class='cx sk s3' style='width:80px;  flex-shrink:0;'>Days</div>" &
+        "<div class='cx sk s4' style='width:70px;  flex-shrink:0;'>Status</div>" &
+        "<div class='cx sk s5' style='width:60px;  flex-shrink:0;'>Progress</div>" &
+        "<div class='tl' style='flex:1; height:100%; position:relative; min-width:" & _timelineMinPx & "; transition:min-width 0.3s ease; overflow:visible; padding-left:10px;'>" &
+            _axisYears &
+            _axisMonths &
+            _axisDays &
+            _axisTodayFlag &
+        "</div>" &
+    "</div>"
+
+-- ─── HORIZON GROUP COLOR MAP (matches gantt-polished.html themeColors) ───
+-- NEXT 30 DAYS  → rgb(234, 179, 8)   yellow
+-- STRATEGY      → rgb(24, 119, 242)  blue
+-- DESIGN        → rgb(139, 92, 246)  purple
+-- DEVELOPMENT   → rgb(252, 129, 101) orange
+-- TESTING       → rgb(52, 211, 153)  green
+-- LAUNCH        → rgb(239, 68, 68)   red
+-- fallback      → rgb(100, 116, 139) slate
+
+-- ─── ROW ITERATION ────────────────────────────────────────────────
+VAR _rows =
+    CONCATENATEX(
+        VALUES(fact_project_tasks[MilestoneHorizon]),
+
+        VAR _horizon = fact_project_tasks[MilestoneHorizon]
+        VAR _rgb =
+            SWITCH(UPPER(_horizon),
+                "NEXT 30 DAYS",  "234, 179, 8",
+                "STRATEGY",      "24, 119, 242",
+                "DESIGN",        "139, 92, 246",
+                "DEVELOPMENT",   "252, 129, 101",
+                "TESTING",       "52, 211, 153",
+                "LAUNCH",        "239, 68, 68",
+                "100, 116, 139"
+            )
+        VAR _color      = "rgb(" & _rgb & ")"
+        VAR _colorLight = "rgba(" & _rgb & ", 0.15)"
+
+        -- Group span
+        VAR _grpTasks   = FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = _horizon)
+        VAR _grpStart   = MINX(_grpTasks, [Start])
+        VAR _grpEnd     = MAXX(_grpTasks, [Finish])
+        VAR _grpDays    = IF(ISBLANK(_grpStart), 0, DATEDIFF(_grpStart, _grpEnd, DAY) + 1)
+        VAR _grpPct     = AVERAGEX(_grpTasks, [PctComplete]) / 100
+        VAR _grpOffL    = DATEDIFF(_projectStart, _grpStart, DAY)
+        VAR _grpLp      = FORMAT(DIVIDE(_grpOffL, _safe) * 100, "0.0") & "%"
+        VAR _grpWp      = FORMAT(DIVIDE(_grpDays,  _safe) * 100, "0.0") & "%"
+
+        -- Group timeline: thin horizontal line + diamond caps (replicating canvas drawLine + diamond fills)
+        -- Diamond cap left: rotated square via CSS transform
+        VAR _diamondL   =
+            "<div style='position:absolute; left:calc(" & _grpLp & " - 5px); top:50%; transform:translateY(-50%) rotate(45deg);" &
+                         "width:9px; height:9px; background:" & _color & "; z-index:2;'></div>"
+        VAR _diamondR   =
+            "<div style='position:absolute; left:calc(" & _grpLp & " + " & _grpWp & " - 4px); top:50%; transform:translateY(-50%) rotate(45deg);" &
+                         "width:9px; height:9px; background:" & _color & "; z-index:2;'></div>"
+        VAR _centerLine =
+            "<div style='position:absolute; left:" & _grpLp & "; top:50%; width:" & _grpWp & "; height:3px;" &
+                         "background:" & _color & "; transform:translateY(-50%); z-index:1;'></div>"
+        VAR _grpLabel   =
+            "<div style='position:absolute; left:calc(" & _grpLp & " + " & _grpWp & " + 12px); top:50%; transform:translateY(-50%);" &
+                         "font-size:12px; color:" & _color & "; white-space:nowrap; z-index:3;'>" &
+                UPPER(_horizon) & " (" & _grpDays & " d)</div>"
+
+        -- Today line in group row
+        VAR _grpToday =
+            IF(_showToday,
+                "<div style='position:absolute; top:0; bottom:0; left:" & _todayPct & "; border-left:1.5px solid " & _blue & "; z-index:10; pointer-events:none;'></div>",
+            "")
+
+        VAR _grpRow =
+            "<div class='gr' style='display:flex; height:" & _rowH & "; align-items:center; background:" & _groupBg & ";" &
+                            "border-bottom:1px solid #f3f4f6; font-size:14px; position:relative; overflow:visible;'>" &
+                -- Task name cell (sticky)
+                "<div class='sk s0' style='width:250px; padding-left:14px; color:" & _textDark & "; font-weight:600; font-size:12px;" &
+                                   "display:flex; align-items:center; gap:8px; flex-shrink:0;'>" &
+                    "<span style='font-size:10px; color:" & _color & ";'>&#9660;</span> " & UPPER(_horizon) &
+                "</div>" &
+                "<div class='cx sk s1' style='width:80px;  flex-shrink:0;'></div>" &
+                "<div class='cx sk s2' style='width:80px;  flex-shrink:0;'></div>" &
+                "<div class='cx sk s3' style='width:80px;  flex-shrink:0; color:" & _textBody & "; font-size:13px;'>" & _grpDays & " d</div>" &
+                "<div class='cx sk s4' style='width:70px;  flex-shrink:0;'></div>" &
+                "<div class='cx sk s5' style='width:60px;  flex-shrink:0; color:" & _textBody & "; font-size:13px;'>" & FORMAT(IF(ISBLANK(_grpPct), 0, _grpPct), "0%") & "</div>" &
+                -- Timeline cell
+                "<div class='tl' style='flex:1; height:100%; border-left:1px solid " & _border & "; position:relative; min-width:" & _timelineMinPx & "; transition:min-width 0.3s ease; overflow:visible;'>" &
+                    _centerLine & _diamondL & _diamondR & _grpLabel & _grpToday &
+                "</div>" &
+            "</div>"
+
+        -- ── Task rows within this horizon ───────────────────────────
+        VAR _taskRows =
+            CONCATENATEX(
+                _grpTasks,
+
+                VAR _tStart = [Start]
+                VAR _tEnd   = [Finish]
+                VAR _tDays  = DATEDIFF(_tStart, _tEnd, DAY) + 1
+                VAR _pct    = [PctComplete] / 100
+                VAR _dur    = IF(ISBLANK([Duration]), _tDays, INT([Duration]))
+                VAR _res    = IF(ISBLANK([ResourceNames]) || [ResourceNames] = "", "Unassigned", [ResourceNames])
+
+                -- Status badge (IsCritical × IsDelayed → VH/H/M/L)
+                VAR _st =
+                    SWITCH(TRUE(),
+                        [IsCritical] = TRUE() && [IsDelayed] = TRUE(),  "VH",
+                        [IsCritical] = TRUE() && [IsDelayed] = FALSE(), "H",
+                        [IsCritical] = FALSE() && [IsDelayed] = TRUE(), "M",
+                        "L"
+                    )
+                VAR _stBg  = SWITCH(_st, "VH", "#ffbfc1", "H", "#f8cbad", "M", "#ffeb9c", "#c6efce")
+                VAR _stFg  = SWITCH(_st, "VH", "#7A181C", "H", "#843515", "M", "#7A5A00", "#1E6024")
+                VAR _badge =
+                    "<div style='background:" & _stBg & "; color:" & _stFg & "; border-radius:4px;" &
+                               "padding:2px 6px; font-size:10px; font-weight:700; text-align:center; display:inline-block; min-width:22px;'>" &
+                        _st &
+                    "</div>"
+
+                -- Progress arc (SVG circle: stroke-dasharray=44 = 2π×7, offset shrinks as pct grows)
+                VAR _arcOff = FORMAT((1 - _pct) * 44, "0.0")
+                VAR _arc =
+                    IF(_pct > 0,
+                        "<svg width='16' height='16' viewBox='0 0 16 16' style='flex-shrink:0;'>" &
+                            "<circle cx='8' cy='8' r='7' fill='none' stroke='" & _border & "' stroke-width='2'/>" &
+                            "<circle cx='8' cy='8' r='7' fill='none' stroke='" & _color & "' stroke-width='2'" &
+                                    "stroke-dasharray='44' stroke-dashoffset='" & _arcOff & "' transform='rotate(-90 8 8)'/>" &
+                        "</svg>",
+                        "<svg width='16' height='16' viewBox='0 0 16 16' style='flex-shrink:0;'>" &
+                            "<circle cx='8' cy='8' r='7' fill='none' stroke='" & _border & "' stroke-width='2'/>" &
+                        "</svg>"
+                    )
+
+                -- Bar geometry
+                VAR _offL  = DATEDIFF(_projectStart, _tStart, DAY)
+                VAR _lp    = FORMAT(DIVIDE(_offL, _safe) * 100, "0.0") & "%"
+                VAR _wp    = FORMAT(DIVIDE(_tDays, _safe) * 100, "0.0") & "%"
+                VAR _pw    = FORMAT(DIVIDE(_tDays, _safe) * _pct * 100, "0.0") & "%"
+
+                -- Pill bar SVG: track (light fill) + progress fill + outline stroke
+                -- Matches canvas: drawRoundRect track/progress/outline at barH=18, r=9
+                VAR _barSvg =
+                    "<svg width='100%' height='" & _rowH & "' preserveAspectRatio='none'" &
+                               "style='position:absolute; left:0; top:0; z-index:0; pointer-events:none;'>" &
+                        -- Quarter gridlines (matches canvas 25%/50%/75%)
+                        "<line x1='25%' y1='0' x2='25%' y2='100%' stroke='#f3f4f6' stroke-width='1'/>" &
+                        "<line x1='50%' y1='0' x2='50%' y2='100%' stroke='#f3f4f6' stroke-width='1'/>" &
+                        "<line x1='75%' y1='0' x2='75%' y2='100%' stroke='#f3f4f6' stroke-width='1'/>" &
+                        -- Track (light fill pill)
+                        "<rect x='" & _lp & "' y='13' width='" & _wp & "' height='18' rx='9'" &
+                              "fill='rgba(" & _rgb & ", 0.15)'/>" &
+                        -- Progress fill (solid color pill)
+                        "<rect x='" & _lp & "' y='13' width='" & _pw & "' height='18' rx='9'" &
+                              "fill='" & _color & "'/>" &
+                        -- Outline stroke
+                        "<rect x='" & _lp & "' y='13' width='" & _wp & "' height='18' rx='9'" &
+                              "fill='none' stroke='" & _color & "' stroke-width='1.5' vector-effect='non-scaling-stroke'/>" &
+                    "</svg>"
+
+                -- Task label to right of bar
+                VAR _barLabel =
+                    "<div style='position:absolute; left:calc(" & _lp & " + " & _wp & " + 8px); top:13px;" &
+                               "font-size:12px; color:" & _color & "; white-space:nowrap; z-index:1; pointer-events:none;'>" &
+                        [TaskName] & " (" & _tDays & " d)" &
+                    "</div>"
+
+                -- Dark tooltip (matches canvas drawTooltip — dark slate bg, two-column layout)
+                VAR _tooltip =
+                    "<div class='tt' style='position:absolute; display:none;" &
+                                          "left:calc(" & _lp & " + " & _wp & " / 2); bottom:36px;" &
+                                          "z-index:999; background:rgba(30,41,59,0.95); border:1px solid #475569;" &
+                                          "border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.3);" &
+                                          "padding:16px; width:240px; font-size:12px; color:#f8fafc;" &
+                                          "line-height:1.7; pointer-events:none; transform:translateX(-50%);'>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>Horizon</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" & _horizon & "</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>Task</span>" &
+                            "<span style='font-weight:600; color:#fff; text-align:right; max-width:140px;'>" & [TaskName] & "</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>Start</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" & FORMAT(_tStart, "dd MMM yyyy") & "</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>End</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" & FORMAT(_tEnd, "dd MMM yyyy") & "</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>Duration</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" & _dur & " d</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>Assignee</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" & _res & "</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between; margin-bottom:3px;'>" &
+                            "<span style='color:#94a3b8;'>Progress</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" & FORMAT(_pct, "0%") & "</span>" &
+                        "</div>" &
+                        "<div style='display:flex; justify-content:space-between;'>" &
+                            "<span style='color:#94a3b8;'>Risk</span>" &
+                            "<span style='font-weight:600; color:#fff;'>" &
+                                SWITCH(_st, "VH", "Very High", "H", "High", "M", "Medium", "Low") &
+                            "</span>" &
+                        "</div>" &
+                    "</div>"
+
+                -- Today line in task row
+                VAR _taskToday =
+                    IF(_showToday,
+                        "<div style='position:absolute; top:0; bottom:0; left:" & _todayPct & ";" &
+                                    "border-left:1.5px solid " & _blue & "; z-index:10; pointer-events:none;'></div>",
+                    "")
+
+                -- Bar hover zone (wraps SVG + label + tooltip — pointer-events on track rect only)
+                VAR _bz =
+                    "<div class='bz' style='width:100%; height:100%; position:absolute; left:0; top:0; z-index:10;'>" &
+                        _barSvg & _barLabel & _tooltip &
+                    "</div>"
+
+                RETURN
+                "<div class='tr gr' style='display:flex; height:" & _rowH & "; align-items:center;" &
+                                          "border-bottom:1px solid #f3f4f6; font-size:14px; position:relative; overflow:visible; background:" & _bg & ";'>" &
+                    "<div class='sk s0' style='width:250px; padding-left:44px; color:" & _textDark & "; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; z-index:1; flex-shrink:0; pointer-events:none; font-size:13px;'>" & [TaskName] & "</div>" &
+                    "<div class='cx sk s1' style='width:80px; color:" & _textBody & "; z-index:1; font-size:12px; flex-shrink:0; pointer-events:none;'>" & FORMAT(_tStart, "dd/MM/yy") & "</div>" &
+                    "<div class='cx sk s2' style='width:80px; color:" & _textBody & "; z-index:1; font-size:12px; flex-shrink:0; pointer-events:none;'>" & FORMAT(_tEnd, "dd/MM/yy") & "</div>" &
+                    "<div class='cx sk s3' style='width:80px; color:" & _textBody & "; z-index:1; font-size:13px; flex-shrink:0; pointer-events:none;'>" & _tDays & " d</div>" &
+                    "<div class='cx sk s4' style='width:70px; z-index:1; flex-shrink:0; pointer-events:none;'>" & _badge & "</div>" &
+                    "<div class='cx sk s5' style='width:60px; color:" & _textBody & "; display:flex; align-items:center; gap:6px; z-index:1; flex-shrink:0; pointer-events:none; font-size:13px;'>" & FORMAT(_pct, "0%") & " " & _arc & "</div>" &
+                    -- Timeline panel
+                    "<div class='tl' style='flex:1; height:100%; border-left:1px solid " & _border & "; position:relative; min-width:" & _timelineMinPx & "; transition:min-width 0.3s ease; overflow:visible;'>" &
+                        _bz & _taskToday &
+                    "</div>" &
+                "</div>"
+
+                , "", [Start], ASC
+            )
+
+        RETURN _grpRow & _taskRows
+
+        , "", fact_project_tasks[MilestoneHorizon]
+    )
+
+-- ─── OUTER CONTAINER ─────────────────────────────────────────────
+VAR _html =
+    "<div style='width:100%; height:100%; background:" & _bg & ";" &
+               "border-radius:12px;" &
+               "box-shadow:0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);" &
+               "padding:20px; box-sizing:border-box;" &
+               "font-family:Segoe UI, Inter, system-ui, sans-serif;" &
+               "-webkit-font-smoothing:antialiased;" &
+               "overflow-y:auto; overflow-x:auto; position:relative;'>" &
+
+        _css &
+
+        -- Hidden checkbox/radio anchors (CSS-only interactivity — no JS)
+        "<input type='checkbox' id='ck-t' style='display:none;' checked>" &
+        "<input type='checkbox' id='ck-c' style='display:none;' checked>" &
+        "<input type='radio' name='vz' id='z-d' style='display:none;' checked>" &
+        "<input type='radio' name='vz' id='z-y' style='display:none;'>" &
+        "<input type='radio' name='vz' id='z-a' style='display:none;'>" &
+
+        -- Gantt wrapper (CSS sibling targeting requires all siblings in same parent)
+        "<div class='gw' style='min-width:920px;'>" &
+            _chrome &
+            _header &
+            _rows &
+        "</div>" &
+    "</div>"
+
+RETURN _html

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delivery Summary Card — Preview</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #f4f5f7;
+      font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .note {
+      max-width: 796px;
+      margin: 0 auto 20px;
+      font-size: 12px;
+      color: #6b7280;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .note strong { color: #1e293b; }
+  </style>
+</head>
+<body>
+
+<div class="note">
+  <strong>Preview — static data.</strong>
+  The DAX measure <code>Delivery Summary Card</code> in <code>Core Metrics \ SME Delivery \ HTML Cards</code>
+  renders this card live from <code>fact_project_tasks</code>. Status is calculated:
+  Critical+Delayed → VH · Critical only → H · Delayed only → M · else → L.
+  Horizon colors match <code>gantt-polished.html</code> phase palette.
+</div>
+
+<!--
+  ═══════════════════════════════════════════════════════════
+  DELIVERY SUMMARY CARD
+  Width: 796px (8-column grid, 1280px canvas)
+  Design tokens: WTW --shadow-outer, Segoe UI, #7C3AED brand
+  Status logic:
+    IsCritical=TRUE  AND IsDelayed=TRUE  → VH (Very High)   #ffbfc1 / #7A181C
+    IsCritical=TRUE  AND IsDelayed=FALSE → H  (High)        #f8cbad / #843515
+    IsCritical=FALSE AND IsDelayed=TRUE  → M  (Medium)      #ffeb9c / #7A5A00
+    IsCritical=FALSE AND IsDelayed=FALSE → L  (Low)         #c6efce / #1E6024
+  Horizon phase colors (from gantt-polished themeColors):
+    30 Days    rgb(234,179,8)    #eab308
+    Strategy   rgb(24,119,242)   #1877f2
+    Design     rgb(139,92,246)   #8b5cf6
+    Development rgb(252,129,101) #fc8165
+    Testing    rgb(52,211,153)   #34d399
+    Launch     rgb(239,68,68)    #ef4444
+    Beyond/Complete → #6b7280
+  ═══════════════════════════════════════════════════════════
+-->
+
+<div style="width:796px; padding:24px; background:linear-gradient(145deg,#FFFFFF 0%,#F9FAFB 100%); border-radius:12px; font-family:'Segoe UI',Inter,system-ui,sans-serif; border:1px solid #E5E7EB; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05); box-sizing:border-box;">
+
+  <!-- Header row -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div style="width:4px; height:28px; background:linear-gradient(180deg,#8B5CF6 0%,#7C3AED 100%); border-radius:2px;"></div>
+      <div>
+        <div style="font-size:14px; font-weight:600; color:#1E293B;">Project Delivery</div>
+        <div style="font-size:11px; color:#9CA3AF; margin-top:1px; text-transform:uppercase; letter-spacing:0.4px;">Task Health Summary</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <!-- VH badge -->
+      <span style="font-size:10px; font-weight:700; background:#ffbfc1; color:#7A181C; padding:2px 7px; border-radius:99px;">VH: 2</span>
+      <!-- H badge -->
+      <span style="font-size:10px; font-weight:700; background:#f8cbad; color:#843515; padding:2px 7px; border-radius:99px;">H: 3</span>
+      <!-- M badge -->
+      <span style="font-size:10px; font-weight:700; background:#ffeb9c; color:#7A5A00; padding:2px 7px; border-radius:99px;">M: 4</span>
+      <!-- L badge -->
+      <span style="font-size:10px; font-weight:700; background:#c6efce; color:#1E6024; padding:2px 7px; border-radius:99px;">L: 11</span>
+    </div>
+  </div>
+
+  <!-- Overall progress bar -->
+  <div style="margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+      <div style="font-size:12px; color:#6B7280;">Overall Completion</div>
+      <div style="font-size:24px; font-weight:700; color:#7C3AED; line-height:1;">47%</div>
+    </div>
+    <div style="height:8px; background:#F3F4F6; border-radius:5px; overflow:hidden;">
+      <div style="width:47%; height:100%; background:linear-gradient(135deg,#8B5CF6 0%,#7C3AED 100%); border-radius:5px;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:5px;">
+      <div style="font-size:11px; color:#9CA3AF;">20 tasks total</div>
+      <div style="font-size:11px; color:#6B7280;"><span style="color:#059669; font-weight:600;">9 done</span> · <span style="color:#1877f2; font-weight:600;">5 in progress</span> · <span style="color:#9CA3AF;">6 not started</span></div>
+    </div>
+  </div>
+
+  <!-- 4-col KPI strip -->
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+
+    <div style="background:#FFFFFF; padding:12px; border-radius:8px; border:1px solid #F3F4F6; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+      <div style="font-size:10px; color:#6B7280; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.3px;">Complete</div>
+      <div style="font-size:22px; font-weight:700; color:#059669;">9</div>
+      <div style="font-size:10px; color:#9CA3AF; margin-top:2px;">45%</div>
+    </div>
+
+    <div style="background:#FFFFFF; padding:12px; border-radius:8px; border:1px solid #F3F4F6; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+      <div style="font-size:10px; color:#6B7280; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.3px;">In Progress</div>
+      <div style="font-size:22px; font-weight:700; color:#1877f2;">5</div>
+      <div style="font-size:10px; color:#9CA3AF; margin-top:2px;">25%</div>
+    </div>
+
+    <div style="background:#FFFFFF; padding:12px; border-radius:8px; border:1px solid #F3F4F6; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+      <div style="font-size:10px; color:#6B7280; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.3px;">Delayed</div>
+      <div style="font-size:22px; font-weight:700; color:#F59E0B;">6</div>
+      <div style="font-size:10px; color:#9CA3AF; margin-top:2px;">30%</div>
+    </div>
+
+    <div style="background:#FFFFFF; padding:12px; border-radius:8px; border:1px solid #F3F4F6; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+      <div style="font-size:10px; color:#6B7280; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.3px;">Critical</div>
+      <div style="font-size:22px; font-weight:700; color:#DC2626;">5</div>
+      <div style="font-size:10px; color:#9CA3AF; margin-top:2px;">25%</div>
+    </div>
+
+  </div>
+
+  <!-- Horizon breakdown -->
+  <div style="background:linear-gradient(135deg,#F5F3FF 0%,rgba(255,255,255,0.8) 100%); border:1px solid rgba(124,58,237,0.12); border-radius:8px; padding:14px 16px;">
+    <div style="font-size:11px; font-weight:600; color:#1E293B; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.4px;">By Horizon</div>
+    <div style="display:flex; flex-direction:column; gap:7px;">
+
+      <!-- Next 30 Days -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:10px; height:10px; border-radius:2px; background:#eab308; flex-shrink:0;"></div>
+        <div style="font-size:12px; color:#374151; width:130px; flex-shrink:0;">Next 30 Days</div>
+        <div style="flex:1; height:6px; background:#F3F4F6; border-radius:3px; overflow:hidden;">
+          <div style="width:25%; height:100%; background:#eab308; border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px; color:#9CA3AF; width:28px; text-align:right;">25%</div>
+        <div style="font-size:11px; color:#6B7280; width:40px; text-align:right;">1 task</div>
+      </div>
+
+      <!-- Strategy -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:10px; height:10px; border-radius:2px; background:#1877f2; flex-shrink:0;"></div>
+        <div style="font-size:12px; color:#374151; width:130px; flex-shrink:0;">Strategy</div>
+        <div style="flex:1; height:6px; background:#F3F4F6; border-radius:3px; overflow:hidden;">
+          <div style="width:98%; height:100%; background:#1877f2; border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px; color:#9CA3AF; width:28px; text-align:right;">98%</div>
+        <div style="font-size:11px; color:#6B7280; width:40px; text-align:right;">3 tasks</div>
+      </div>
+
+      <!-- Design -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:10px; height:10px; border-radius:2px; background:#8b5cf6; flex-shrink:0;"></div>
+        <div style="font-size:12px; color:#374151; width:130px; flex-shrink:0;">Design</div>
+        <div style="flex:1; height:6px; background:#F3F4F6; border-radius:3px; overflow:hidden;">
+          <div style="width:25%; height:100%; background:#8b5cf6; border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px; color:#9CA3AF; width:28px; text-align:right;">25%</div>
+        <div style="font-size:11px; color:#6B7280; width:40px; text-align:right;">4 tasks</div>
+      </div>
+
+      <!-- Development -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:10px; height:10px; border-radius:2px; background:#fc8165; flex-shrink:0;"></div>
+        <div style="font-size:12px; color:#374151; width:130px; flex-shrink:0;">Development</div>
+        <div style="flex:1; height:6px; background:#F3F4F6; border-radius:3px; overflow:hidden;">
+          <div style="width:0%; height:100%; background:#fc8165; border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px; color:#9CA3AF; width:28px; text-align:right;">0%</div>
+        <div style="font-size:11px; color:#6B7280; width:40px; text-align:right;">3 tasks</div>
+      </div>
+
+      <!-- Testing -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:10px; height:10px; border-radius:2px; background:#34d399; flex-shrink:0;"></div>
+        <div style="font-size:12px; color:#374151; width:130px; flex-shrink:0;">Testing</div>
+        <div style="flex:1; height:6px; background:#F3F4F6; border-radius:3px; overflow:hidden;">
+          <div style="width:0%; height:100%; background:#34d399; border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px; color:#9CA3AF; width:28px; text-align:right;">0%</div>
+        <div style="font-size:11px; color:#6B7280; width:40px; text-align:right;">2 tasks</div>
+      </div>
+
+      <!-- Launch -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:10px; height:10px; border-radius:2px; background:#ef4444; flex-shrink:0;"></div>
+        <div style="font-size:12px; color:#374151; width:130px; flex-shrink:0;">Launch</div>
+        <div style="flex:1; height:6px; background:#F3F4F6; border-radius:3px; overflow:hidden;">
+          <div style="width:0%; height:100%; background:#ef4444; border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px; color:#9CA3AF; width:28px; text-align:right;">0%</div>
+        <div style="font-size:11px; color:#6B7280; width:40px; text-align:right;">1 task</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

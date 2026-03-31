@@ -1,0 +1,4 @@
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Tasks
+Delivery Completion Rate =
+DIVIDE([Delivery Tasks Complete], [Delivery Task Count], 0)

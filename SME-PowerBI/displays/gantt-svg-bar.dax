@@ -1,0 +1,56 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- GANTT SVG DATA BAR — DAX Measure
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Gantt
+-- Usage:  Place this measure in a native Table/Matrix visual alongside 
+--         Task names and Dates. Change the Data Category to "Image URL".
+-- ═══════════════════════════════════════════════════════════════════
+
+Delivery Gantt SVG Bar = 
+VAR _currentStart = MIN(fact_project_tasks[Start])
+VAR _currentEnd   = MAX(fact_project_tasks[Finish])
+VAR _currentProg  = AVERAGE(fact_project_tasks[PctComplete]) / 100
+
+-- Project Boundaries (Ignoring local row context to establish maximum scale)
+VAR _projectStart = CALCULATE(MIN(fact_project_tasks[Start]), ALLSELECTED(fact_project_tasks))
+VAR _projectEnd   = CALCULATE(MAX(fact_project_tasks[Finish]),   ALLSELECTED(fact_project_tasks))
+VAR _totalDays    = DATEDIFF(_projectStart, _projectEnd, DAY) + 1
+
+-- Dimensions relative to overall project scale (expressed in percentages)
+VAR _taskDays     = DATEDIFF(_currentStart, _currentEnd, DAY) + 1
+VAR _offsetDays   = DATEDIFF(_projectStart, _currentStart, DAY)
+
+VAR _leftOffset   = FORMAT(DIVIDE(_offsetDays, _totalDays, 0) * 100, "0.0") & "%"
+VAR _totalWidth   = FORMAT(DIVIDE(_taskDays,   _totalDays, 0) * 100, "0.0") & "%"
+VAR _progWidth    = FORMAT(DIVIDE(_taskDays,   _totalDays, 0) * _currentProg * 100, "0.0") & "%"
+
+-- Colors matching the gantt-polished.html Design System
+VAR _baseColor    = "#1877f2"   -- Bright Blue (or link this to your Horizon logic)
+VAR _trackColor   = "rgba(24, 119, 242, 0.15)" -- Light transparent background
+
+-- Is it a phase/group or a task?
+-- If this measure is resolving at a rolled-up Group level, draw the thin line.
+VAR _isTaskRow    = ISINSCOPE(fact_project_tasks[TaskName])
+
+-- ─── BUILD SVG ───
+VAR _svgTask = 
+    "<svg viewBox='0 0 100 24' width='100%' height='24' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'>" &
+        -- Container Background (The light empty pill)
+        "<rect x='" & _leftOffset & "' y='3' width='" & _totalWidth & "' height='18' rx='9' fill='" & _trackColor & "' />" &
+        -- Progress Pill
+        "<rect x='" & _leftOffset & "' y='3' width='" & _progWidth & "' height='18' rx='9' fill='" & _baseColor & "' />" &
+        -- Border Outline
+        "<rect x='" & _leftOffset & "' y='3' width='" & _totalWidth & "' height='18' rx='9' fill='none' stroke='" & _baseColor & "' stroke-width='1.5' vector-effect='non-scaling-stroke' />" &
+    "</svg>"
+
+VAR _svgGroup =
+    "<svg viewBox='0 0 100 24' width='100%' height='24' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'>" &
+        -- Thin structural center line for groups (y=12)
+        "<line x1='" & _leftOffset & "' y1='12' x2='calc(" & _leftOffset & " + " & _totalWidth & ")' y2='12' stroke='" & _baseColor & "' stroke-width='3' vector-effect='non-scaling-stroke' />" &
+    "</svg>"
+
+VAR _svgOutput = IF(_isTaskRow, _svgTask, _svgGroup)
+
+-- Power BI requires this prefix to render SVG strings natively as images
+RETURN 
+    "data:image/svg+xml;utf8," & _svgOutput

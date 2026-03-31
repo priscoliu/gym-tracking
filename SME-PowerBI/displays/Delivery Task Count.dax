@@ -1,0 +1,4 @@
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Tasks
+Delivery Task Count =
+COUNTROWS(fact_project_tasks)

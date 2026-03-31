@@ -1,0 +1,10 @@
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Tasks
+-- Calculated status M: Delayed only (not critical)
+-- Matches gantt-polished.html statusStyles.M (#ffeb9c / #7A5A00)
+Delivery Status M Count =
+CALCULATE(
+    COUNTROWS(fact_project_tasks),
+    fact_project_tasks[IsCritical] = FALSE,
+    fact_project_tasks[IsDelayed]  = TRUE
+)

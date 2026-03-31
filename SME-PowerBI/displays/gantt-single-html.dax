@@ -1,0 +1,286 @@
+-- ═══════════════════════════════════════════════════════════════════-- GANTT SINGLE HTML MEASURE (PURE CSS CHECKBOX + SCROLL + TOOLTIPS)-- Table:  Core Metrics-- Folder: SME Delivery\HTML Cards-- ═══════════════════════════════════════════════════════════════════Delivery Gantt HTML = 
+VAR _projectStart = CALCULATE(MIN(fact_project_tasks[Start]), ALLSELECTED(fact_project_tasks))
+VAR _projectEnd   = CALCULATE(MAX(fact_project_tasks[Finish]), ALLSELECTED(fact_project_tasks))
+VAR _totalDays    = IF(ISBLANK(_projectStart), 1, DATEDIFF(_projectStart, _projectEnd, DAY) + 1)
+VAR _safeTotalDays = IF(_totalDays <= 0, 1, _totalDays)
+
+VAR _todayOffset = DATEDIFF(_projectStart, TODAY(), DAY)
+VAR _todayLeftPct = FORMAT(DIVIDE(_todayOffset, _safeTotalDays) * 100, "0.0") & "%"
+
+-- ─── UI TOKENS (gantt-polished.html Design System) ───
+VAR _rowHeight     = "44px"
+VAR _colorBg       = "#ffffff"
+VAR _colorBorder   = "#ececec"
+VAR _colorTextDark = "#1e1b4b"
+VAR _colorTextBody = "#374151"
+VAR _colorTextMuted= "#6b7280"
+
+-- ─── CSS GLOBAL HACK (Interactivity, Hover System & Sticky) ───
+VAR _cssStyles = 
+    "<style>" &
+    "  .hover-row { z-index: 10; }" &
+    "  .hover-row:hover { background-color: #f9fafb !important; z-index: 100 !important; }" &
+    "  .bar-hover-zone:hover .gantt-tooltip { display: block !important; }" &
+    
+    "  .sticky-col { position: sticky; background-color: #fff; z-index: 20; box-shadow: 1px 0 0 #ececec; }" &
+    "  .group-row .sticky-col { background-color: #f8fafc; }" &
+    "  .hover-row:hover .sticky-col { background-color: #f9fafb !important; }" &
+    "  .sc-0 { left: 0px; z-index: 25; }" &
+    "  .sc-1 { left: 250px; }" &
+    "  .sc-2 { left: 330px; }" &
+    "  .sc-3 { left: 410px; }" &
+    "  .sc-4 { left: 490px; }" &
+    "  .sc-5 { left: 560px; }" &
+    
+    "  #chk-cols:not(:checked) ~ .scroll-box .col-extra { display: none !important; }" &
+    "  #chk-tasks:not(:checked) ~ .scroll-box .task-row { display: none !important; }" &
+    
+    "  #chk-tasks:checked ~ .chrome-header .tgl-task-on { background: #2563eb !important; color: #fff !important; }" &
+    "  #chk-tasks:checked ~ .chrome-header .tgl-task-off { background: #fff !important; color: #9ca3af !important; }" &
+    "  #chk-tasks:not(:checked) ~ .chrome-header .tgl-task-off { background: #2563eb !important; color: #fff !important; }" &
+    "  #chk-tasks:not(:checked) ~ .chrome-header .tgl-task-on { background: #fff !important; color: #9ca3af !important; }" &
+    
+    "  #chk-cols:checked ~ .chrome-header .tgl-col-on { background: #2563eb !important; color: #fff !important; }" &
+    "  #chk-cols:checked ~ .chrome-header .tgl-col-off { background: #fff !important; color: #9ca3af !important; }" &
+    "  #chk-cols:not(:checked) ~ .chrome-header .tgl-col-off { background: #2563eb !important; color: #fff !important; }" &
+    "  #chk-cols:not(:checked) ~ .chrome-header .tgl-col-on { background: #fff !important; color: #9ca3af !important; }" &
+    
+    "  #z-all:checked ~ .scroll-box .timeline-panel { min-width: 200px !important; width: 100% !important; flex: 1 !important; }" &
+    "  #z-years:checked ~ .scroll-box .timeline-panel { min-width: 1500px !important; }" &
+    "  #z-days:checked ~ .scroll-box .timeline-panel { min-width: 3500px !important; }" &
+    "  #z-days:checked ~ .chrome-header .tgl-z-days { background: #2563eb !important; color: #fff !important; }" &
+    "  #z-years:checked ~ .chrome-header .tgl-z-years { background: #2563eb !important; color: #fff !important; }" &
+    "  #z-all:checked ~ .chrome-header .tgl-z-all { background: #2563eb !important; color: #fff !important; }" &
+    
+    "  #z-all:checked ~ .scroll-box .axis-month { display: none !important; }" &
+    "  #z-years:checked ~ .scroll-box .axis-month { display: block !important; }" &
+    "  #z-days:checked ~ .scroll-box .axis-month { display: block !important; }" &
+    "</style>"
+
+-- ─── CHROME HEADER BUTTONS ───
+VAR _chromeHtml = 
+    "<div class='chrome-header' style='display:flex; justify-content:space-between; padding-bottom:12px; align-items:center; flex-shrink:0; background:#fff;'>" &
+        "<div style='display:flex; gap:12px;'>" &
+            -- Tasks Toggle Label Buttons
+            "<div style='display:flex; border:1px solid #d1d5db; border-radius:12px; overflow:hidden;'>" &
+                "<label for='chk-tasks' class='tgl-task-off' style='padding:4px 12px; font-size:12px; font-weight:bold; border-right:1px solid #d1d5db; cursor:pointer;'>▸</label>" &
+                "<label for='chk-tasks' class='tgl-task-on'  style='padding:4px 12px; font-size:12px; font-weight:bold; cursor:pointer;'>▾</label>" &
+            "</div>" &
+            -- Columns Toggle Label Buttons
+            "<div style='display:flex; border:1px solid #d1d5db; border-radius:12px; overflow:hidden;'>" &
+                "<label for='chk-cols' class='tgl-col-off' style='padding:4px 12px; font-size:12px; font-weight:bold; border-right:1px solid #d1d5db; cursor:pointer;'>◀</label>" &
+                "<label for='chk-cols' class='tgl-col-on'  style='padding:4px 12px; font-size:12px; font-weight:bold; cursor:pointer;'>▶</label>" &
+            "</div>" &
+        "</div>" &
+        "<div style='display:flex; gap:12px; align-items:center;'>" &
+            -- Today Button (Anchor link to trigger browser scroll natively)
+            "<a href='#today-marker' style='padding:4px 16px; border:1px solid #d1d5db; border-radius:12px; background:#fff; color:#374151; font-size:12px; font-weight:bold; text-decoration:none; display:inline-block;'>Today</a>" &
+            -- Zoom Scaling Toggle Label Buttons
+            "<div style='display:flex; border:1px solid #d1d5db; border-radius:12px; overflow:hidden;'>" &
+                "<label for='z-days'  class='tgl-z-days'  style='padding:4px 12px; font-size:12px; background:#fff; color:#374151; font-weight:bold; border-right:1px solid #d1d5db; cursor:pointer;'>Days</label>" &
+                "<label for='z-years' class='tgl-z-years' style='padding:4px 12px; font-size:12px; background:#fff; color:#374151; font-weight:bold; border-right:1px solid #d1d5db; cursor:pointer;'>Years</label>" &
+                "<label for='z-all'   class='tgl-z-all'   style='padding:4px 12px; font-size:12px; background:#fff; color:#374151; font-weight:bold; cursor:pointer;'>All</label>" &
+            "</div>" &
+        "</div>" &
+    "</div>"
+
+-- ─── HEADER STRIP (Dynamic X-Axis) ───
+VAR _axisYears = 
+    CONCATENATEX(
+        GENERATESERIES(YEAR(_projectStart), YEAR(_projectEnd) + 1),
+        VAR _yr = [Value]
+        VAR _yrStart = DATE(_yr, 1, 1)
+        VAR _offset = DATEDIFF(_projectStart, _yrStart, DAY)
+        VAR _leftPct = FORMAT(DIVIDE(_offset, _safeTotalDays) * 100, "0.0") & "%"
+        RETURN 
+            IF(_offset >= 0 && _offset <= _totalDays, 
+                "<div style='position:absolute; left:" & _leftPct & "; top:0; bottom:-1200px; border-left:1px solid #ececec; z-index:0; pointer-events:none;'></div>" &
+                "<div style='position:absolute; left:calc(" & _leftPct & " + 8px); top:6px; font-size:11px; font-weight:bold; color:#1e1b4b; z-index:1;'>" & _yr & "</div>",
+            "")
+        , "", [Value], ASC
+    )
+
+VAR _firstMonth = DATE(YEAR(_projectStart), MONTH(_projectStart), 1)
+VAR _totalMonths = DATEDIFF(_firstMonth, _projectEnd, MONTH)
+
+VAR _axisMonths = 
+    CONCATENATEX(
+        GENERATESERIES(0, _totalMonths),
+        VAR _mOffset = [Value]
+        VAR _curMonth = EDATE(_firstMonth, _mOffset)
+        VAR _offset = DATEDIFF(_projectStart, _curMonth, DAY)
+        VAR _leftPct = FORMAT(DIVIDE(_offset, _safeTotalDays) * 100, "0.0") & "%"
+        VAR _monthName = FORMAT(_curMonth, "MMM")
+        RETURN 
+             -- For Jan, don't overlap the Year label. Draw a subtle dashed gridline for each month.
+            IF(_offset >= 0 && _offset <= _totalDays && MONTH(_curMonth) <> 1, 
+                "<div class='axis-month' style='position:absolute; left:calc(" & _leftPct & " + 4px); top:24px; font-size:10px; color:#6b7280; z-index:1;'>" & _monthName & "</div>" &
+                "<div class='axis-month' style='position:absolute; left:" & _leftPct & "; top:15px; bottom:-1200px; border-left:1px dashed #f3f4f6; z-index:0; pointer-events:none;'></div>",
+            "")
+        , "", [Value], ASC
+    )
+
+VAR _headerHtml = 
+    "<div class='hover-row' style='display:flex; border-bottom:1px solid " & _colorBorder & "; height:40px; align-items:center; font-size:12px; font-weight:600; color:" & _colorTextMuted & "; flex-shrink:0; background:#fff;'>" &
+        "<div class='sticky-col sc-0' style='width:250px; padding-left:24px; flex-shrink:0;'>Task</div>" &
+        "<div class='col-extra sticky-col sc-1' style='width:80px; flex-shrink:0;'>Start</div>" &
+        "<div class='col-extra sticky-col sc-2' style='width:80px; flex-shrink:0;'>End</div>" &
+        "<div class='col-extra sticky-col sc-3' style='width:80px; flex-shrink:0;'>Days</div>" &
+        "<div class='col-extra sticky-col sc-4' style='width:70px; flex-shrink:0;'>Status</div>" &
+        "<div class='col-extra sticky-col sc-5' style='width:60px; flex-shrink:0;'>Progress</div>" &
+        "<div class='timeline-panel' style='flex:1; padding-left:10px; position:relative; min-width:300px; height:100%; transition: min-width 0.3s ease; overflow:visible;'>" &
+            _axisYears &
+            _axisMonths &
+            IF(_todayOffset >= 0 && _todayOffset <= _totalDays, 
+                "<div style='position:absolute; bottom:0; left:" & _todayLeftPct & "; border-left:1.5px solid #1877f2; height:12px; z-index:10;'><span style='position:absolute; top:-10px; left:4px; font-size:9px; color:#1877f2; padding: 2px 4px; background: rgba(255,255,255,0.8); border-radius: 4px;'>Today</span></div>", 
+            "") &
+        "</div>" &
+    "</div>"
+
+-- ─── ITERATING OVER HORIZON GROUPS ───
+VAR _rowsHtml = 
+    CONCATENATEX(
+        VALUES(fact_project_tasks[MilestoneHorizon]),
+        
+        VAR _horizon = fact_project_tasks[MilestoneHorizon]
+        VAR _themeColor = 
+            SWITCH(UPPER(_horizon),
+                "NEXT 30 DAYS", "rgb(234, 179, 8)",
+                "STRATEGY", "rgb(24, 119, 242)",
+                "DESIGN", "rgb(139, 92, 246)",
+                "DEVELOPMENT", "rgb(252, 129, 101)",
+                "TESTING", "rgb(52, 211, 153)",
+                "LAUNCH", "rgb(239, 68, 68)",
+                "rgb(100, 116, 139)"
+            )
+            
+        VAR _groupTasks = FILTER(fact_project_tasks, fact_project_tasks[MilestoneHorizon] = _horizon)
+        VAR _groupStart = MINX(_groupTasks, [Start])
+        VAR _groupEnd   = MAXX(_groupTasks, [Finish])
+        VAR _groupDays  = IF(ISBLANK(_groupStart), 0, DATEDIFF(_groupStart, _groupEnd, DAY) + 1)
+        VAR _groupPct   = AVERAGEX(_groupTasks, [PctComplete]) / 100
+        
+        -- Group Rendering 
+        VAR _groupStartOffset = DATEDIFF(_projectStart, _groupStart, DAY)
+        VAR _groupLeftPct     = FORMAT(DIVIDE(_groupStartOffset, _safeTotalDays) * 100, "0.0") & "%"
+        VAR _groupWidthPct    = FORMAT(DIVIDE(_groupDays, _safeTotalDays) * 100, "0.0") & "%"
+        
+        VAR _groupSvg = 
+            "<svg width='100%' height='" & _rowHeight & "' preserveAspectRatio='none' style='position:absolute; left:0; top:0; z-index:0;'>" &
+                "<line x1='" & _groupLeftPct & "' y1='22' x2='calc(" & _groupLeftPct & " + " & _groupWidthPct & ")' y2='22' stroke='" & _themeColor & "' stroke-width='3' vector-effect='non-scaling-stroke' />" &
+            "</svg>"
+
+        VAR _groupRow = 
+            "<div class='group-row hover-row' style='display:flex; height:" & _rowHeight & "; align-items:center; font-size:14px; position:relative; overflow:visible; background:#f8fafc; border-bottom:1px solid #f3f4f6;'>" &
+                "<div class='sticky-col sc-0' style='width:250px; padding-left:14px; color:#1e1b4b; font-weight:600; font-size:12px; display:flex; align-items:center; gap:8px; flex-shrink:0;'><span style='font-size:10px; color:" & _themeColor & "'>▾</span> " & UPPER(_horizon) & "</div>" &
+                "<div class='col-extra sticky-col sc-1' style='width:80px; flex-shrink:0;'></div>" &
+                "<div class='col-extra sticky-col sc-2' style='width:80px; flex-shrink:0;'></div>" &
+                "<div class='col-extra sticky-col sc-3' style='width:80px; flex-shrink:0; color:" & _colorTextBody & ";'>" & _groupDays & " d</div>" &
+                "<div class='col-extra sticky-col sc-4' style='width:70px; flex-shrink:0;'></div>" &
+                "<div class='col-extra sticky-col sc-5' style='width:60px; flex-shrink:0; color:" & _colorTextBody & ";'>" & FORMAT(IF(ISBLANK(_groupPct), 0, _groupPct), "0%") & "</div>" &
+                "<div class='timeline-panel' style='flex:1; height:100%; border-left:1px solid " & _colorBorder & "; position:relative; min-width:300px; transition: min-width 0.3s ease;'>" &
+                    _groupSvg &
+                    "<div style='position:absolute; left:calc(" & _groupLeftPct & " + " & _groupWidthPct & " + 8px); top:13px; font-size:12px; color:" & _themeColor & "; white-space:nowrap;'>" & UPPER(_horizon) & " (" & _groupDays & " d)</div>" &
+                    IF(_todayOffset >= 0 && _todayOffset <= _totalDays, "<div id='today-marker' style='position:absolute; top:0; bottom:0; left:" & _todayLeftPct & "; border-left:1.5px solid #1877f2; z-index:10; pointer-events:none;'></div>", "") &
+                "</div>" &
+            "</div>"
+            
+        -- Tasks Nested Iteration
+        VAR _tasksHtml = 
+            CONCATENATEX(
+                _groupTasks,
+                VAR _taskStart = [Start]
+                VAR _taskEnd   = [Finish]
+                VAR _taskDays  = DATEDIFF(_taskStart, _taskEnd, DAY) + 1
+                VAR _pct       = [PctComplete] / 100
+                
+                VAR _status = 
+                    SWITCH(TRUE(),
+                        [IsCritical] = TRUE && [IsDelayed] = TRUE, "VH",
+                        [IsCritical] = TRUE && [IsDelayed] = FALSE, "H",
+                        [IsCritical] = FALSE && [IsDelayed] = TRUE, "M",
+                        "L"
+                    )
+                    
+                VAR _statusBg = SWITCH(_status, "VH", "#ffbfc1", "H", "#f8cbad", "M", "#ffeb9c", "#c6efce")
+                VAR _statusFg = SWITCH(_status, "VH", "#7A181C", "H", "#843515", "M", "#7A5A00", "#1E6024")
+                VAR _statusBadge = "<div style='background:" & _statusBg & "; color:" & _statusFg & "; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:bold; text-align:center; display:inline-block; min-width:20px;'>" & _status & "</div>"
+                
+                VAR _progArc = 
+                    IF(_pct > 0, 
+                        "<svg width='16' height='16' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='none' stroke='#ececec' stroke-width='2'/><circle cx='8' cy='8' r='7' fill='none' stroke='" & _themeColor & "' stroke-width='2' stroke-dasharray='44' stroke-dashoffset='" & (44 * (1 - _pct)) & "' transform='rotate(-90 8 8)'/></svg>",
+                        "<svg width='16' height='16'><circle cx='8' cy='8' r='7' fill='none' stroke='#ececec' stroke-width='2'/></svg>"
+                    )
+                    
+                VAR _startOffset = DATEDIFF(_projectStart, _taskStart, DAY)
+                VAR _leftPct  = FORMAT(DIVIDE(_startOffset, _safeTotalDays) * 100, "0.0") & "%"
+                VAR _widthPct = FORMAT(DIVIDE(_taskDays, _safeTotalDays) * 100, "0.0") & "%"
+                VAR _progW    = FORMAT(DIVIDE(_taskDays, _safeTotalDays) * _pct * 100, "0.0") & "%"
+                
+                VAR _trackColor = SUBSTITUTE(SUBSTITUTE(_themeColor, "rgb", "rgba"), ")", ", 0.15)")
+                
+                VAR _barHtml = 
+                    "<div class='bar-hover-zone' style='width:100%; height:100%; position:absolute; left:0; top:0; z-index:10;'>" &
+                        "<svg width='100%' height='" & _rowHeight & "' preserveAspectRatio='none' style='position:absolute; left:0; top:0; z-index:0; pointer-events:none;'>" &
+                            "<line x1='25%' y1='0' x2='25%' y2='100%' stroke='#f3f4f6' stroke-width='1'/>" &
+                            "<line x1='50%' y1='0' x2='50%' y2='100%' stroke='#f3f4f6' stroke-width='1'/>" &
+                            "<line x1='75%' y1='0' x2='75%' y2='100%' stroke='#f3f4f6' stroke-width='1'/>" &
+                            "<rect class='tooltip-trigger' x='" & _leftPct & "' y='13' width='" & _widthPct & "' height='18' rx='9' fill='" & _trackColor & "' style='pointer-events:all; cursor:pointer;' />" &
+                            "<rect x='" & _leftPct & "' y='13' width='" & _progW &     "' height='18' rx='9' fill='" & _themeColor & "' pointer-events='none' />" &
+                            "<rect x='" & _leftPct & "' y='13' width='" & _widthPct & "' height='18' rx='9' fill='none' stroke='" & _themeColor & "' stroke-width='1.5' vector-effect='non-scaling-stroke' pointer-events='none' />" &
+                        "</svg>" &
+                        "<div style='position:absolute; left:calc(" & _leftPct & " + " & _widthPct & " + 8px); top:13px; font-size:12px; color:" & _themeColor & "; white-space:nowrap; z-index:1; pointer-events:none;'>" & [TaskName] & " (" & _taskDays & " d)</div>" &
+                        -- Darker Tooltip implementation (Anchored to Top)
+                        "<div class='gantt-tooltip' style='position:absolute; display:none; left:calc(" & _leftPct & " + " & _widthPct & " / 2); bottom:32px; z-index:999; background:rgba(30, 41, 59, 0.95); border:1px solid #475569; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.3); padding:16px; width:220px; font-size:12px; color:#f8fafc; line-height:1.6; pointer-events:none; transform:translateX(-50%);'>" &
+                            "<div style='display:flex; justify-content:space-between; margin-bottom:4px;'><span style='color:#94a3b8'>Task</span><span style='font-weight:600; color:#ffffff; text-align:right'>" & [TaskName] & "</span></div>" &
+                            "<div style='display:flex; justify-content:space-between; margin-bottom:4px;'><span style='color:#94a3b8'>Start</span><span style='font-weight:600; color:#ffffff;'>" & FORMAT(_taskStart, "dd MMM yyyy") & "</span></div>" &
+                            "<div style='display:flex; justify-content:space-between; margin-bottom:4px;'><span style='color:#94a3b8'>End</span><span style='font-weight:600; color:#ffffff;'>" & FORMAT(_taskEnd, "dd MMM yyyy") & "</span></div>" &
+                            "<div style='display:flex; justify-content:space-between; margin-bottom:4px;'><span style='color:#94a3b8'>Duration</span><span style='font-weight:600; color:#ffffff;'>" & _taskDays & " d</span></div>" &
+                            "<div style='display:flex; justify-content:space-between; margin-bottom:4px;'><span style='color:#94a3b8'>Progress</span><span style='font-weight:600; color:#ffffff;'>" & FORMAT(_pct, "0%") & "</span></div>" &
+                        "</div>" &
+                    "</div>"
+                    
+                RETURN
+                "<div class='task-row hover-row' style='display:flex; border-bottom:1px solid #f3f4f6; height:" & _rowHeight & "; align-items:center; font-size:14px; position:relative; overflow:visible; background:#fff;'>" &
+                    "<div class='sticky-col sc-0' style='width:250px; padding-left:44px; color:" & _colorTextDark & "; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; flex-shrink:0; pointer-events:none;'>" & [TaskName] & "</div>" &
+                    "<div class='col-extra sticky-col sc-1' style='width:80px; color:" & _colorTextBody & "; font-size:12px; flex-shrink:0; pointer-events:none;'>" & FORMAT(_taskStart, "dd/MM/yy") & "</div>" &
+                    "<div class='col-extra sticky-col sc-2' style='width:80px; color:" & _colorTextBody & "; font-size:12px; flex-shrink:0; pointer-events:none;'>" & FORMAT(_taskEnd, "dd/MM/yy") & "</div>" &
+                    "<div class='col-extra sticky-col sc-3' style='width:80px; color:" & _colorTextBody & "; flex-shrink:0; pointer-events:none;'>" & _taskDays & " d</div>" &
+                    "<div class='col-extra sticky-col sc-4' style='width:70px; flex-shrink:0; pointer-events:none;'>" & _statusBadge & "</div>" &
+                    "<div class='col-extra sticky-col sc-5' style='width:60px; color:" & _colorTextBody & "; display:flex; align-items:center; gap:6px; flex-shrink:0; pointer-events:none;'>" & FORMAT(_pct, "0%") & " " & _progArc & "</div>" &
+                    "<div class='timeline-panel' style='flex:1; height:100%; border-left:1px solid " & _colorBorder & "; position:relative; min-width:300px; transition: min-width 0.3s ease;'>" &
+                        _barHtml &
+                        IF(_todayOffset >= 0 && _todayOffset <= _totalDays, "<div style='position:absolute; top:0; bottom:0; left:" & _todayLeftPct & "; border-left:1.5px solid #1877f2; z-index:10; pointer-events:none;'></div>", "") &
+                    "</div>" &
+                "</div>"
+                , "", [Start], ASC
+            )
+            
+        RETURN _groupRow & _tasksHtml
+        
+        , "", fact_project_tasks[MilestoneHorizon] 
+    )
+    
+-- ─── COMPLETE HTML OUTER CONTAINER ───
+VAR _finalHtml = 
+    "<div style='width:100%; height:100%; background:" & _colorBg & "; border-radius:12px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding:16px; box-sizing:border-box; font-family: Segoe UI, Inter, system-ui, sans-serif; display:flex; flex-direction:column; overflow:hidden; position:relative;'>" &
+        _cssStyles &
+        -- Hidden checkboxes / radios anchoring our logic
+        "<input type='checkbox' id='chk-tasks' style='display:none;' checked>" &
+        "<input type='checkbox' id='chk-cols' style='display:none;' checked>" &
+        "<input type='radio' name='view-zoom' id='z-days' style='display:none;' checked>" &
+        "<input type='radio' name='view-zoom' id='z-years' style='display:none;'>" &
+        "<input type='radio' name='view-zoom' id='z-all' style='display:none;'>" &
+        
+        _chromeHtml &
+
+        -- Wrapper strictly bounding the inner scrollable area so panels properly lock and vanish 
+        "<div class='scroll-box' style='flex:1; overflow:auto; position:relative;'>" & 
+            "<div class='gantt-wrapper' style='width:100%;'>" & 
+               _headerHtml &
+               _rowsHtml &
+            "</div>" &
+        "</div>" &
+    "</div>"
+
+RETURN _finalHtml

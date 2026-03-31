@@ -1,0 +1,5 @@
+-- Table:  Core Metrics
+-- Folder: SME Delivery\Tasks
+-- Returns 0-100 scale (matches PctComplete column)
+Delivery Avg Pct Complete =
+AVERAGEX(fact_project_tasks, fact_project_tasks[PctComplete])
