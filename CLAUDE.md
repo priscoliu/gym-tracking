@@ -48,7 +48,9 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 - Join keys: always `F.trim(F.upper())` on **both** sides — no exceptions
 - Special-char columns: backtick-quote them — `` F.col("`COL NAME`") ``
 - Safe numeric M conversion: `each try Number.From(_) otherwise 0, type nullable number`
-- Write pattern: `df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("table_name")`
+- Write pattern — **depends on destination workspace**:
+  - **Same workspace** (Lakehouse attached to notebook): `.saveAsTable("LakehouseName.table_name")`
+  - **Cross-workspace** (target in different workspace): `.save(TARGET_PATH)` where `TARGET_PATH = f"abfss://{WORKSPACE_ID}@onelake.dfs.fabric.microsoft.com/{LAKEHOUSE_ID}/Tables/{SCHEMA}/{TABLE_NAME}"`
 - CRM SQL: **no CTEs**. Fabric SQL: CTEs OK.
 - **No emojis in code**: No emojis in Python/PySpark, SQL, DAX measure code, print statements, notebook markdown headers, or comments. Emojis are allowed in Power BI HTML card visual output (status icons, badges rendered inside DAX string HTML).
 
@@ -88,8 +90,9 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 
 | Trigger | Load |
 |---|---|
-| alteryx, migration, pyspark, notebook | `.agent/workflows/alteryx-migration.md` |
-| global loom, PAS, gold layer, star schema | `.agent/workflows/global-loom.md` |
+| fabric, pyspark, delta, bronze, silver, gold, lakehouse, notebook, abfss | `.agent/skills/fabric-de/SKILL.md` |
+| alteryx, migration, yxmd, alteryx workflow | `.agent/workflows/alteryx-migration.md` |
+| global loom, PAS, star schema, fact, dim | `.agent/workflows/global-loom.md` |
 | DAX, measure, KPI, HTML card, Power BI | `.agent/skills/wtw-powerbi/SKILL.md` |
 | xlsx, excel, csv | `.agent/skills/xlsx/SKILL.md` |
 | pptx, slides, deck | `.agent/skills/pptx/SKILL.md` |
