@@ -67,13 +67,13 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 **Theme**: Light mode only.
 
 ### Brand Colors
-- Primary: `#7C3AED` (WTW Corporate Purple)
+- Primary: `#7F35B2` (WTW Corporate Purple)
 - Performance: Outstanding `#16A34A` · Met `#22C55E` · Near `#F59E0B` · Below `#EF4444` · Critical `#DC2626`
 - Neutrals: Text `#1E1B4B` · Body `#374151` · Muted `#6B7280` · Border `#E5E7EB` · Surface `#F9FAFB` · Canvas `#FFFFFF`
 
 ### Design Principles
 1. **Data first, chrome last** — every element earns its place by aiding comprehension
-2. **Purple is the signal, white is the canvas** — use `#7C3AED` for hierarchy and accent only
+2. **Purple is the signal, white is the canvas** — use `#7F35B2` for hierarchy and accent only
 3. **Density with breathing room** — tight meaning, but key numbers need space to land
 4. **Hierarchy through weight before colour** — font size/weight first; colour for status only
 5. **Corporate credibility** — looks senior-analyst-made, not AI-generated
