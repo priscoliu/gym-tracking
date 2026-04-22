@@ -1,0 +1,62 @@
+-- ============================================================
+-- Leads Overview — Title Header with Inline Metrics
+-- Enhanced page title: replaces plain text title with key stats
+-- Dimensions: 463x63px
+-- Use case: Any page title that benefits from inline summary values
+-- Pattern: Bold title + coloured metric pills in subtitle line
+-- Last reviewed: 2026-04-10
+-- ============================================================
+
+Leads_Overview =
+// ========== STYLE VARIABLES ==========
+VAR _highlightColor = "#7C3AED"    // Purple accent for lead metrics
+VAR _textPrimary = "#374151"
+VAR _textSecondary = "#6B7280"
+VAR _textLight = "#9CA3AF"
+VAR _dividerColor = "#E5E7EB"
+VAR _borderRadius = "4px"
+
+// ========== LEAD METRICS ==========
+VAR _totalLeads = [Total Leads]
+VAR _openLeads = [Open Leads]
+VAR _qualifiedOppty = [Qualified Oppty]
+VAR _conversionRate = [leads conversion rate]
+
+// ========== YEAR CONTEXT ==========
+VAR _selectedYear = SELECTEDVALUE('DimDate'[Calendar Year], "All Years")
+
+// ========== FORMAT VALUES ==========
+VAR _fmtTotal =
+    SWITCH(TRUE(),
+        _totalLeads >= 1000, FORMAT(_totalLeads / 1000, "#,0.0K"),
+        FORMAT(_totalLeads, "#,0")
+    )
+
+VAR _fmtOpen =
+    SWITCH(TRUE(),
+        _openLeads >= 1000, FORMAT(_openLeads / 1000, "#,0.0K"),
+        FORMAT(_openLeads, "#,0")
+    )
+
+VAR _fmtQualified =
+    SWITCH(TRUE(),
+        _qualifiedOppty >= 1000, FORMAT(_qualifiedOppty / 1000, "#,0.0K"),
+        FORMAT(_qualifiedOppty, "#,0")
+    )
+
+VAR _fmtConversion = FORMAT(_conversionRate, "0%")
+
+// ========== HTML OUTPUT ==========
+RETURN
+"<div style='width:463px;height:63px;font-family:Segoe UI,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;'>" &
+    "<div style='padding:8px 16px 6px 16px;'>" &
+        "<div style='font-size:16px;font-weight:700;color:" & _textPrimary & ";'>Leads Overview</div>" &
+        "<div style='font-size:11px;color:" & _textSecondary & ";line-height:1.3;margin-top:2px;'>" &
+            "<span style='font-weight:600;'>In " & _selectedYear & ":</span> " &
+            "<span style='color:" & _highlightColor & ";font-weight:600;'>" & _fmtTotal & "</span> total leads | " &
+            "<span style='color:" & _highlightColor & ";font-weight:600;'>" & _fmtOpen & "</span> open | " &
+            "<span style='color:" & _textPrimary & ";font-weight:600;'>" & _fmtQualified & "</span> qualified | " &
+            "<span style='color:" & _textPrimary & ";font-weight:600;'>" & _fmtConversion & "</span> conversion rate" &
+        "</div>" &
+    "</div>" &
+"</div>"

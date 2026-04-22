@@ -1,0 +1,177 @@
+-- ============================================================
+-- Zest Card 2 — Hierarchy Card
+-- Two-zone layout: light top (issues/alerts) + dark bottom (change orders)
+-- Use case: Tech/ops status cards with layered information hierarchy
+-- Pattern: primary KPI + detail box (top) | dark panel with rows (bottom)
+-- Last reviewed: 2026-04-10
+-- ============================================================
+
+Tech Summary Card =
+// === DATA VARIABLES ===
+VAR _issOpen     = [Tech Issues Open Count]
+VAR _issCrit     = [Tech Issues Critical Count]
+VAR _issElev     = [Tech Issues Elevated Count]
+VAR _issTicket   = [Tech Issues Open Ticket]
+VAR _issDays     = [Tech Issues Open Days]
+VAR _issDesc     = [Tech Issues Open Desc]
+VAR _issReporter = [Tech Issues Open Reporter]
+VAR _issRaised   = [Tech Issues Open Raised]
+
+VAR _coOpen   = [Tech CO Open Count]
+VAR _coTotal  = [Tech CO Total Count]
+VAR _coClosed = [Tech CO Closed Count]
+
+// --- Top 3 urgent open COs by approved date ---
+VAR _topCOs =
+    TOPN(
+        3,
+        FILTER(
+            ADDCOLUMNS(
+                fact_change_orders,
+                "_desc", fact_change_orders[ChangeRequestDesc],
+                "_dueNote", fact_change_orders[DueDateNote],
+                "_approvedDate", fact_change_orders[ApprovedDate]
+            ),
+            fact_change_orders[IsOpen] = TRUE()
+        ),
+        [_approvedDate], ASC
+    )
+
+VAR _deliveryRows =
+    IF(
+        _coOpen = 0,
+        "<div class='drow' style='color:#8B95A5;font-style:italic;'>Currently no open change orders</div>",
+        CONCATENATEX(
+            _topCOs,
+            VAR _descRaw = [_desc]
+            VAR _descShort = IF(LEN(_descRaw) > 28, LEFT(_descRaw, 28) & "...", _descRaw)
+            VAR _dueRaw = [_dueNote]
+            VAR _duePos = SEARCH(" - ", _dueRaw, 1, 0)
+            VAR _dueFormatted = IF(_duePos > 0, MID(_dueRaw, _duePos + 3, 100), _dueRaw)
+            RETURN
+            "<div class='drow'><span style='color:#6B7280;'>" & _descShort & "  ·  </span><span style='color:#D1D5DB;'>Due: " & _dueFormatted & "</span></div>",
+            "",
+            [_approvedDate], ASC
+        )
+    )
+
+// --- Status bar rows ---
+VAR _statusRows =
+    CONCATENATEX(
+        ADDCOLUMNS(
+            SUMMARIZE(fact_change_orders, fact_change_orders[Status]),
+            "_cnt",  CALCULATE(COUNTROWS(fact_change_orders)),
+            "_sort", SWITCH(fact_change_orders[Status], "Open", 1, "Closed", 2, 99),
+            "_clr",  SWITCH(fact_change_orders[Status], "Open", "#F59E0B", "Closed", "#22C55E", "#8B95A5"),
+            "_bar",  FORMAT(CONVERT(DIVIDE(CALCULATE(COUNTROWS(fact_change_orders)), IF(_coTotal > 0, _coTotal, 1)) * 100, INTEGER), "0")
+        ),
+        "<div class='srow'>" &
+          "<div class='sflex'>" &
+            "<div class='slbl'>" &
+              "<div style='width:7px;height:7px;border-radius:50%;background:" & [_clr] & ";flex-shrink:0;'></div>" &
+              "<span class='stxt'>" & fact_change_orders[Status] & "</span>" &
+            "</div>" &
+            "<span class='scnt'>" & FORMAT([_cnt], "#,##0") & "</span>" &
+          "</div>" &
+          "<div class='sbar'><div style='height:100%;width:" & [_bar] & "%;background:" & [_clr] & ";border-radius:2px;'></div></div>" &
+        "</div>",
+        "",
+        [_sort]
+    )
+
+// --- Formats & badges ---
+VAR _fmtDays   = FORMAT(_issDays, "#,##0")
+VAR _fmtRaised = FORMAT(_issRaised, "DD MMM YYYY")
+VAR _noIssue   = _issOpen = 0
+VAR _descShort = IF(LEN(_issDesc) > 55, LEFT(_issDesc, 55) & "...", _issDesc)
+
+VAR _badgeBg    = IF(_issCrit > 0, "#FEE2E2", IF(_issElev > 0, "#FEF3C7", IF(_issOpen > 0, "#DCFCE7", "#F0FDF4")))
+VAR _badgeTxt   = IF(_issCrit > 0, "#DC2626", IF(_issElev > 0, "#D97706", "#217B4B"))
+VAR _badgeLabel = IF(_issCrit > 0, FORMAT(_issCrit, "#,##0") & " CRITICAL", IF(_issElev > 0, FORMAT(_issElev, "#,##0") & " ELEVATED", IF(_issOpen > 0, FORMAT(_issOpen, "#,##0") & " OPEN", "ALL CLEAR")))
+VAR _dotColor  = IF(_coOpen > 0, "#F59E0B", "#22C55E")
+VAR _dotLabel  = IF(_coOpen > 0, FORMAT(_coOpen, "#,##0") & " Open", "All Closed")
+
+// === CSS ===
+VAR _css =
+"<style>" &
+"html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}" &
+"*{box-sizing:border-box;margin:0;padding:0;}" &
+".wrap{width:100%;height:100vh;padding:6px 16px 24px 16px;}" &
+".card{width:100%;height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:#FFFFFF;border-radius:20px;box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);padding:16px;display:flex;flex-direction:column;gap:10px;overflow:hidden;}" &
+".top{flex-shrink:0;}" &
+".hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}" &
+".pre{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#9CA3AF;font-weight:600;margin-bottom:4px;}" &
+".ttl{font-size:17px;font-weight:500;color:#1E2536;}" &
+".kpi{font-size:36px;font-weight:700;color:#1E2536;letter-spacing:-1.5px;line-height:1;margin-bottom:4px;}" &
+".ksub{font-size:13px;color:#6B7280;margin-bottom:10px;}" &
+".noiss{background:#F0FDF4;border-radius:10px;padding:12px 14px;font-size:13px;color:#217B4B;font-weight:500;}" &
+".cbox{background:#F4EFE6;border-radius:10px;padding:12px 16px;}" &
+".crow{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}" &
+".ctkt{font-size:13px;font-weight:700;color:#7C3AED;}" &
+".cdays{font-size:12px;font-weight:700;color:#DC2626;background:#FEE2E2;padding:3px 8px;border-radius:8px;white-space:nowrap;}" &
+".cdesc{font-size:12px;color:#374151;line-height:1.5;margin-bottom:6px;}" &
+".crep{font-size:12px;color:#9CA3AF;}" &
+".btm{flex:1;min-height:0;background:#212836;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;}" &
+".bhdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-shrink:0;}" &
+".bttl{font-size:13px;font-weight:600;color:#FFFFFF;margin-bottom:2px;}" &
+".bsub{font-size:11px;color:#8B95A5;}" &
+".bdot{display:flex;align-items:center;gap:5px;font-size:11px;color:#8B95A5;}" &
+".srow{margin-bottom:6px;}" &
+".sflex{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}" &
+".slbl{display:flex;align-items:center;gap:6px;}" &
+".stxt{font-size:12px;color:#D1D5DB;}" &
+".scnt{font-size:13px;font-weight:700;color:#FFFFFF;}" &
+".sbar{height:3px;background:#384661;border-radius:2px;}" &
+".ddiv{border-top:1px solid #2D3748;padding-top:6px;margin-top:6px;margin-bottom:6px;flex-shrink:0;}" &
+".dhdr{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#6B7280;margin-bottom:4px;}" &
+".drow{font-size:11px;line-height:1.5;margin-bottom:2px;}" &
+".grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:auto;}" &
+".tile{background:#F6F4EE;padding:8px 10px;border-radius:8px;}" &
+".tlbl{font-size:10px;color:#6B7280;margin-bottom:3px;}" &
+".tval{font-size:16px;font-weight:700;color:#1E2536;}" &
+"</style>"
+
+// === HTML ===
+VAR _html =
+"<div class='wrap'><div class='card'>" &
+
+"<div class='top'>" &
+  "<div class='hdr'>" &
+    "<div><div class='pre'>uBind Issues</div><div class='ttl'>Backlog Status</div></div>" &
+    "<div style='background:" & _badgeBg & ";color:" & _badgeTxt & ";font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;'>" & _badgeLabel & "</div>" &
+  "</div>" &
+  "<div class='kpi'>" & FORMAT(_issOpen, "#,##0") & "</div>" &
+  "<div class='ksub'>open issue" & IF(_issOpen = 1, "", "s") & " in backlog</div>" &
+  IF(_noIssue,
+    "<div class='noiss'>No open issues</div>",
+    "<div class='cbox'>" &
+      "<div class='crow'>" &
+        "<div class='ctkt'>" & _issTicket & "</div>" &
+        "<div class='cdays'>" & _fmtDays & " days</div>" &
+      "</div>" &
+      "<div class='cdesc'>" & _descShort & "</div>" &
+      "<div class='crep'>Reported by " & _issReporter & "  ·  " & _fmtRaised & "</div>" &
+    "</div>"
+  ) &
+"</div>" &
+
+"<div class='btm'>" &
+  "<div class='bhdr'>" &
+    "<div><div class='bttl'>Change Orders</div><div class='bsub'>" & FORMAT(_coTotal, "#,##0") & " total  ·  " & FORMAT(_coOpen, "#,##0") & " open</div></div>" &
+    "<div class='bdot'><div style='width:6px;height:6px;border-radius:50%;background:" & _dotColor & ";flex-shrink:0;'></div>" & _dotLabel & "</div>" &
+  "</div>" &
+  _statusRows &
+  "<div class='ddiv'>" &
+    "<div class='dhdr'>Delivery Dates</div>" &
+    _deliveryRows &
+  "</div>" &
+  "<div class='grid3'>" &
+    "<div class='tile'><div class='tlbl'>Open COs</div><div class='tval'>" & FORMAT(_coOpen, "#,##0") & "</div></div>" &
+    "<div class='tile'><div class='tlbl'>Closed COs</div><div class='tval'>" & FORMAT(_coClosed, "#,##0") & "</div></div>" &
+    "<div class='tile'><div class='tlbl'>Total COs</div><div class='tval'>" & FORMAT(_coTotal, "#,##0") & "</div></div>" &
+  "</div>" &
+"</div>" &
+
+"</div></div>"
+
+RETURN _css & _html

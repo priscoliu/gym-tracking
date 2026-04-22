@@ -1,0 +1,256 @@
+-- ============================================================
+-- HTML Client Matrix
+-- Sticky dual-column matrix: Group | Client | LoB columns
+-- Outputs: C (Client) / P (Prospect) per LoB, grouped by account
+-- Colors: nav #1E1B4B | header white/#6B7280 text | accent #7F35B2 | border #E5E7EB
+-- Changes: col 1 150px, no C/P group badges, industry before tier,
+--          tier colored text (no dot), LoB sorted CRB→HWC, faint gridlines,
+--          JS pagination (30 groups/page, up to 500 loaded)
+-- Note: requires 'Fact Client'[Segment] column. Replace SWITCH values
+--       with your actual segment names if they differ from "CRB" / "HWC".
+-- Last reviewed: 2026-04-10
+-- ============================================================
+
+HTML Client Matrix =
+-- LoB sorted by segment (CRB=1, HWC=2, others=3), then alphabetically
+VAR _lobsRaw =
+    FILTER(
+        SUMMARIZE(
+            ALLSELECTED('Fact Client'),
+            'Fact Client'[LoB],
+            'Fact Client'[Segment]
+        ),
+        NOT ISBLANK('Fact Client'[LoB])
+    )
+
+VAR _lobs =
+    ADDCOLUMNS(
+        _lobsRaw,
+        "_SegOrder", SWITCH('Fact Client'[Segment], "CRB", 1, "HWC", 2, 3)
+    )
+
+VAR _lobHeader =
+    CONCATENATEX(
+        _lobs,
+        "<th class=v>" & 'Fact Client'[LoB] & "</th>",
+        "",
+        [_SegOrder], ASC,
+        'Fact Client'[LoB], ASC
+    )
+
+VAR _css =
+    "<style>"
+    & "html,body{margin:0;padding:0;height:100%;overflow:hidden}"
+    & ".m{font-family:Segoe UI,sans-serif;width:100%;border-collapse:separate;border-spacing:0;text-align:left;white-space:nowrap}"
+    & ".m th,.m td{padding:12px 14px;font-size:12px;vertical-align:top;box-sizing:border-box;border:none}"
+    & ".m th{background:#fff;font-weight:600;color:#6B7280;position:sticky;top:0;z-index:10;border-bottom:1px solid #E5E7EB}"
+    & ".m th:nth-child(1){left:0;z-index:20;width:150px;min-width:150px;max-width:150px}"
+    & ".m th:nth-child(2){left:150px;z-index:20;width:280px;min-width:280px;max-width:280px}"
+    & ".m tbody{border-bottom:2px solid #e5e7eb}"
+    & ".m td{border-bottom:1px solid #e5e7eb}"
+    & ".g{position:sticky;left:0;z-index:5;width:150px;min-width:150px;max-width:150px;border-right:1px solid #e5e7eb!important;background:#fff;padding:12px 14px!important}"
+    & ".c{position:sticky;left:150px;z-index:5;width:280px;min-width:280px;max-width:280px;border-right:1px solid #e5e7eb!important;white-space:normal;background:#fff;padding:12px 14px!important}"
+    & ".v{text-align:center;width:40px;vertical-align:top;border-right:1px solid #f3f4f6!important}"
+    & ".m tr:hover td:not(.g){background:#f9fafb}"
+    & ".h{display:flex;align-items:flex-start}"
+    & ".ec{background:#059669;color:#fff;font-size:9px;font-weight:800;width:14px;height:14px;border-radius:3px;margin-right:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}"
+    & ".ep{background:#F59E0B;color:#fff;font-size:9px;font-weight:800;width:14px;height:14px;border-radius:3px;margin-right:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}"
+    & ".t{font-weight:600;font-size:13px;color:#1E293B;white-space:normal;line-height:1.3}"
+    & ".x{display:flex;align-items:center;font-size:11px;color:#6b7280;margin-left:0}"
+    & ".u{text-decoration:underline;text-decoration-color:#d1d5db;text-underline-offset:3px}"
+    & ".l{display:flex;align-items:flex-start;line-height:1.4}"
+    & ".q{width:6px;height:6px;border-radius:1px;background:#7F35B2;margin-right:8px;margin-top:5px;flex-shrink:0}"
+    & ".n{display:flex;flex-direction:column}"
+    & ".w{font-size:11px;color:#6b7280}"
+    & ".vc{font-weight:700;color:#059669;display:inline-block;margin-top:2px;}"
+    & ".vp{font-weight:700;color:#F59E0B;display:inline-block;margin-top:2px;}"
+    & ".sc::-webkit-scrollbar{width:10px;height:10px}"
+    & ".sc::-webkit-scrollbar-track{margin-left:430px;background:rgba(0,0,0,0.03);border-radius:5px}"
+    & ".sc::-webkit-scrollbar-thumb{background:#bbb;border-radius:5px;border:2px solid transparent;background-clip:content-box}"
+    & "#pgf{padding:8px 14px;border-top:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;font-size:11px;color:#6B7280;background:#fff;flex-shrink:0}"
+    & "#pgf button{padding:4px 12px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif}"
+    & "#pgf button:hover:not(:disabled){background:#f9fafb;border-color:#d1d5db}"
+    & "#pgf button:disabled{opacity:.4;cursor:default}"
+    & "</style>"
+
+VAR _allGroups =
+    ADDCOLUMNS(
+        SUMMARIZE(
+            ALLSELECTED('Fact Client'),
+            'Fact Client'[Group Name]
+        ),
+        "_MinTier", CALCULATE(MIN('Fact Client'[Tier]))
+    )
+
+VAR _allGroupsOrdered =
+    ADDCOLUMNS(
+        _allGroups,
+        "_TierOrder", SWITCH([_MinTier], "Tier 1", 1, "Tier 2", 2, "Tier 3", 3, "Tier 4", 4, 5)
+    )
+
+VAR _totalGroups = COUNTROWS(_allGroupsOrdered)
+VAR _groups = TOPN(500, _allGroupsOrdered, [_TierOrder], ASC, 'Fact Client'[Group Name], ASC)
+
+VAR _tableBody =
+    CONCATENATEX(
+        _groups,
+
+        VAR _gName = 'Fact Client'[Group Name]
+
+        VAR _clients =
+            SUMMARIZE(
+                CALCULATETABLE(
+                    ALLSELECTED('Fact Client'),
+                    'Fact Client'[Group Name] = _gName
+                ),
+                'Fact Client'[Client Name]
+            )
+
+        VAR _clientCount = COUNTROWS(_clients)
+        VAR _rowspanAttr = IF(_clientCount > 1, " rowspan=" & _clientCount, "")
+        VAR _firstClient = MINX(_clients, 'Fact Client'[Client Name])
+
+        -- Group cell: bullet + name only (no C/P count badges)
+        VAR _groupCell =
+            "<td" & _rowspanAttr & " class=g>" &
+                "<div class=h>" &
+                    "<div class=q></div>" &
+                    "<span class=t>" & _gName & "</span>" &
+                "</div>" &
+            "</td>"
+
+        VAR _rows =
+            CONCATENATEX(
+                _clients,
+
+                VAR _cName    = 'Fact Client'[Client Name]
+                VAR _isFirst  = _cName = _firstClient
+
+                VAR _cContact = CALCULATE(MAX('Fact Client'[WTW Contact]), 'Fact Client'[Client Name] = _cName)
+                VAR _cTier    = CALCULATE(MAX('Fact Client'[Tier]), 'Fact Client'[Client Name] = _cName)
+                VAR _cInd     = CALCULATE(MAX('Fact Client'[Industry]), 'Fact Client'[Client Name] = _cName)
+
+                VAR _isClientRow =
+                    CALCULATE(
+                        COUNTROWS('Fact Client'),
+                        'Fact Client'[Client Name] = _cName,
+                        'Fact Client'[EngagementType] = "Client"
+                    ) > 0
+
+                VAR _clientIcon = IF(_isClientRow, "C", "P")
+                VAR _clientIconClass = IF(_isClientRow, "ec", "ep")
+
+                VAR _tierColor =
+                    SWITCH(
+                        _cTier,
+                        "Tier 1", "#7F35B2",
+                        "Tier 2", "#059669",
+                        "Tier 3", "#F59E0B",
+                        "Tier 4", "#DC2626",
+                        "#9ca3af"
+                    )
+
+                VAR _contactHtml = IF(NOT ISBLANK(_cContact) && _cContact <> "", "<div class=w style='margin-top:2px;'>Contact: " & _cContact & "</div>", "")
+
+                -- Client cell: industry first, then tier (colored text, no dot)
+                VAR _clientCell =
+                    "<td class=c>" &
+                        "<div class=l>" &
+                            "<div class=" & _clientIconClass & " style='margin-top:2px;'>" & _clientIcon & "</div>" &
+                            "<div class=n>" &
+                                "<div class=t>" & _cName & "</div>" &
+                                _contactHtml &
+                                "<div class=x style='margin-top:4px;'>" &
+                                    "<span class=u>" & _cInd & "</span>" &
+                                "</div>" &
+                                "<div class=x style='margin-top:2px;'>" &
+                                    "<span style='color:" & _tierColor & ";font-weight:600;'>" & _cTier & "</span>" &
+                                "</div>" &
+                            "</div>" &
+                        "</div>" &
+                    "</td>"
+
+                VAR _lobCells =
+                    CONCATENATEX(
+                        _lobs,
+
+                        VAR _lob = 'Fact Client'[LoB]
+                        VAR _engType =
+                            CALCULATE(
+                                SELECTEDVALUE('Fact Client'[EngagementType]),
+                                'Fact Client'[Group Name] = _gName,
+                                'Fact Client'[Client Name] = _cName,
+                                'Fact Client'[LoB] = _lob,
+                                ALLSELECTED('Fact Client')
+                            )
+                        VAR _letter = SWITCH(_engType, "Client", "C", "CRM Prospect", "P", "")
+                        VAR _class  = IF(_engType = "Client", "vc", "vp")
+                        RETURN
+                            IF(
+                                _letter <> "",
+                                "<td class=v><span class=" & _class & ">" & _letter & "</span></td>",
+                                "<td class=v></td>"
+                            ),
+                        "",
+                        [_SegOrder], ASC,
+                        'Fact Client'[LoB], ASC
+                    )
+
+                RETURN
+                    IF(
+                        _isFirst,
+                        "<tr>" & _groupCell & _clientCell & _lobCells & "</tr>",
+                        "<tr>" & _clientCell & _lobCells & "</tr>"
+                    ),
+                "",
+                'Fact Client'[Client Name], ASC
+            )
+
+        RETURN "<tbody>" & _rows & "</tbody>",
+        "",
+        [_TierOrder], ASC,
+        'Fact Client'[Group Name], ASC
+    )
+
+-- JS pagination: hides/shows <tbody> elements (1 per group), 30 per page
+-- Embeds _totalGroups count directly so it survives JS context
+VAR _script =
+    "<script>"
+    & "(function(){"
+    & "var t=document.querySelectorAll('.m tbody');"
+    & "var n=t.length,per=30,p=1,tot=Math.ceil(n/per),all=" & FORMAT(_totalGroups, "0") & ";"
+    & "if(tot<=1){document.getElementById('pgf').style.display='none';return;}"
+    & "function r(){"
+    & "t.forEach(function(b,i){b.style.display=(i>=(p-1)*per&&i<p*per)?'':'none';});"
+    & "document.getElementById('pi').textContent='Page '+p+' of '+tot+' ('+all+' groups)';"
+    & "document.getElementById('pp').disabled=p<=1;"
+    & "document.getElementById('pn').disabled=p>=tot;"
+    & "}"
+    & "document.getElementById('pp').onclick=function(){if(p>1){p--;r();}};"
+    & "document.getElementById('pn').onclick=function(){if(p<tot){p++;r();}};"
+    & "r();"
+    & "})();"
+    & "</script>"
+
+VAR _html =
+    "<div style='display:flex;flex-direction:column;height:100vh;font-family:Segoe UI,sans-serif;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;'>" &
+    _css &
+    "<div class=sc style='flex:1;min-height:0;overflow:auto;'>" &
+    "<table class=m>" &
+        "<thead><tr>" &
+            "<th>Group Name</th>" &
+            "<th>Client Name &amp; WTW Contact</th>" &
+            _lobHeader &
+        "</tr></thead>" &
+        _tableBody &
+    "</table>" &
+    "</div>" &
+    "<div id='pgf'>" &
+        "<button id='pp'>&#8249; Prev</button>" &
+        "<span id='pi'>" & FORMAT(_totalGroups, "0") & " groups</span>" &
+        "<button id='pn'>Next &#8250;</button>" &
+    "</div>" &
+    "</div>" &
+    _script
+
+RETURN _html
