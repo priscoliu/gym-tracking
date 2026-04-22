@@ -15,22 +15,25 @@ WTW reports should communicate authority and precision. Every visual choice earn
 
 ## Brand Essentials
 
-- **Primary color**: WTW Corporate Purple `#7C3AED`
+- **Primary color**: WTW Corporate Purple `#7F35B2`
 - **Canvas**: `1280×720px` (presentations) or `1440×1080px` (complex reports)
 - **Grid**: 12-column, 60–80px side margins
 - **Font**: Segoe UI — Regular (400) for body, Semibold (600) for titles, Bold (700) for KPI values
 
-Full token reference: [references/tokens.md](references/tokens.md)
+Full design values reference: [references/design-values.md](references/design-values.md)
 
 ## Reference Guides
 
-### Design Tokens
-- **All values in one place**: See [references/tokens.md](references/tokens.md)
+### Design Values
+
+- **All values in one place**: See [references/design-values.md](references/design-values.md)
   - CSS variables, color palette, spacing scale, typography, shadows, border radii
 
 ### Color System
-- **Default color profile**: WTW Corporate Purple (`#7C3AED`) is the standard default for thematic elements, alongside the WTW green performance palette.
-- **CRITICAL**: Whenever you are triggered to review or apply anything related to **color**, you MUST FIRST ask the user if they have a new color profile or if they want to stick with the default WTW style.
+
+- **Two palettes available**: Corporate (WTW Purple `#7F35B2`) and Indigo (`#4f46e5`) — see [references/color-system.md](references/color-system.md) for full palette definitions and DAX blocks.
+- **Default**: Corporate palette for brand-aligned reports; Indigo for operational dashboards and leaderboards.
+- **CRITICAL**: Whenever you are triggered to review or apply anything related to **color**, you MUST FIRST ask the user which palette they want: Corporate or Indigo.
 - **Complete palette**: See [references/color-system.md](references/color-system.md)
   - Performance color thresholds (115% / 100% / 90% / 80%)
   - Gradient definitions, neutral text hierarchy
@@ -58,12 +61,22 @@ Full token reference: [references/tokens.md](references/tokens.md)
   - Status badges, dynamic titles, number formatting
   - DAX optimisation best practices
 
+### HTML Card Workflow
+
+- **CRITICAL — follow this before building any card**: See [references/html-card-workflow.md](references/html-card-workflow.md)
+  - Step 1: Choose palette (Corporate or Indigo)
+  - Step 2: Paste the full DAX variable block (exact shadow/color tokens)
+  - Step 3: Choose layout mode (fixed size vs auto-scale)
+  - Steps 4–7: KPI font sizes, shadow values, number formatting, CSS strategy
+  - Step 8: Final verification checklist (12 items)
+
 ### HTML Cards
 - **DAX-generated components**: See [references/html-cards.md](references/html-cards.md)
   - Container structure, grid layouts (2/3/4-column)
   - Progress bars with benchmark lines, status badges
   - Summary panels, typography patterns
   - Complete Executive Summary Card example
+  - **Catalogue patterns**: Tile with values breakdown, cluster bar chart, two-zone layout, performance-tinted insight panel, sticky matrix with JS pagination
 
 ### Components
 - **Extended UI library**: See [references/components.md](references/components.md)
@@ -91,7 +104,39 @@ Full token reference: [references/tokens.md](references/tokens.md)
 
 ## Assets
 
-- **Starter template**: `assets/wtw-card-template.html` — HTML scaffold with all WTW tokens pre-wired
+All asset files are ready-to-use DAX measures or HTML scaffolds. Copy the content directly into Power BI Desktop.
+
+### HTML Scaffolds
+
+| File | Description |
+|------|-------------|
+| `assets/wtw-card-template.html` | Standalone HTML scaffold with all WTW design values pre-wired (use for browser preview/prototyping) |
+
+### Card Templates (`assets/cards/`)
+
+| File | Description | Key patterns |
+|------|-------------|--------------|
+| `pipeline-health-scorecard.dax` | 3-metric KPI grid (NB Sufficiency, Pipeline Momentum, Won to Target) + performance-tinted insight panel | KPI grid, dynamic color, insight text |
+| `zest-sales-summary-1.dax` | Full-height card: YTD premium + quotes, funnel KPIs, commission badge, scrollable product breakdown | Scrollable section, badge, funnel |
+| `zest-card-2-hierarchy.dax` | Two-zone layout: light top (alerts/issues) + dark bottom (change orders) | Dual-zone, dark panel, status rows |
+
+### Table Templates (`assets/tables/`)
+
+| File | Description | Key patterns |
+|------|-------------|--------------|
+| `html-client-matrix.dax` | Sticky dual-column matrix: Group \| Client \| LoB columns with C/P output per LoB | Grouped rows, sticky headers, accent `#7F35B2` |
+
+### Chart Templates (`assets/charts/`)
+
+| File | Description | Key patterns |
+|------|-------------|--------------|
+| `top30-won-client-chart.dax` | Rank-ordered horizontal bar chart, hidden scrollbar, toned-down headers | Top-N bars, `RANKX`, horizontal layout |
+
+### Title Templates (`assets/titles/`)
+
+| File | Description | Key patterns |
+|------|-------------|--------------|
+| `leads-overview.dax` | Enhanced page title (463×63px) with inline summary stats | Compact KPI strip, replaces plain text title |
 
 ## Publishing Checklist
 

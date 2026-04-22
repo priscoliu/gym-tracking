@@ -507,6 +507,37 @@ Selected Product =
 SELECTEDVALUE('Product'[Product Name], "Multiple")
 ```
 
+### Field Parameter Slicers in HTML Cards
+
+**Problem**: `SELECTEDVALUE('Parameter'[Parameter])` throws a composite key error in HTML card visuals because the visual has no field well — DAX cannot resolve the hidden RowNumber key that field parameter tables use.
+
+**✅ Solution — use `MAXX(ALLSELECTED(...))`**:
+```dax
+VAR _selectedParam =
+    MAXX(ALLSELECTED('Parameter'), 'Parameter'[Parameter])
+VAR _param =
+    IF(ISBLANK(_selectedParam), "DefaultValue", _selectedParam)
+```
+
+This aggregates over the slicer selection without requiring the composite key. Works in HTML cards, card visuals, and any visual without a field well.
+
+**Important**: Set the Parameter slicer to **single-select** mode. If multiple values are selected, `MAXX` returns the last alphabetically.
+
+**Pattern for dynamic dimension switching**:
+```dax
+-- Build all branches tagged with a Dim identifier
+VAR _allData =
+    UNION(
+        SELECTCOLUMNS(VALUES('Table'[ColA]), "Label", 'Table'[ColA], "Revenue", CALCULATE([Measure]), "Dim", "ColA"),
+        SELECTCOLUMNS(VALUES('Table'[ColB]), "Label", 'Table'[ColB], "Revenue", CALCULATE([Measure]), "Dim", "ColB")
+    )
+-- Then filter to the selected parameter
+VAR _rawData =
+    FILTER(_allData, [Dim] = _param)
+```
+
+Use `UNION` + `SELECTCOLUMNS` (not `SWITCH` returning tables) — all branches must share the same column schema (`Label`, `Revenue`, `Dim`). `SWITCH` returning tables causes "expression refers to multiple columns" errors.
+
 ### Avoid Calculated Columns When Possible
 
 **❌ BAD** (calculated column — evaluated for every row in table):
@@ -538,6 +569,179 @@ Sales Year = YEAR(MAX(Sales[Date]))
 | **Year Over Year** | `CALCULATE([Measure], SAMEPERIODLASTYEAR('Date'[Date]))` |
 | **All Records (ignore filters)** | `CALCULATE([Measure], ALL('Table'))` |
 | **% of Total** | `DIVIDE([Measure], CALCULATE([Measure], ALL('Table')))` |
+
+---
+
+## HTML Card Patterns
+
+### Standard DAX Variable Block
+
+Paste at the top of any HTML card measure. Choose Corporate or Indigo palette (see color-system.md).
+
+```dax
+-- === Indigo Palette ===
+VAR _c1 = "#4f46e5" VAR _c2 = "#5ce1ff" VAR _c3 = "#e5e7eb" VAR _c4 = "#f59e0b"
+VAR _c5 = "#10b981" VAR _c6 = "#ef4444" VAR _c7 = "#8b5cf6" VAR _c8 = "#f97316"
+VAR _c9 = "#06b6d4" VAR _c10 = "#84cc16" VAR _c11 = "#ec4899" VAR _c12 = "#14b8a6"
+VAR _cFallbk = "#94a3b8"
+VAR _cWon  = "#22C55E"   -- Won Revenue green
+VAR _cOpen = "#22D3EE"   -- Open Pipeline cyan
+-- === Text Hierarchy ===
+VAR _textPrimary   = "#181B1D"
+VAR _textSecondary = "#485257"
+VAR _textMuted     = "#9CA3AF"
+VAR _textBody      = "#606E74"
+-- === Surfaces & Borders ===
+VAR _bgWhite      = "#FFFFFF"
+VAR _bgChart      = "#F8FAFC"
+VAR _borderLight  = "#F3F4F6"
+VAR _borderMedium = "#E4E7E9"
+-- === Shadows (token-matched) ===
+VAR _shadowOuter = "0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05)"
+VAR _shadowInner = "0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.04)"
+```
+
+---
+
+### Stacked Pill Bar Chart (HTML)
+
+Pixel-height bars driven entirely by DAX math. Used in `HTML_Revenue_By_Colleague`.
+
+**How it works:**
+
+- `_safeMax` = auto-scaled ceiling of the tallest bar (Won + Open) × 1.1, rounded to a clean step
+- Each bar's pixel height = `DIVIDE(value, _safeMax) * _chartH`, minimum 5px so zero-values stay invisible
+- Bars stack bottom-up inside a `flex-direction:column; justify-content:flex-end` container
+- A unique `_RowNum` (rank + name tiebreaker × 0.0001) drives sort order and last-column border detection — avoids Dense rank ties breaking the right-edge border
+
+```dax
+VAR _chartH = 140   -- chart area height in px
+VAR _pillW  = 8     -- bar width in px
+
+-- Scale denominator
+VAR _maxBar    = MAXX(_sorted, COALESCE([_Won], 0) + COALESCE([_Open], 0))
+VAR _maxRaw    = MAX(_maxBar, 1)
+VAR _magnitude = POWER(10, INT(LOG10(_maxRaw)))
+VAR _stepSize  = IF((_maxRaw / _magnitude) <= 5, _magnitude / 2, _magnitude)
+VAR _safeMax   = CEILING(_maxRaw * 1.1, _stepSize)
+
+-- Unique row number (breaks Dense rank ties for border logic)
+VAR _withRow =
+    ADDCOLUMNS(
+        _sorted,
+        "_RowNum",
+        RANKX(
+            _sorted,
+            [_Rank] + RANKX(_sorted, [Colleague], , ASC, SKIP) * 0.0001,
+            , ASC, SKIP
+        )
+    )
+
+-- Per-column rendering (inside CONCATENATEX over _withRow):
+VAR _wonPx  = IF(_won  > 0, MAX(ROUND(DIVIDE(_won,  _safeMax) * _chartH, 0), 5), 0)
+VAR _openPx = IF(_open > 0, MAX(ROUND(DIVIDE(_open, _safeMax) * _chartH, 0), 5), 0)
+VAR _gapPx  = IF(_wonPx > 0 && _openPx > 0, 5, 0)   -- gap between segments
+VAR _isLast = [_RowNum] = _count                      -- true only for the very last column
+```
+
+**Won label** — centered inside bar (frosted pill bg, only if bar ≥ 16px):
+```dax
+VAR _wonCenterY = ROUND(_chartH - _wonPx / 2, 0)
+-- HTML: position:absolute; top:{_wonCenterY}px; left:50%; transform:translate(-50%,-50%)
+--       background:rgba(255,255,255,0.55); border-radius:3px; padding:1px 3px
+```
+
+**Open label** — above top of open segment (only if open bar exists):
+```dax
+VAR _openLabelY = MAX(_chartH - (_wonPx + _openPx + _gapPx) - 4, 0)
+-- HTML: position:absolute; top:{_openLabelY}px; left:50%; transform:translate(-50%,-100%)
+```
+
+**Column wrapper** — `align-items:center` keeps bar + name centered; border-right on all except last:
+```dax
+"<div style='display:flex;flex-direction:column;align-items:center;flex-shrink:0;min-width:56px;" &
+IF(NOT(_isLast), "border-right:1px solid rgba(0,0,0,0.07);padding-right:10px;margin-right:4px;", "") & "'>"
+```
+
+**Bar div** — subtle glow via box-shadow at 20% opacity:
+```dax
+"<div style='width:" & _pillW & "px;border-radius:9999px;background:" & _cWon & ";" &
+"box-shadow:0 0 5px 1px rgba(34,197,94,0.2);height:" & _wonPx & "px;flex-shrink:0;'></div>"
+```
+
+**Chart wrapper** — `#F8FAFC` bg, horizontal scroll, thin scrollbar, bottom padding prevents scrollbar covering x-axis names:
+```dax
+"<div style='background:#F8FAFC;border-radius:8px;padding:14px 12px 0;height:212px;overflow-x:auto;overflow-y:hidden;'>" &
+"<div style='display:flex;align-items:flex-end;gap:0;min-height:194px;padding-bottom:18px;'>"
+-- Scrollbar CSS: ::-webkit-scrollbar{width:4px;height:4px;}
+```
+
+---
+
+### KPI Strip (4-column grid)
+
+```dax
+VAR _kpi =
+    "<div style='display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;flex-shrink:0;'>" &
+    -- Each cell:
+    "<div>" &
+    "<span style='display:block;font-size:24px;font-weight:700;color:#181B1D;font-family:Segoe UI,sans-serif;" &
+    "letter-spacing:-0.02em;line-height:1;margin-bottom:4px;'>" & _fmtValue & "</span>" &
+    "<span style='display:block;font-size:12px;font-weight:400;color:#9CA3AF;font-family:Segoe UI,sans-serif;'>" & _label & "</span>" &
+    "</div>" &
+    "</div>"
+```
+
+- Value: 24px / 700 / `#181B1D` / `letter-spacing:-0.02em`
+- Label: 12px / 400 / `#9CA3AF` — sits below value
+
+---
+
+### Scrollable Table (flex-isolated)
+
+Table scrolls independently; header/KPI/chart sections never scroll.
+
+```dax
+-- Container layout
+"<div style='overflow:hidden;display:flex;flex-direction:column;height:530px;padding:16px 20px;'>"
+--   header    flex-shrink:0
+--   kpi grid  flex-shrink:0
+--   chart     flex-shrink:0
+--   table     flex:1; min-height:0; overflow-y:auto   ← absorbs remaining height
+
+-- Header row
+VAR _tblHdr =
+    "<div style='display:flex;align-items:center;padding:0 0 6px;margin-bottom:2px;'>" &
+    "<div style='width:24%;font-size:12px;font-weight:400;color:#9CA3AF;font-family:Segoe UI,sans-serif;'>Colleague</div>" &
+    -- fixed-width numeric cols:
+    "<div style='width:19%;font-size:12px;font-weight:400;color:#9CA3AF;font-family:Segoe UI,sans-serif;'>Business Target</div>" &
+    -- right-aligned last col (accounting gap):
+    "<div style='width:19%;font-size:12px;font-weight:400;color:#9CA3AF;font-family:Segoe UI,sans-serif;text-align:right;padding-right:10px;'>Business Gap</div>" &
+    "</div>"
+
+-- Data row (border-bottom on all except last)
+"<div style='display:flex;align-items:center;padding:6px 0;" &
+IF(NOT(_isLast), "border-bottom:1px solid #F3F4F6;", "") & "'>" &
+"<div style='width:24%;font-size:11px;color:#485257;font-weight:400;font-family:Segoe UI,sans-serif;'>" & _name & "</div>" &
+"<div style='width:19%;color:#181B1D;font-family:Segoe UI,sans-serif;font-size:11px;font-weight:600;'>" & _value & "</div>" &
+"</div>"
+```
+
+**Accounting gap format** (positive plain, negative in parentheses):
+
+```dax
+VAR _absG = ABS(_gap)
+VAR _gAmt = IF(_absG >= 1000000, "$" & FORMAT(_absG / 1000000, "0.0") & "M", "$" & FORMAT(_absG / 1000, "#,0") & "K")
+VAR _fmtG = IF(_gap = 0, "—", IF(_gap > 0, _gAmt, "(" & _gAmt & ")"))
+```
+
+**Standard $K/$M formatter:**
+
+```dax
+VAR _fmt = IF(_val = 0, "—", IF(_val >= 1000000, "$" & FORMAT(_val / 1000000, "0.0") & "M", "$" & FORMAT(_val / 1000, "#,0") & "K"))
+```
+
+---
 
 ## Checklist: DAX Best Practices
 

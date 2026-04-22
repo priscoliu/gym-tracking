@@ -1,0 +1,322 @@
+-- ============================================================
+-- Pipeline Health Scorecard
+-- 3-metric KPI grid (NB Sufficiency, Pipeline Momentum, Won to Target)
+-- + performance-tinted insights panel with dynamic observations
+-- Use case: Sales pipeline health overview, similar pattern to KPI card
+-- Dimensions: 500x270px
+-- Last reviewed: 2026-04-10
+-- ============================================================
+
+pipelineHealthScorecard =
+
+-- Core Metrics
+VAR _estRevenue = [totalEstRevenue]
+VAR _wtRevenue = [totalWtRevenue]
+VAR _wtRevenueOpen = [wtRevenueOpen]
+VAR _wonHybrid = [wonToTargetHybrid]
+VAR _financeActual = [newBizActual]
+VAR _target = [iatNewBusinessTarget]
+VAR _gap = [newBusinessGap]
+VAR _nbSufficiency = [nbSufficiency]
+VAR _forecastDynamics = [forecastDynamics]
+VAR _wonToTarget = DIVIDE(_wonHybrid, _target)
+VAR _projected = [projectedRevenue]
+VAR _crmWonRevenue = CALCULATE(
+    [Won Pipeline],
+    FactCRM[First Income Date] > TODAY()-1
+)
+-- Check if we have target data
+VAR _hasTarget = _target > 0
+VAR _hasActual = _financeActual > 0
+VAR _hasWonHybrid = _wonHybrid > 0
+VAR _hasProjected = _projected > 0
+VAR _hasWtPipeline = _wtRevenueOpen > 0
+
+-- Last Month Metrics
+VAR _nbSufficiencyLM = CALCULATE([nbSufficiency], 'Time Intelligence'[Time Intelligence] = "Last Month")
+VAR _forecastDynamicsLM = CALCULATE([forecastDynamics], 'Time Intelligence'[Time Intelligence] = "Last Month")
+VAR _wonToTargetLM = CALCULATE(_wonToTarget, 'Time Intelligence'[Time Intelligence] = "Last Month")
+
+-- MoM Changes
+VAR _nbChange = _nbSufficiency - _nbSufficiencyLM
+VAR _forecastChange = _forecastDynamics - _forecastDynamicsLM
+VAR _wonChange = _wonToTarget - _wonToTargetLM
+
+-- Smart Display Formatting Function
+VAR _displayGap =
+    IF(_gap < 0, "-", "") & "$" & SWITCH(
+        TRUE(),
+        ABS(_gap) >= 1e9, FORMAT(ABS(_gap)/1e9, "0.0") & "B",
+        ABS(_gap) >= 1e6, FORMAT(ABS(_gap)/1e6, "0.0") & "M",
+        ABS(_gap) >= 1e3, FORMAT(ABS(_gap)/1e3, "0.0") & "K",
+        FORMAT(ABS(_gap), "#,##0")
+    )
+VAR _displayWtOpen = "$" & SWITCH(
+    TRUE(),
+    ABS(_wtRevenueOpen) >= 1e9, FORMAT(ABS(_wtRevenueOpen)/1e9, "0.0") & "B",
+    ABS(_wtRevenueOpen) >= 1e6, FORMAT(ABS(_wtRevenueOpen)/1e6, "0.0") & "M",
+    ABS(_wtRevenueOpen) >= 1e3, FORMAT(ABS(_wtRevenueOpen)/1e3, "0.0") & "K",
+    FORMAT(ABS(_wtRevenueOpen), "#,##0")
+)
+VAR _gapNeeded = MAX(0, _gap - _wtRevenueOpen)
+VAR _displayNeeded = "$" & SWITCH(
+    TRUE(),
+    ABS(_gapNeeded) >= 1e9, FORMAT(ABS(_gapNeeded)/1e9, "0.0") & "B",
+    ABS(_gapNeeded) >= 1e6, FORMAT(ABS(_gapNeeded)/1e6, "0.0") & "M",
+    ABS(_gapNeeded) >= 1e3, FORMAT(ABS(_gapNeeded)/1e3, "0.0") & "K",
+    FORMAT(ABS(_gapNeeded), "#,##0")
+)
+VAR _displayFinanceActual =
+    IF(_financeActual < 0, "-", "") & "$" & SWITCH(
+        TRUE(),
+        ABS(_financeActual) >= 1e9, FORMAT(ABS(_financeActual)/1e9, "0.0") & "B",
+        ABS(_financeActual) >= 1e6, FORMAT(ABS(_financeActual)/1e6, "0.0") & "M",
+        ABS(_financeActual) >= 1e3, FORMAT(ABS(_financeActual)/1e3, "0.0") & "K",
+        FORMAT(ABS(_financeActual), "#,##0")
+    )
+VAR _displayWonHybrid =
+    IF(_wonHybrid < 0, "-", "") & "$" & SWITCH(
+        TRUE(),
+        ABS(_wonHybrid) >= 1e9, FORMAT(ABS(_wonHybrid)/1e9, "0.0") & "B",
+        ABS(_wonHybrid) >= 1e6, FORMAT(ABS(_wonHybrid)/1e6, "0.0") & "M",
+        ABS(_wonHybrid) >= 1e3, FORMAT(ABS(_wonHybrid)/1e3, "0.0") & "K",
+        FORMAT(ABS(_wonHybrid), "#,##0")
+    )
+VAR _displayProjected = "$" & SWITCH(
+    TRUE(),
+    ABS(_projected) >= 1e9, FORMAT(ABS(_projected)/1e9, "0.0") & "B",
+    ABS(_projected) >= 1e6, FORMAT(ABS(_projected)/1e6, "0.0") & "M",
+    ABS(_projected) >= 1e3, FORMAT(ABS(_projected)/1e3, "0.0") & "K",
+    FORMAT(ABS(_projected), "#,##0")
+)
+VAR _displayTarget = "$" & SWITCH(
+    TRUE(),
+    ABS(_target) >= 1e9, FORMAT(ABS(_target)/1e9, "0.0") & "B",
+    ABS(_target) >= 1e6, FORMAT(ABS(_target)/1e6, "0.0") & "M",
+    ABS(_target) >= 1e3, FORMAT(ABS(_target)/1e3, "0.0") & "K",
+    FORMAT(ABS(_target), "#,##0")
+)
+VAR _displayCrmWon =
+    IF(_crmWonRevenue < 0, "-", "") & "$" & SWITCH(
+        TRUE(),
+        ABS(_crmWonRevenue) >= 1e9, FORMAT(ABS(_crmWonRevenue)/1e9, "0.0") & "B",
+        ABS(_crmWonRevenue) >= 1e6, FORMAT(ABS(_crmWonRevenue)/1e6, "0.0") & "M",
+        ABS(_crmWonRevenue) >= 1e3, FORMAT(ABS(_crmWonRevenue)/1e3, "0.0") & "K",
+        FORMAT(ABS(_crmWonRevenue), "#,##0")
+    )
+
+-- Surplus calculation (when won more than target)
+VAR _surplus = _financeActual - _target
+VAR _displaySurplus =
+    IF(_surplus < 0, "-", "") & "$" & SWITCH(
+        TRUE(),
+        ABS(_surplus) >= 1e9, FORMAT(ABS(_surplus)/1e9, "0.0") & "B",
+        ABS(_surplus) >= 1e6, FORMAT(ABS(_surplus)/1e6, "0.0") & "M",
+        ABS(_surplus) >= 1e3, FORMAT(ABS(_surplus)/1e3, "0.0") & "K",
+        FORMAT(ABS(_surplus), "#,##0")
+    )
+
+-- Total potential (Actual + Projected)
+VAR _totalPotential = _financeActual + _projected
+VAR _displayTotalPotential =
+    IF(_totalPotential < 0, "-", "") & "$" & SWITCH(
+        TRUE(),
+        ABS(_totalPotential) >= 1e9, FORMAT(ABS(_totalPotential)/1e9, "0.0") & "B",
+        ABS(_totalPotential) >= 1e6, FORMAT(ABS(_totalPotential)/1e6, "0.0") & "M",
+        ABS(_totalPotential) >= 1e3, FORMAT(ABS(_totalPotential)/1e3, "0.0") & "K",
+        FORMAT(ABS(_totalPotential), "#,##0")
+    )
+
+-- Performance Levels
+VAR _nbLevel = IF(
+    NOT _hasTarget, "no_data",
+    SWITCH(TRUE(),
+        _nbSufficiency >= 1.15, "outstanding",
+        _nbSufficiency >= 1.0,  "target_met",
+        _nbSufficiency >= 0.9,  "near_target",
+        _nbSufficiency >= 0.8,  "below_target",
+        "critical"
+    )
+)
+
+VAR _momentumLevel = SWITCH(TRUE(),
+    NOT _hasTarget,    "no_data",
+    NOT _hasProjected, "no_forecast",
+    _forecastDynamics >= 1.15, "outstanding",
+    _forecastDynamics >= 1.0,  "target_met",
+    _forecastDynamics >= 0.9,  "near_target",
+    _forecastDynamics >= 0.8,  "below_target",
+    "critical"
+)
+
+VAR _wonToTargetLevel = IF(
+    NOT _hasTarget, "no_data",
+    SWITCH(TRUE(),
+        _wonToTarget >= 1.15, "outstanding",
+        _wonToTarget >= 1.0,  "target_met",
+        _wonToTarget >= 0.9,  "near_target",
+        _wonToTarget >= 0.8,  "below_target",
+        "critical"
+    )
+)
+
+-- Theme Colors
+VAR _nbColor = SWITCH(_nbLevel,
+    "outstanding", "#7C3AED", "target_met", "#059669",
+    "near_target", "#0891B2", "below_target", "#F59E0B",
+    "no_data", "#F59E0B", "#DC2626"
+)
+VAR _momentumColor = SWITCH(_momentumLevel,
+    "outstanding", "#7C3AED", "target_met", "#059669",
+    "near_target", "#0891B2", "below_target", "#F59E0B",
+    "no_data", "#F59E0B", "no_forecast", "#6B7280", "#DC2626"
+)
+VAR _wonToTargetColor = SWITCH(_wonToTargetLevel,
+    "outstanding", "#7C3AED", "target_met", "#059669",
+    "near_target", "#0891B2", "below_target", "#F59E0B",
+    "no_data", "#F59E0B", "#DC2626"
+)
+
+-- Status Labels
+VAR _nbStatus = IF(NOT _hasTarget, "NO TARGET",
+    SWITCH(_nbLevel, "outstanding", "STRONG", "target_met", "HEALTHY",
+    "near_target", "MODERATE", "below_target", "WEAK", "CRITICAL"))
+VAR _momentumStatus = SWITCH(TRUE(),
+    NOT _hasTarget,    "NO TARGET",
+    NOT _hasProjected, "ACTUAL ONLY",
+    _momentumLevel = "outstanding",  "EXCELLENT",
+    _momentumLevel = "target_met",   "ON TRACK",
+    _momentumLevel = "near_target",  "APPROACHING",
+    _momentumLevel = "below_target", "LAGGING",
+    "AT RISK"
+)
+VAR _wonToTargetStatus = IF(NOT _hasTarget, "NO TARGET",
+    SWITCH(_wonToTargetLevel, "outstanding", "EXCEEDS", "target_met", "MET",
+    "near_target", "APPROACHING", "below_target", "BEHIND", "CRITICAL"))
+
+-- Overall Theme
+VAR _primaryColor = SWITCH(_wonToTargetLevel,
+    "outstanding", "#7C3AED", "target_met", "#059669",
+    "near_target", "#0891B2", "below_target", "#F59E0B",
+    "no_data", "#F59E0B", "#DC2626"
+)
+VAR _backgroundTint = SWITCH(_wonToTargetLevel,
+    "outstanding", "#F3F4F6", "target_met", "#ECFDF5",
+    "near_target", "#F0F9FF", "below_target", "#FFFBEB",
+    "no_data", "#FFFBEB", "#FEF2F2"
+)
+
+-- Metric Display Values
+VAR _nbSufficiencyValue = IF(NOT _hasTarget, "—", FORMAT(MIN(_nbSufficiency, 1.0), "0.0%"))
+VAR _momentumValue = SWITCH(TRUE(),
+    NOT _hasTarget,    "—",
+    NOT _hasProjected, FORMAT(DIVIDE(_financeActual, _target), "0.0%"),
+    FORMAT(_forecastDynamics, "0.0%")
+)
+VAR _wonToTargetValue = IF(NOT _hasTarget, "—", FORMAT(_wonToTarget, "0.0%"))
+VAR _momChangeDisplay = IF(NOT ISBLANK(_forecastChange) && _forecastChange <> 0,
+    FORMAT(_forecastChange, "+0.0%;-0.0%"), "0.0%")
+
+-- Insights
+VAR _insight1 =
+    IF(NOT _hasTarget,
+        "🚨 <strong>NB Sufficiency:</strong> Cannot calculate — <strong style='color: #F59E0B'>No budget target set</strong>",
+    IF(NOT _hasWtPipeline,
+        "ℹ️ <strong>NB Sufficiency:</strong> <strong style='color: #6B7280'>No weighted pipeline required as this pertains to last year</strong>",
+    IF(_gap <= 0,
+        "✅ <strong>NB Sufficiency:</strong> Target exceeded — Pipeline coverage no longer required",
+    IF(_nbSufficiency >= 1.0,
+        "✅ <strong>NB Sufficiency:</strong> Weighted pipeline (" & _displayWtOpen & ") covers the <strong style='color: " & _primaryColor & "'>" & _displayGap & "</strong> gap",
+        "⚠️ <strong>NB Sufficiency:</strong> Need <strong style='color: " & _primaryColor & "'>" & _displayNeeded & "</strong> more in qualified opportunities to close the gap"
+    ))))
+
+VAR _insight2 =
+    IF(NOT _hasTarget,
+        "ℹ️ <strong>Pipeline Momentum:</strong> Cannot calculate — <strong style='color: #F59E0B'>No budget target set</strong>",
+    IF(NOT _hasProjected,
+        "ℹ️ <strong>Pipeline Momentum:</strong> No projected revenue — Showing actual progress only (<strong style='color: " & _primaryColor & "'>" & _displayFinanceActual & "</strong>, " & FORMAT(DIVIDE(_financeActual, _target), "0.0%") & " of target)",
+        IF(_forecastDynamics >= 1.0, "✅", "⚠️") & " <strong>Pipeline Momentum:</strong> Total potential revenue (actual + projected) is <strong style='color: " & _primaryColor & "'>" & _displayTotalPotential & "</strong>, tracking at <strong style='color: " & _primaryColor & "'>" & FORMAT(_forecastDynamics, "0%") & "</strong> of target"
+    ))
+
+VAR _crmToTarget = DIVIDE(_crmWonRevenue, _target)
+VAR _insight3 =
+    IF(NOT _hasTarget,
+        "🚨 <strong>Won to Target:</strong> Cannot calculate — <strong style='color: #F59E0B'>No budget target set</strong>",
+    IF(_financeActual < 0,
+        IF(_wonToTarget >= 1.0, "✅", IF(_wonToTarget >= 0.9, "⚠️", "🚨")) & " <strong>Won to Target:</strong> At <strong style='color: " & _primaryColor & "'>" & FORMAT(_crmToTarget, "0%") & "</strong> of target (<strong style='color: " & _primaryColor & "'>" & _displayCrmWon & "</strong>) — <span style='color: #6B7280'>Finance actual not available, using CRM Wins only</span>",
+        IF(_wonToTarget >= 1.0, "✅", IF(_wonToTarget >= 0.9, "⚠️", "🚨")) & " <strong>Won to Target:</strong> Achieved <strong style='color: " & _primaryColor & "'>" & FORMAT(_wonToTarget, "0%") & "</strong> of target with <strong style='color: " & _primaryColor & "'>" & _displayWonHybrid & "</strong> closed (Finance: " & _displayFinanceActual & " | CRM Wins: " & _displayCrmWon & ")"
+    ))
+
+-- Layout Variables
+VAR _containerWidth = "500px"
+VAR _containerHeight = "270px"
+VAR _containerPadding = "15px"
+VAR _containerRadius = "12px"
+VAR _cardPadding = "8px"
+VAR _cardRadius = "8px"
+VAR _cardBorder = "1px solid #F3F4F6"
+VAR _cardBackground = "#FFFFFF"
+VAR _gridGap = "10px"
+VAR _sectionGap = "10px"
+VAR _headerGap = "8px"
+VAR _titleFontSize = "14px"
+VAR _subtitleFontSize = "10px"
+VAR _metricLabelFontSize = "8px"
+VAR _metricValueFontSize = "16px"
+VAR _statusBadgeFontSize = "7px"
+VAR _insightTitleFontSize = "11px"
+VAR _insightTextFontSize = "10px"
+VAR _titleText = "Pipeline Health Scorecard"
+VAR _subtitleText = "Coverage & Performance Overview"
+VAR _insightTitle = "Key Observations"
+VAR _textPrimary = "#1E293B"
+VAR _textSecondary = "#6B7280"
+VAR _textTertiary = "#334155"
+VAR _textBody = "#4B5563"
+
+RETURN
+"
+<div style='
+    width: " & _containerWidth & ";
+    height: " & _containerHeight & ";
+    padding: " & _containerPadding & ";
+    background: linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%);
+    border-radius: " & _containerRadius & ";
+    font-family: Segoe UI, Inter, system-ui, sans-serif;
+    color: #111827;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+    box-sizing: border-box;
+'>
+    <div style='margin-bottom: " & _headerGap & ";'>
+        <div style='font-size: " & _titleFontSize & "; font-weight: 700; margin-bottom: 2px; color: #374151;'>" & _titleText & "</div>
+        <div style='font-size: " & _subtitleFontSize & "; color: " & _textSecondary & "; font-weight: 500;'>" & _subtitleText & "</div>
+    </div>
+    <div style='display: grid; grid-template-columns: 1fr 1fr 1fr; gap: " & _gridGap & "; margin-bottom: " & _sectionGap & ";'>
+        <div style='background: " & _cardBackground & "; padding: " & _cardPadding & "; border-radius: " & _cardRadius & "; border: " & _cardBorder & "; text-align: center;'>
+            <div style='font-size: " & _metricLabelFontSize & "; color: " & _textSecondary & "; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;'>NB Sufficiency</div>
+            <div style='font-size: " & _metricValueFontSize & "; font-weight: 800; color: " & _nbColor & "; margin-bottom: 2px;'>" & _nbSufficiencyValue & "</div>
+            <div style='font-size: " & _statusBadgeFontSize & "; color: " & _nbColor & "; font-weight: 500;'>" & _nbStatus & "</div>
+        </div>
+        <div style='background: " & _cardBackground & "; padding: " & _cardPadding & "; border-radius: " & _cardRadius & "; border: " & _cardBorder & "; text-align: center;'>
+            <div style='font-size: " & _metricLabelFontSize & "; color: " & _textSecondary & "; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;'>Pipeline Momentum</div>
+            <div style='font-size: " & _metricValueFontSize & "; font-weight: 800; color: " & _momentumColor & "; margin-bottom: 2px;'>" & _momentumValue & "</div>
+            <div style='font-size: " & _statusBadgeFontSize & "; color: " & _momentumColor & "; font-weight: 500;'>" & _momentumStatus & "</div>
+        </div>
+        <div style='background: " & _cardBackground & "; padding: " & _cardPadding & "; border-radius: " & _cardRadius & "; border: " & _cardBorder & "; text-align: center;'>
+            <div style='font-size: " & _metricLabelFontSize & "; color: " & _textSecondary & "; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;'>Won to Target</div>
+            <div style='font-size: " & _metricValueFontSize & "; font-weight: 800; color: " & _wonToTargetColor & "; margin-bottom: 2px;'>" & _wonToTargetValue & "</div>
+            <div style='font-size: " & _statusBadgeFontSize & "; color: " & _wonToTargetColor & "; font-weight: 500;'>" & _wonToTargetStatus & "</div>
+        </div>
+    </div>
+    <div style='background: linear-gradient(135deg, " & _backgroundTint & " 0%, rgba(255,255,255,0.8) 100%); border: 1px solid " & _primaryColor & "25; border-radius: " & _cardRadius & "; padding: 8px 12px;'>
+        <div style='font-size: " & _insightTitleFontSize & "; font-weight: 600; color: " & _textTertiary & "; margin-bottom: 3px;'>" & _insightTitle & "</div>
+        <div style='font-size: " & _insightTextFontSize & "; color: " & _textBody & "; line-height: 1.3;'>
+            <div style='margin-bottom: 4px;'>" & _insight1 & "</div>
+            <div style='margin-bottom: 4px;'>" & _insight2 & "</div>
+            <div>" & _insight3 & "</div>
+        </div>
+    </div>
+</div>
+"

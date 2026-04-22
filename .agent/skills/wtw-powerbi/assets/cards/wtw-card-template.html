@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<!--
+  WTW Card Template
+  ─────────────────
+  Starter scaffold for WTW-branded HTML cards and dashboards.
+  All design tokens are pre-wired as CSS variables.
+
+  TO CONVERT TO DAX:
+  1. Remove <style> and <body> wrappers
+  2. Replace CSS var() references with hardcoded hex values
+  3. Wrap everything in a DAX RETURN string using string concatenation
+  4. Use FORMAT() for all number values
+  5. See html-cards.md for full DAX conversion patterns
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WTW Card Template</title>
+  <style>
+    /* ── WTW Design Tokens ─────────────────────────────────── */
+    :root {
+      /* Brand */
+      --wtw-purple:        #7F35B2;
+      --wtw-purple-light:  #9B59C8;
+      --wtw-purple-dark:   #6B2D97;
+      --wtw-purple-bg:     #F5F0FB;
+
+      /* Performance */
+      --color-outstanding: #7F35B2;
+      --color-target-met:  #059669;
+      --color-near-target: #0891B2;
+      --color-below:       #F59E0B;
+      --color-critical:    #DC2626;
+
+      --bg-outstanding:    #F3F4F6;
+      --bg-target-met:     #ECFDF5;
+      --bg-near-target:    #F0F9FF;
+      --bg-below:          #FFFBEB;
+      --bg-critical:       #FEF2F2;
+
+      /* Text */
+      --text-primary:   #1E293B;
+      --text-secondary: #6B7280;
+      --text-body:      #4B5563;
+      --text-muted:     #9CA3AF;
+
+      /* Surfaces */
+      --border-light:  #F3F4F6;
+      --border-medium: #E5E7EB;
+      --bg-alt:        #F9FAFB;
+
+      /* Typography */
+      --font: 'Segoe UI', Inter, system-ui, sans-serif;
+
+      /* Shadows */
+      --shadow-outer: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+      --shadow-inner: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+
+      /* Radius */
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: #F1F5F9;
+      padding: 32px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Outer Card Container ──────────────────────────────── */
+    .wtw-card {
+      background: linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-medium);
+      box-shadow: var(--shadow-outer);
+      padding: 20px;
+      position: relative;
+      transition: transform 200ms ease-out, box-shadow 200ms ease;
+    }
+    .wtw-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 20px -4px rgba(0,0,0,.12), 0 6px 8px -2px rgba(0,0,0,.07);
+    }
+
+    /* ── KPI Card ──────────────────────────────────────────── */
+    .kpi-card { width: 268px; }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+    }
+    .kpi-value {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+      /* Set color via JS or inline: color: var(--color-target-met) */
+    }
+    .kpi-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    /* ── Progress Bar ──────────────────────────────────────── */
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #F1F5F9;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 800ms ease-out;
+      background: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%); /* outstanding default */
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Status Badge ──────────────────────────────────────── */
+    .status-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 5px 10px;
+      border-radius: var(--radius-md);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      /* Set bg/color/border per performance level */
+    }
+    .status-badge.outstanding {
+      background: var(--bg-outstanding);
+      color: var(--color-outstanding);
+      border: 1px solid #7F35B220;
+    }
+    .status-badge.target-met {
+      background: var(--bg-target-met);
+      color: var(--color-target-met);
+      border: 1px solid #05966920;
+    }
+    .status-badge.critical {
+      background: var(--bg-critical);
+      color: var(--color-critical);
+      border: 1px solid #DC262620;
+    }
+
+    /* ── Summary Panel ─────────────────────────────────────── */
+    .summary-panel {
+      background: linear-gradient(135deg, #F3F4F6 0%, rgba(255,255,255,0.8) 100%);
+      border: 1px solid #7F35B225;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .summary-metric { text-align: center; }
+    .summary-metric-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .summary-metric-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* ── Inner metric card ─────────────────────────────────── */
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-inner);
+      padding: 12px;
+      text-align: center;
+      transition: background-color 150ms ease, border-color 150ms ease;
+    }
+    .metric-card:hover {
+      background: var(--bg-alt);
+      border-color: var(--border-medium);
+    }
+
+    /* ── Trend chip ────────────────────────────────────────── */
+    .trend-up   { color: #059669; font-weight: 700; font-size: 13px; }
+    .trend-down { color: #DC2626; font-weight: 700; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       EXAMPLE 1: KPI Card (268px — 3-column span)
+       Replace hardcoded values with DAX FORMAT() expressions
+  ════════════════════════════════════════════════════════════ -->
+  <div class="wtw-card kpi-card">
+
+    <!-- Status badge (toggle class: outstanding / target-met / critical) -->
+    <div class="status-badge outstanding">⭐ Outstanding</div>
+
+    <!-- KPI Label -->
+    <div class="kpi-label">Gross Written Premium</div>
+
+    <!-- Main value — color matches performance level -->
+    <div class="kpi-value" style="color: var(--color-outstanding);">$14.2M</div>
+
+    <!-- Context line -->
+    <div class="kpi-subtitle">
+      Target: $12.4M &nbsp;
+      <span class="trend-up">▲ 14.5% vs target</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-track">
+      <div class="progress-fill" style="width: 100%;
+        background: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%);"></div>
+    </div>
+    <div class="progress-labels">
+      <span>Achievement</span>
+      <span style="color: var(--color-outstanding); font-weight: 600;">115%</span>
+    </div>
+
+    <!-- Summary panel -->
+    <div class="summary-panel">
+      <div class="summary-metric">
+        <div class="summary-metric-label">Actual</div>
+        <div class="summary-metric-value">$14.2M</div>
+      </div>
+      <div class="summary-metric">
+        <div class="summary-metric-label">Target</div>
+        <div class="summary-metric-value">$12.4M</div>
+      </div>
+      <div class="summary-metric">
+        <div class="summary-metric-label">Variance</div>
+        <div class="summary-metric-value" style="color: var(--color-outstanding);">+15%</div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       EXAMPLE 2: 4-Metric Grid Card (580px — 6-column span)
+  ════════════════════════════════════════════════════════════ -->
+  <div class="wtw-card" style="width: 580px;">
+    <div class="kpi-label" style="margin-bottom: 14px;">Quarterly Breakdown</div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px;">
+
+      <div class="metric-card">
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Q1</div>
+        <div style="font-size: 18px; font-weight: 700; color: var(--color-target-met);">$3.1M</div>
+        <div class="trend-up" style="font-size: 11px; margin-top: 2px;">▲ 8%</div>
+      </div>
+
+      <div class="metric-card">
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Q2</div>
+        <div style="font-size: 18px; font-weight: 700; color: var(--color-near-target);">$2.8M</div>
+        <div style="font-size: 11px; color: var(--color-near-target); font-weight: 700; margin-top: 2px;">→ 95%</div>
+      </div>
+
+      <div class="metric-card">
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Q3</div>
+        <div style="font-size: 18px; font-weight: 700; color: var(--color-outstanding);">$4.4M</div>
+        <div class="trend-up" style="font-size: 11px; margin-top: 2px;">⭐ 120%</div>
+      </div>
+
+      <div class="metric-card">
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Q4</div>
+        <div style="font-size: 18px; font-weight: 700; color: var(--color-below);">$3.9M</div>
+        <div class="trend-down" style="font-size: 11px; margin-top: 2px;">▼ 84%</div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

@@ -5,6 +5,15 @@ description: Use when building, editing, or reviewing Microsoft Fabric Data Engi
 
 # WTW Fabric Data Engineering
 
+## Workflows
+
+| Workflow | When to use |
+|----------|-------------|
+| [workflow-data-exploration.md](workflow-data-exploration.md) | Starting a new project — profiling source tables, understanding grain, validating FK integrity, building the decision log before any schema design |
+| [workflow-medallion.md](workflow-medallion.md) | Building Bronze, Silver, or Gold layer notebooks — cell structure, build order, star schema design, post-execution validation |
+
+---
+
 ## Architecture — Medallion Layers
 
 | Layer | SS | Table prefix | Purpose |

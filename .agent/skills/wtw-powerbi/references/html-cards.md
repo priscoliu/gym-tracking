@@ -617,7 +617,707 @@ RETURN
 3. **Maintain contrast ratios** — Test with WebAIM Contrast Checker
 4. **Use readable font sizes** — Minimum 12px for body text
 
-## Checklist: HTML Card Implementation
+### Sales Detail Table Card (Auto-Scale, Transaction List)
+
+A professional transaction table with sticky header, WTW typography, and accessibility features. Ideal for showing recent sales, policies, or any row-level data with multiple columns.
+
+**Features**:
+- Auto-scale layout (fills visual frame)
+- Sticky header that stays visible when scrolling
+- Tabular numerals for perfect column alignment
+- Text overflow handling (ellipsis for long names)
+- Empty state messaging
+- Full ARIA accessibility
+- Hover and focus states
+- Reduced motion support
+
+**Data structure**: Works with any fact table containing transaction-level data.
+
+```dax
+Sales Detail Table Card =
+VAR _maxRows = 15
+
+-- Get top N rows from fact table, sorted by date
+VAR _tableData =
+    ADDCOLUMNS(
+        TOPN(
+            _maxRows,
+            fact_sales,
+            fact_sales[TransactionDate], DESC
+        ),
+        "@PolicyNum", fact_sales[PolicyNumber],
+        "@ProductClass", fact_sales[ProductClass],
+        "@InsuredName", fact_sales[InsuredName],
+        "@Date", fact_sales[TransactionDate],
+        "@BasePrem", fact_sales[BasePremium],
+        "@TotalPrem", fact_sales[TotalPremium],
+        "@Commission", fact_sales[Commission]
+    )
+
+VAR _rowCount = COUNTROWS(_tableData)
+
+-- Build table rows using CONCATENATEX
+VAR _tableRows =
+    CONCATENATEX(
+        _tableData,
+        VAR _basePrem = [@BasePrem]
+        VAR _totalPrem = [@TotalPrem]
+        VAR _comm = [@Commission]
+        VAR _dt = [@Date]
+        VAR _insured = [@InsuredName]
+        VAR _policy = [@PolicyNum]
+        VAR _product = [@ProductClass]
+
+        -- Format currency values
+        VAR _fmtBase = IF(ISBLANK(_basePrem) || _basePrem = 0, "$0", "$" & FORMAT(_basePrem, "#,##0"))
+        VAR _fmtTotal = IF(ISBLANK(_totalPrem) || _totalPrem = 0, "$0", "$" & FORMAT(_totalPrem, "#,##0"))
+        VAR _fmtComm = IF(ISBLANK(_comm) || _comm = 0, "$0", "$" & FORMAT(_comm, "#,##0"))
+        VAR _fmtDate = FORMAT(_dt, "DD-MMM-YY")
+
+        RETURN
+        "<tr>"
+            & "<td class='name-cell'>"
+                & "<div class='insured-name'>" & _insured & "</div>"
+                & "<div class='policy-info'>" & _policy & " • " & _product & "</div>"
+            & "</td>"
+            & "<td class='date-cell'>" & _fmtDate & "</td>"
+            & "<td class='num-cell'>" & _fmtBase & "</td>"
+            & "<td class='num-cell'>" & _fmtTotal & "</td>"
+            & "<td class='num-cell'>" & _fmtComm & "</td>"
+        & "</tr>",
+        "",           -- Empty delimiter for HTML rows
+        [@Date], DESC -- Sort by date descending
+    )
+
+-- Calculate footer totals
+VAR _totalBasePrem = SUMX(_tableData, [@BasePrem])
+VAR _totalTotalPrem = SUMX(_tableData, [@TotalPrem])
+VAR _totalComm = SUMX(_tableData, [@Commission])
+
+VAR _fmtTotalBase = IF(_totalBasePrem = 0, "$0", "$" & FORMAT(_totalBasePrem, "#,##0"))
+VAR _fmtTotalTotal = IF(_totalTotalPrem = 0, "$0", "$" & FORMAT(_totalTotalPrem, "#,##0"))
+VAR _fmtTotalComm = IF(_totalComm = 0, "$0", "$" & FORMAT(_totalComm, "#,##0"))
+
+RETURN
+"<style>
+/* Base wrapper - uses 4px grid system */
+.sales-table-wrapper {
+    font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+    padding: 20px;
+    background: #FFFFFF;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header - WTW --text-lg (18px) / 600 */
+.table-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 16px;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+/* Container with refined shadows */
+.table-container {
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.sales-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Sticky header with proper z-index layering */
+.sales-table thead {
+    position: sticky;
+    top: 0;
+    background: #FAFAFA;
+    z-index: 10;
+    box-shadow: 0 1px 0 #E5E7EB;
+}
+
+/* Column headers - WTW --text-xs (12px) / 600 */
+.sales-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6B7280;
+    white-space: nowrap;
+}
+
+.sales-table th.num-col {
+    text-align: right;
+}
+
+/* Body rows - smooth transitions */
+.sales-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: background-color 180ms ease-out;
+    cursor: default;
+}
+
+.sales-table tbody tr:hover {
+    background: #FAFAFA;
+}
+
+.sales-table tbody tr:focus-within {
+    background: #F3F4F6;
+    outline: 2px solid #7C3AED;
+    outline-offset: -2px;
+}
+
+.sales-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Name cell - refined spacing on 4px grid */
+.name-cell {
+    padding: 12px 16px;
+    max-width: 300px;
+}
+
+/* Insured name - WTW --text-sm (14px) / 600 */
+.insured-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1E293B;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Policy info - WTW --text-xs (12px) / 400 */
+.policy-info {
+    font-size: 12px;
+    font-weight: 400;
+    color: #6B7280;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Date and number cells - WTW --text-sm (14px) / 400 */
+.date-cell {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #4B5563;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.num-cell {
+    padding: 12px 16px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: #4B5563;
+    white-space: nowrap;
+}
+
+/* Footer - refined with proper hierarchy */
+.table-footer {
+    background: #FAFAFA;
+    border-top: 2px solid #7C3AED;
+}
+
+/* Footer label - WTW --text-sm (14px) / 600 */
+.table-footer td {
+    padding: 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1E293B;
+}
+
+/* Footer values - WTW --text-lg (18px) / 700 for emphasis */
+.table-footer .num-cell {
+    font-size: 18px;
+    font-weight: 700;
+    color: #7C3AED;
+}
+
+/* Refined scrollbar - macOS style */
+.table-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
+    border: 2px solid #FFFFFF;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.18);
+}
+
+/* Empty state - graceful handling */
+.empty-state {
+    padding: 48px 24px;
+    text-align: center;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .sales-table tbody tr {
+        transition: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .sales-table thead {
+        border-bottom: 2px solid currentColor;
+    }
+    .table-container {
+        border-width: 2px;
+    }
+}
+</style>
+
+<div class='sales-table-wrapper' role='region' aria-label='Recent Sales Transactions'>
+    <div class='table-header'>Recent Transactions</div>
+    <div class='table-container'>"
+        & IF(
+            _rowCount = 0,
+            "<div class='empty-state'>No transactions found</div>",
+            "<table class='sales-table' role='table'>
+                <thead>
+                    <tr role='row'>
+                        <th role='columnheader'>Insured / Policy</th>
+                        <th role='columnheader'>Date</th>
+                        <th class='num-col' role='columnheader'>Base Premium</th>
+                        <th class='num-col' role='columnheader'>Total Premium</th>
+                        <th class='num-col' role='columnheader'>Commission</th>
+                    </tr>
+                </thead>
+                <tbody>"
+                & _tableRows
+                & "</tbody>
+                <tfoot class='table-footer'>
+                    <tr role='row'>
+                        <td colspan='2'>Total (" & _rowCount & " transactions)</td>
+                        <td class='num-cell'>" & _fmtTotalBase & "</td>
+                        <td class='num-cell'>" & _fmtTotalTotal & "</td>
+                        <td class='num-cell'>" & _fmtTotalComm & "</td>
+                    </tr>
+                </tfoot>
+            </table>"
+        )
+        & "</div>
+</div>"
+```
+
+**Customization guide**:
+- **Row limit**: Change `_maxRows` variable (default: 15)
+- **Columns**: Modify ADDCOLUMNS to match your fact table structure
+- **Header labels**: Update `<th>` text in thead
+- **Date format**: Change `FORMAT(_dt, "DD-MMM-YY")` to your preferred format
+- **Footer totals**: Add/remove columns as needed
+- **Empty state**: Customize message in `<div class='empty-state'>`
+
+**Typography compliance**:
+- Header: 18px/600 (--text-lg)
+- Column headers: 12px/600 UPPERCASE (--text-xs)
+- Primary text: 14px/600 (--text-sm)
+- Secondary text: 12px/400 (--text-xs)
+- Body cells: 14px/400 (--text-sm)
+- Footer totals: 18px/700 (--text-lg) - emphasized
+
+**Key features**:
+- `font-variant-numeric: tabular-nums` ensures perfect column alignment
+- `text-overflow: ellipsis` handles very long names gracefully
+- `position: sticky` on thead keeps headers visible when scrolling
+- `role` attributes provide full accessibility for screen readers
+- Footer shows row count for context (e.g., "Total (15 transactions)")
+
+---
+
+## Catalogue Patterns
+
+Production patterns extracted from asset files. Use these as starting points — copy the structural approach, swap in your measures and field names.
+
+---
+
+### Tile with Values Breakdown
+
+**Asset**: `assets/titles/leads-overview.dax` · **Dimensions**: 463×63px (fixed)
+
+Replace a plain Power BI text title visual with a compact header that shows the page title plus inline metric pills. The fixed height keeps it anchored to the page layout without scrolling.
+
+**Key techniques:**
+- `SELECTEDVALUE(DimDate[Calendar Year], "All Years")` — context-aware period label that adapts to slicer selection
+- Metric pills use `font-weight:600; color:_highlightColor` inline, separated by pipe `|` characters
+- Fixed `width:463px; height:63px` — size must match the Power BI visual frame exactly
+- `overflow:hidden` prevents content bleed if the measure returns more text than expected
+
+```dax
+Tile_Example =
+VAR _highlightColor = "#7F35B2"    -- WTW Corporate Purple
+VAR _textPrimary    = "#374151"
+VAR _textSecondary  = "#6B7280"
+
+VAR _selectedYear = SELECTEDVALUE('DimDate'[Calendar Year], "All Years")
+
+-- Metric values (reference your measures here)
+VAR _total    = [Total Count]
+VAR _open     = [Open Count]
+VAR _fmtTotal = IF(_total >= 1000, FORMAT(_total / 1000, "#,0.0") & "K", FORMAT(_total, "#,0"))
+VAR _fmtOpen  = IF(_open  >= 1000, FORMAT(_open  / 1000, "#,0.0") & "K", FORMAT(_open,  "#,0"))
+
+RETURN
+"<div style='width:463px;height:63px;font-family:Segoe UI,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;'>" &
+  "<div style='padding:8px 16px 6px 16px;'>" &
+    "<div style='font-size:16px;font-weight:700;color:" & _textPrimary & ";'>Page Title</div>" &
+    "<div style='font-size:11px;color:" & _textSecondary & ";line-height:1.3;margin-top:2px;'>" &
+      "<span style='font-weight:600;'>In " & _selectedYear & ":</span> " &
+      "<span style='color:" & _highlightColor & ";font-weight:600;'>" & _fmtTotal & "</span> total | " &
+      "<span style='color:" & _highlightColor & ";font-weight:600;'>" & _fmtOpen  & "</span> open" &
+    "</div>" &
+  "</div>" &
+"</div>"
+```
+
+---
+
+### Cluster Bar Chart Design
+
+**Asset**: `assets/charts/top30-won-client-chart.dax` · **Dimensions**: auto-scale
+
+Rank-ordered horizontal bar chart. Bars are proportional to the max value in the dataset. Works for any top-N ranking — clients, products, regions. Requires the `<style>` tag approach (CSS pseudo-classes can't be done inline).
+
+**Key techniques:**
+- `RANKX(ALL(Table[Field]), CALCULATE([Measure]), , DESC, DENSE)` — ranks all rows across filter context
+- `FILTER(..., [@Rank] <= 30 && [@Value] > 0)` — top-N guard, excludes zeroes
+- `DIVIDE(_rev, _maxRevenue) * 100` — bar width as percentage of max, always 0–100%
+- `.bar-row:hover` CSS class changes bar color and value color — impossible without `<style>` tag
+
+```dax
+Chart_Example =
+VAR _primaryColor    = "#94A3B8"   -- Neutral slate bars (no palette competition with main card)
+VAR _hoverColor      = "#475569"
+VAR _hoverValueColor = "#10B981"
+VAR _barBg           = "#E5E7EB"
+VAR _textPrimary     = "#374151"
+VAR _textSecondary   = "#6B7280"
+
+VAR _data =
+    ADDCOLUMNS(
+        VALUES(Table[Name]),
+        "@Value", CALCULATE([Your Measure]),
+        "@Rank",  RANKX(ALL(Table[Name]), CALCULATE([Your Measure]), , DESC, DENSE)
+    )
+
+VAR _topN    = FILTER(_data, [@Rank] <= 30 && [@Value] > 0)
+VAR _maxVal  = MAXX(_topN, [@Value])
+
+VAR _styles =
+    "<style>" &
+    ".bar-row { transition: all 0.2s ease; }" &
+    ".bar-row:hover { background:#F8FAFC; border-radius:4px; margin-left:-4px; margin-right:-4px; padding-left:4px; padding-right:4px; }" &
+    ".bar-row:hover .bar-fill { background:" & _hoverColor & " !important; }" &
+    ".bar-row:hover .val-txt { color:" & _hoverValueColor & " !important; font-weight:700 !important; }" &
+    ".bar-fill { transition: all 0.2s ease; }" &
+    ".val-txt  { transition: all 0.2s ease; }" &
+    ".sc { scrollbar-width:thin; scrollbar-color:#D1D5DB transparent; }" &
+    ".sc::-webkit-scrollbar { width:4px; }" &
+    ".sc::-webkit-scrollbar-thumb { background:#D1D5DB; border-radius:2px; }" &
+    "</style>"
+
+VAR _rows =
+    CONCATENATEX(
+        _topN,
+        VAR _name = Table[Name]
+        VAR _val  = [@Value]
+        VAR _pct  = FORMAT(DIVIDE(_val, _maxVal) * 100, "0.0")
+        VAR _fmt  = IF(_val >= 1E6, FORMAT(_val/1E6,"#,0.0M"), IF(_val >= 1E3, FORMAT(_val/1E3,"#,0.0K"), FORMAT(_val,"#,0")))
+        RETURN
+        "<div class='bar-row' style='margin-bottom:10px;'>" &
+          "<div style='display:flex;justify-content:space-between;margin-bottom:3px;'>" &
+            "<span style='font-size:10px;color:" & _textPrimary & ";overflow:hidden;text-overflow:ellipsis;max-width:70%;'>" & _name & "</span>" &
+            "<span class='val-txt' style='font-size:10px;color:" & _textSecondary & ";font-weight:600;'>" & _fmt & "</span>" &
+          "</div>" &
+          "<div style='height:5px;background:" & _barBg & ";border-radius:3px;overflow:hidden;'>" &
+            "<div class='bar-fill' style='height:100%;width:" & _pct & "%;background:" & _primaryColor & ";border-radius:3px;'></div>" &
+          "</div>" &
+        "</div>",
+        "",
+        [@Rank], ASC
+    )
+
+RETURN
+_styles &
+"<div class='sc' style='width:100%;height:100%;padding:10px 14px;box-sizing:border-box;font-family:Segoe UI,sans-serif;overflow-y:auto;'>" &
+  _rows &
+"</div>"
+```
+
+**Customization**: Change `<= 30` to any N. Change `_primaryColor` to match your card's palette.
+
+---
+
+### Two-Zone Layout (Light Top + Dark Panel)
+
+**Asset**: `assets/cards/zest-card-2-hierarchy.dax` · **Dimensions**: auto-scale
+
+Splits the card into a light upper section (primary KPI + context detail) and a dark lower panel (`#212836`) for secondary/operational data. The dark zone uses `flex:1; min-height:0` to absorb all remaining height.
+
+**Key techniques:**
+- `.top { flex-shrink:0 }` — light zone stays fixed height, never compresses
+- `.btm { flex:1; min-height:0 }` — dark zone fills all remaining vertical space
+- Dark zone has its own typography tokens: `#FFFFFF` headings, `#D1D5DB` labels, `#8B95A5` muted
+- Status mini-bars: `SUMMARIZE` + `CONCATENATEX` on a status field, color-coded dot per status
+- `grid-template-columns:1fr 1fr 1fr` summary tiles anchored at bottom with `margin-top:auto`
+- Dynamic badge: `_badgeBg / _badgeTxt / _badgeLabel` driven by severity (critical > elevated > open > clear)
+
+```dax
+-- Two-zone structure (CSS class approach)
+VAR _css =
+"<style>" &
+"html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}" &
+"*{box-sizing:border-box;margin:0;padding:0;}" &
+".wrap{width:100%;height:100vh;padding:6px 16px 24px 16px;}" &
+".card{width:100%;height:100%;font-family:'Segoe UI',sans-serif;background:#FFFFFF;border-radius:20px;" &
+      "box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);padding:16px;" &
+      "display:flex;flex-direction:column;gap:10px;overflow:hidden;}" &
+-- TOP ZONE (light)
+".top{flex-shrink:0;}" &
+-- BOTTOM ZONE (dark)
+".btm{flex:1;min-height:0;background:#212836;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;}" &
+".bttl{font-size:13px;font-weight:600;color:#FFFFFF;}" &
+".bsub{font-size:11px;color:#8B95A5;}" &
+-- Summary tiles anchored to bottom of dark zone
+".grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:auto;}" &
+".tile{background:#F6F4EE;padding:8px 10px;border-radius:8px;}" &
+".tlbl{font-size:10px;color:#6B7280;margin-bottom:3px;}" &
+".tval{font-size:16px;font-weight:700;color:#1E2536;}" &
+"</style>"
+
+VAR _html =
+"<div class='wrap'><div class='card'>" &
+-- Light top zone
+"<div class='top'>... KPI + detail box ...</div>" &
+-- Dark bottom zone
+"<div class='btm'>" &
+  "<div class='bttl'>Section Title</div>" &
+  "<!-- status rows, delivery rows -->" &
+  "<div class='grid3'>" &
+    "<div class='tile'><div class='tlbl'>Metric A</div><div class='tval'>" & _valA & "</div></div>" &
+    "<div class='tile'><div class='tlbl'>Metric B</div><div class='tval'>" & _valB & "</div></div>" &
+    "<div class='tile'><div class='tlbl'>Metric C</div><div class='tval'>" & _valC & "</div></div>" &
+  "</div>" &
+"</div>" &
+"</div></div>"
+```
+
+**Status row pattern** (colored dot + label + count + mini bar):
+```dax
+VAR _statusRows =
+    CONCATENATEX(
+        ADDCOLUMNS(
+            SUMMARIZE(FactTable, FactTable[Status]),
+            "_cnt",  CALCULATE(COUNTROWS(FactTable)),
+            "_sort", SWITCH(FactTable[Status], "Open", 1, "Closed", 2, 99),
+            "_clr",  SWITCH(FactTable[Status], "Open", "#F59E0B", "Closed", "#22C55E", "#8B95A5"),
+            "_pct",  FORMAT(CONVERT(DIVIDE(CALCULATE(COUNTROWS(FactTable)), IF(_total > 0, _total, 1)) * 100, INTEGER), "0")
+        ),
+        "<div style='margin-bottom:6px;'>" &
+          "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;'>" &
+            "<div style='display:flex;align-items:center;gap:6px;'>" &
+              "<div style='width:7px;height:7px;border-radius:50%;background:" & [_clr] & ";'></div>" &
+              "<span style='font-size:12px;color:#D1D5DB;'>" & FactTable[Status] & "</span>" &
+            "</div>" &
+            "<span style='font-size:13px;font-weight:700;color:#FFFFFF;'>" & FORMAT([_cnt], "#,##0") & "</span>" &
+          "</div>" &
+          "<div style='height:3px;background:#384661;border-radius:2px;'>" &
+            "<div style='height:100%;width:" & [_pct] & "%;background:" & [_clr] & ";border-radius:2px;'></div>" &
+          "</div>" &
+        "</div>",
+        "",
+        [_sort]
+    )
+```
+
+---
+
+### Performance-Tinted Insight Panel
+
+**Asset**: `assets/cards/pipeline-health-scorecard.dax` · **Dimensions**: 500×270px (fixed)
+
+3-metric KPI grid with a dynamic insight panel whose background tint and text change based on which metric is weakest. Ideal for pipeline health, goal tracking, or any multi-KPI status card.
+
+**Key techniques:**
+- 5-level performance detection per metric: `SWITCH(TRUE(), ratio >= 1.15, "outstanding", ...)`
+- **Insight text is dynamic**: pre-written strings chosen by `SWITCH` based on which metric falls below threshold
+- `background` of insight panel is the tint color of the worst-performing metric
+- MoM delta arrows: `IF(_change >= 0, "▲", "▼")` + color `#22C55E` / `#EF4444`
+- Fixed pixel dimensions — set Power BI visual to exactly `500×270` and lock aspect ratio
+
+```dax
+-- Performance detection (run for each metric)
+VAR _ratio = DIVIDE(_actual, _target, 0)
+
+VAR _level =
+    SWITCH(TRUE(),
+        _ratio >= 1.15, "outstanding",
+        _ratio >= 1.0,  "target_met",
+        _ratio >= 0.9,  "near_target",
+        _ratio >= 0.8,  "below_target",
+        "critical"
+    )
+
+VAR _color =
+    SWITCH(_level,
+        "outstanding", "#7F35B2",
+        "target_met",  "#22C55E",
+        "near_target", "#0891B2",
+        "below_target","#F59E0B",
+                       "#DC2626"
+    )
+
+VAR _tint =
+    SWITCH(_level,
+        "outstanding", "#F5F0FB",
+        "target_met",  "#ECFDF5",
+        "near_target", "#F0F9FF",
+        "below_target","#FFFBEB",
+                       "#FEF2F2"
+    )
+
+-- Dynamic insight: pick the most important observation
+VAR _worstLevel = ... -- compare all metric levels, return the worst
+VAR _insightText =
+    SWITCH(_worstLevel,
+        "critical",     "Pipeline is critically short. Immediate action required to close gap.",
+        "below_target", "Pipeline below target. Focus on converting open opportunities.",
+        "near_target",  "Pipeline approaching target. Monitor momentum closely.",
+                        "Pipeline on track. Continue current activity levels."
+    )
+
+-- Insight panel (tinted by worst metric)
+VAR _insightPanel =
+    "<div style='background:" & _worstTint & ";border-radius:8px;padding:10px 12px;margin-top:8px;'>" &
+      "<div style='font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:" & _worstColor & ";font-weight:700;margin-bottom:4px;'>Insight</div>" &
+      "<div style='font-size:11px;color:#374151;line-height:1.5;'>" & _insightText & "</div>" &
+    "</div>"
+```
+
+**3-metric KPI grid structure:**
+```dax
+"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;'>" &
+  "<div style='text-align:center;padding:8px;background:#F9FAFB;border-radius:8px;'>" &
+    "<div style='font-size:9px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;'>Metric A</div>" &
+    "<div style='font-size:22px;font-weight:700;color:" & _colorA & ";'>" & _fmtA & "</div>" &
+    "<div style='font-size:10px;color:" & IF(_changeA >= 0, "#22C55E", "#EF4444") & ";margin-top:2px;'>" &
+      IF(_changeA >= 0, "▲", "▼") & " " & FORMAT(ABS(_changeA), "0.0%") & " MoM" &
+    "</div>" &
+  "</div>" &
+  "... repeat for B and C ..." &
+"</div>"
+```
+
+---
+
+### Sticky Matrix with JS Pagination
+
+**Asset**: `assets/tables/html-client-matrix.dax` · **Dimensions**: auto-scale
+
+A two-level grouped table (Group → Client) with sticky headers and client-side JS pagination. `rowspan` collapses repeated group values into a single merged cell. Pagination is a `<script>` block embedded in the DAX string — no server round-trips.
+
+**Key techniques:**
+- 3-level `CONCATENATEX`: outer (groups) → inner (clients within group) → innermost (LoB values per client)
+- `rowspan` on group cell: only the first client row of each group renders the group cell, subsequent rows omit it
+- `<script>` tag injected via DAX string: sets `display:none` on rows outside current page range, updates page indicator text
+- Sticky header: `position:sticky; top:0; z-index:10` on `<thead>`
+- Sort order on `SUMMARIZE` result uses an additional `_sort` column in `ADDCOLUMNS`
+
+```dax
+-- Group-level outer loop
+VAR _groups =
+    ADDCOLUMNS(
+        SUMMARIZE(FactTable, DimGroup[GroupName]),
+        "_sort", MIN(DimGroup[SortOrder]),
+        "_clientCount", CALCULATE(DISTINCTCOUNT(DimClient[ClientID]))
+    )
+
+VAR _tableRows =
+    CONCATENATEX(
+        _groups,
+        -- Client-level inner loop
+        VAR _groupName = DimGroup[GroupName]
+        VAR _clients =
+            ADDCOLUMNS(
+                CALCULATETABLE(SUMMARIZE(FactTable, DimClient[ClientName]), DimGroup[GroupName] = _groupName),
+                "_isFirst", 1   -- mark first client per group for rowspan logic
+            )
+        VAR _clientCount = COUNTROWS(_clients)
+        VAR _clientRows =
+            CONCATENATEX(
+                _clients,
+                VAR _isFirst    = [@_isFirst]
+                VAR _clientName = DimClient[ClientName]
+                RETURN
+                -- Group cell only on first client row
+                "<tr>" &
+                IF(_isFirst = 1,
+                    "<td rowspan='" & _clientCount & "' style='...'>" & _groupName & "</td>",
+                    ""   -- empty string omits the cell on subsequent rows
+                ) &
+                "<td style='...'>" & _clientName & "</td>" &
+                -- LoB value columns ...
+                "</tr>",
+                "",
+                DimClient[ClientName], ASC
+            )
+        RETURN _clientRows,
+        "",
+        [_sort], ASC
+    )
+
+-- Pagination script (inject after table, before closing </div>)
+VAR _pageScript =
+    "<script>" &
+    "var pg=1,rpp=30;" &
+    "function showPage(p){" &
+      "var rows=document.querySelectorAll('tr.data-row');" &
+      "var s=(p-1)*rpp,e=s+rpp;" &
+      "rows.forEach(function(r,i){r.style.display=i>=s&&i<e?'':'none';});" &
+      "document.getElementById('pg-indicator').textContent='Page '+p+' of '+Math.ceil(rows.length/rpp);" &
+      "pg=p;" &
+    "}" &
+    "showPage(1);" &
+    "</script>"
+```
+
+**Important**: Assign class `data-row` to every `<tr>` in tbody so the pagination script can target them.
+
+---
+
+
 
 Before deploying HTML cards, verify:
 - [ ] CSS reset: `*{margin:0;padding:0;box-sizing:border-box}` covers ALL elements (not just `html,body`)

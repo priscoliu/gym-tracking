@@ -1,0 +1,85 @@
+-- ============================================================
+-- Top 30 Won Client — Horizontal Bar Chart
+-- Rank-ordered bar chart with hover interactions
+-- Hidden scrollbar, toned-down headers
+-- Use case: Client revenue ranking, any top-N bar chart pattern
+-- Last reviewed: 2026-04-10
+-- ============================================================
+
+top30WonClientCard_Chart =
+// ========== STYLE VARIABLES ==========
+VAR _primaryColor = "#94A3B8"     // Light slate grey
+VAR _hoverColor = "#475569"       // Darker grey on hover
+VAR _hoverValueColor = "#10B981"  // Emerald for value highlight
+VAR _barBg = "#E5E7EB"
+VAR _textPrimary = "#374151"
+VAR _textSecondary = "#6B7280"
+VAR _nameFontSize = "10px"
+VAR _valueFontSize = "10px"
+VAR _barHeight = "5px"
+VAR _rowGap = "10px"
+VAR _barGap = "3px"
+
+// ========== DATA ==========
+VAR _wonData =
+    ADDCOLUMNS(
+        VALUES('FactCRM'[Account]),
+        "@WonRevenue",
+            CALCULATE([totalEstRevenue], 'FactCRM'[n.Status] = "Won"),
+        "@Rank",
+            RANKX(
+                ALL('FactCRM'[Account]),
+                CALCULATE([totalEstRevenue], 'FactCRM'[n.Status] = "Won"),
+                ,DESC, DENSE
+            )
+    )
+
+VAR _top30Won = FILTER(_wonData, [@Rank] <= 30 && [@WonRevenue] > 0)
+VAR _maxRevenue = MAXX(_top30Won, [@WonRevenue])
+
+// ========== CSS ==========
+VAR _styles =
+    "<style>" &
+    ".scroll-container { scrollbar-width: thin; scrollbar-color: #D1D5DB transparent; }" &
+    ".scroll-container::-webkit-scrollbar { width: 4px; }" &
+    ".scroll-container::-webkit-scrollbar-track { background: transparent; }" &
+    ".scroll-container::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }" &
+    ".scroll-container::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }" &
+    ".bar-row { transition: all 0.2s ease; }" &
+    ".bar-row:hover { background: #F8FAFC; border-radius: 4px; margin-left: -4px; margin-right: -4px; padding-left: 4px; padding-right: 4px; }" &
+    ".bar-row:hover .bar-fill { background: " & _hoverColor & " !important; transform: scaleY(1.2); }" &
+    ".bar-row:hover .value-text { color: " & _hoverValueColor & " !important; font-weight: 700 !important; }" &
+    ".bar-fill { transition: all 0.2s ease; transform-origin: center; }" &
+    ".value-text { transition: all 0.2s ease; }" &
+    "</style>"
+
+// ========== BUILD ROWS ==========
+VAR _rows =
+    CONCATENATEX(
+        _top30Won,
+        VAR _name = 'FactCRM'[Account]
+        VAR _rev = [@WonRevenue]
+        VAR _pct = DIVIDE(_rev, _maxRevenue, 0) * 100
+        VAR _fmtRev =
+            IF(_rev >= 1E6, FORMAT(_rev / 1E6, "#,0.0M"),
+                IF(_rev >= 1E3, FORMAT(_rev / 1E3, "#,0.0K"),
+                    FORMAT(_rev, "#,0")))
+        RETURN
+        "<div class='bar-row' style='margin-bottom:" & _rowGap & ";'>" &
+            "<div style='display:flex;justify-content:space-between;margin-bottom:" & _barGap & ";'>" &
+                "<span style='font-size:" & _nameFontSize & ";color:" & _textPrimary & ";text-transform:capitalize;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;'>" & LOWER(_name) & "</span>" &
+                "<span class='value-text' style='font-size:" & _valueFontSize & ";color:" & _textSecondary & ";font-weight:600;'>" & _fmtRev & "</span>" &
+            "</div>" &
+            "<div style='height:" & _barHeight & ";background:" & _barBg & ";border-radius:3px;overflow:hidden;'>" &
+                "<div class='bar-fill' style='height:100%;width:" & FORMAT(_pct, "0.0") & "%;background:" & _primaryColor & ";border-radius:3px;'></div>" &
+            "</div>" &
+        "</div>",
+        "",
+        [@Rank], ASC
+    )
+
+RETURN
+_styles &
+"<div class='scroll-container' style='width:100%;height:100%;padding:10px 14px;box-sizing:border-box;font-family:Segoe UI,sans-serif;overflow-y:auto;'>" &
+    _rows &
+"</div>"

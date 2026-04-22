@@ -1,0 +1,201 @@
+-- ============================================================
+-- Zest Sales Summary Card 1
+-- Full-height card: YTD premium + quotes, funnel KPIs,
+-- commission badge, scrollable product breakdown
+-- Use case: Sales performance overview
+-- Last reviewed: 2026-04-10
+-- ============================================================
+
+Sales Summary Card =
+// -- YTD measures (use these for the card) ----------------------------
+VAR _totalPremiumYTD = [Sales Premium YTD]
+VAR _commissionYTD   = [Sales Commission YTD]
+VAR _quotesCountYTD  = [Sales Quotes YTD]
+
+// -- Funnel metrics ----------------------------------------------------
+VAR _totalQuoted     = [Sales Quotes Count]
+VAR _convertedQuotes = [Quotes Converted Count]
+VAR _conversionRate  = [Quote Conversion Rate]
+VAR _policyCount     = [Sales Policy Count]
+VAR _clientCount     = [Sales Client Count]
+VAR _premiumWTD      = [Sales Premium WTD]
+VAR _quotesWTD       = [Sales Quotes WTD]
+
+// -- Smart currency format (absolute) -----------------------------------
+VAR _fmtTotal =
+    IF( _totalPremiumYTD >= 1000000,
+        "$" & FORMAT( _totalPremiumYTD / 1000000, "0.##" ) & "M",
+    IF( _totalPremiumYTD >= 1000,
+        "$" & FORMAT( _totalPremiumYTD / 1000, "0.#" ) & "K",
+        "$" & FORMAT( _totalPremiumYTD, "#,##0" ) ) )
+
+VAR _fmtComm =
+    IF( _commissionYTD >= 1000000,
+        "$" & FORMAT( _commissionYTD / 1000000, "0.##" ) & "M",
+    IF( _commissionYTD >= 1000,
+        "$" & FORMAT( _commissionYTD / 1000, "0.#" ) & "K",
+        "$" & FORMAT( _commissionYTD, "#,##0" ) ) )
+
+// -- Smart currency format (WTD delta) ----------------------------------
+VAR _fmtWTD =
+    IF( _premiumWTD >= 1000000,
+        "+$" & FORMAT( _premiumWTD / 1000000, "0.##" ) & "M",
+    IF( _premiumWTD >= 1000,
+        "+$" & FORMAT( _premiumWTD / 1000, "0.#" ) & "K",
+    IF( _premiumWTD > 0,
+        "+$" & FORMAT( _premiumWTD, "#,##0" ),
+        "$"  & FORMAT( _premiumWTD, "#,##0" ) ) ) )
+
+// -- Smart count format -------------------------------------------------
+VAR _fmtQuotes =
+    IF( _quotesCountYTD >= 1000,
+        FORMAT( _quotesCountYTD / 1000, "0.#" ) & "K",
+        FORMAT( _quotesCountYTD, "#,##0" ) )
+
+VAR _fmtQuotesWTD =
+    IF( _quotesWTD >= 1000,
+        "+" & FORMAT( _quotesWTD / 1000, "0.#" ) & "K",
+    IF( _quotesWTD > 0,
+        "+" & FORMAT( _quotesWTD, "#,##0" ),
+        FORMAT( _quotesWTD, "#,##0" ) ) )
+
+// -- Funnel KPI formatting ----------------------------------------------
+VAR _fmtTotalQuoted =
+    IF( _totalQuoted >= 1000,
+        FORMAT( _totalQuoted / 1000, "0.#" ) & "K",
+        FORMAT( _totalQuoted, "#,##0" ) )
+
+VAR _fmtConverted =
+    IF( _convertedQuotes >= 1000,
+        FORMAT( _convertedQuotes / 1000, "0.#" ) & "K",
+        FORMAT( _convertedQuotes, "#,##0" ) )
+
+VAR _fmtConvRate = FORMAT( _conversionRate, "0%" )
+
+VAR _fmtPolicies =
+    IF( _policyCount >= 1000,
+        FORMAT( _policyCount / 1000, "0.#" ) & "K",
+        FORMAT( _policyCount, "#,##0" ) )
+
+VAR _fmtClients =
+    IF( _clientCount >= 1000,
+        FORMAT( _clientCount / 1000, "0.#" ) & "K",
+        FORMAT( _clientCount, "#,##0" ) )
+
+// -- Product breakdown: ALL products by YTD premium (highest first) ----
+VAR _productData =
+    ADDCOLUMNS(
+        VALUES( fact_sales[ProductClass] ),
+        "_premYTD", CALCULATE([Sales Premium YTD]),
+        "_cntYTD",  CALCULATE([Sales Policy Count])
+    )
+
+VAR _productDataSorted =
+    FILTER(
+        _productData,
+        NOT ISBLANK([ProductClass])
+    )
+
+VAR _productRows =
+    CONCATENATEX(
+        _productDataSorted,
+        VAR _prem = IF(ISBLANK([_premYTD]), 0, [_premYTD])
+        VAR _cnt = IF(ISBLANK([_cntYTD]), 0, [_cntYTD])
+        VAR _contrib = DIVIDE(_prem, _totalPremiumYTD, 0)
+        VAR _contribPct = FORMAT(_contrib, "0%")
+        VAR _fmtPrem =
+            IF( _prem >= 1000000,
+                "$" & FORMAT( _prem / 1000000, "0.##" ) & "M",
+            IF( _prem >= 1000,
+                "$" & FORMAT( _prem / 1000, "0.#" ) & "K",
+            IF( _prem = 0,
+                "$0",
+                "$" & FORMAT( _prem, "#,##0" ) ) ) )
+        RETURN
+        "<li class='pi'>"
+        & "<div>"
+          & "<div class='pn'>" & [ProductClass] & "</div>"
+          & "<div class='pm'>" & FORMAT( _cnt, "#,##0" ) & " Sales</div>"
+        & "</div>"
+        & "<div style='text-align:right'>"
+          & "<div class='psm'>" & _fmtPrem & "</div>"
+          & "<div class='pct'>" & _contribPct & " of total</div>"
+        & "</div>"
+        & "</li>",
+        "",
+        [_premYTD], DESC
+    )
+
+// -- CSS ----------------------------------------------------------------
+VAR _css =
+    "<style>"
+    & "html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}"
+    & "*{margin:0;padding:0;box-sizing:border-box}"
+    & ".wrap{width:100%;height:100vh;padding:6px 16px 24px 16px}"
+    & ".sc{width:100%;height:100%;background:#fff;border-radius:20px;padding:32px;font-family:'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;box-shadow:0 2px 4px rgba(0,0,0,.02),0 8px 16px rgba(0,0,0,.04),0 12px 20px rgba(0,0,0,.05);display:flex;flex-direction:column}"
+    & ".hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-shrink:0}"
+    & ".mg{display:flex;gap:24px;align-items:flex-start}"
+    & ".mlb{color:#52525B;font-size:.6875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:4px}"
+    & ".mv{font-size:1.75rem;font-weight:700;line-height:1;margin-bottom:8px;font-variant-numeric:tabular-nums;color:#09090B}"
+    & ".md{font-size:.75rem;color:#65A30D;font-weight:600;display:flex;align-items:center;gap:4px}"
+    & ".mper{color:#71717A;font-weight:400}"
+    & ".cp{background:linear-gradient(135deg,#84CC16 0%,#65A30D 100%);padding:12px 14px;border-radius:14px;color:#fff;text-align:center;box-shadow:0 12px 24px -6px rgba(101,163,13,.4);min-width:90px;display:flex;flex-direction:column;align-items:center;justify-content:center}"
+    & ".cpl{font-size:.625rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;opacity:.95;margin-bottom:4px}"
+    & ".cpv{font-size:1.125rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}"
+    & ".kg{display:flex;justify-content:space-between;padding:24px 0;margin-bottom:24px;border-top:1px solid #E4E4E7;border-bottom:1px solid #E4E4E7;flex-shrink:0}"
+    & ".ki{display:flex;flex-direction:column;align-items:flex-start;flex:1}"
+    & ".kv{font-size:1.125rem;font-weight:700;color:#09090B;line-height:1.2;font-variant-numeric:tabular-nums}"
+    & ".kl{font-size:.6875rem;color:#52525B;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:4px}"
+    & ".pd{flex:1;display:flex;flex-direction:column;min-height:0}"
+    & ".st{font-size:.6875rem;color:#52525B;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;flex-shrink:0}"
+    & ".plc{flex:1;overflow-y:auto;overflow-x:hidden;padding-right:4px;margin-right:-4px;min-height:0}"
+    & ".plc::-webkit-scrollbar{width:4px}"
+    & ".plc::-webkit-scrollbar-track{background:transparent}"
+    & ".plc::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;min-height:40px;max-height:60px}"
+    & ".plc::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}"
+    & ".pl{list-style:none;display:flex;flex-direction:column;gap:2px}"
+    & ".pi{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px}"
+    & ".pn{font-size:.875rem;font-weight:600;color:#09090B}"
+    & ".pm{font-size:.75rem;color:#71717A;margin-top:2px}"
+    & ".psm{font-size:.875rem;font-weight:700;color:#09090B;font-variant-numeric:tabular-nums}"
+    & ".pct{font-size:.6875rem;color:#71717A;margin-top:2px}"
+    & "</style>"
+
+// -- Up arrow SVG -------------------------------------------------------
+VAR _arrow =
+    "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='m12 19V5'/><path d='m5 12 7-7 7 7'/></svg>"
+
+// -- HTML ---------------------------------------------------------------
+VAR _html =
+    "<div class='wrap'><div class='sc'>"
+    & "<div class='hdr'>"
+      & "<div class='mg'>"
+        & "<div>"
+          & "<span class='mlb'>Sales YTD</span>"
+          & "<div class='mv'>" & _fmtTotal & "</div>"
+          & "<div class='md'>" & _arrow & _fmtWTD & " <span class='mper'>WTD</span></div>"
+        & "</div>"
+        & "<div>"
+          & "<span class='mlb'>Quotes YTD</span>"
+          & "<div class='mv'>" & _fmtQuotes & "</div>"
+          & "<div class='md'>" & _arrow & _fmtQuotesWTD & " <span class='mper'>WTD</span></div>"
+        & "</div>"
+      & "</div>"
+      & "<div class='cp'>"
+        & "<span class='cpl'>Commission</span>"
+        & "<span class='cpv'>" & _fmtComm & "</span>"
+      & "</div>"
+    & "</div>"
+    & "<div class='kg'>"
+      & "<div class='ki'><span class='kv'>" & _fmtTotalQuoted & "</span><span class='kl'>Quotes</span></div>"
+      & "<div class='ki'><span class='kv'>" & _fmtConverted & " (" & _fmtConvRate & ")</span><span class='kl'>Converted</span></div>"
+      & "<div class='ki'><span class='kv'>" & _fmtPolicies & "</span><span class='kl'>Policies</span></div>"
+      & "<div class='ki'><span class='kv'>" & _fmtClients & "</span><span class='kl'>Clients</span></div>"
+    & "</div>"
+    & "<div class='pd'>"
+      & "<div class='st'>Product Breakdown (YTD)</div>"
+      & "<div class='plc'><ul class='pl'>" & _productRows & "</ul></div>"
+    & "</div>"
+    & "</div></div>"
+
+RETURN _css & _html

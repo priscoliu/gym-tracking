@@ -6,11 +6,11 @@ Complete color palette, thresholds, gradients, and accessibility guidelines for 
 
 ### Primary Brand Color: WTW Corporate Purple
 
-**Main Purple**: `#7C3AED`
+**Main Purple**: `#7F35B2`
 
 **Variations**:
-- Light Purple: `#8B5CF6`
-- Dark Purple: `#6D28D9`
+- Light Purple: `#9B59C8`
+- Dark Purple: `#6B2D97`
 
 **Usage**:
 - Primary CTAs and buttons
@@ -19,13 +19,13 @@ Complete color palette, thresholds, gradients, and accessibility guidelines for 
 - Hero metrics and key values
 
 **Background Tints**:
-- Subtle background: `#F5F3FF` (5% opacity)
+- Subtle background: `#F5F0FB` (5% opacity)
 - Neutral background: `#F3F4F6` (gray, when purple is too strong)
 
 ### Purple Gradient (WTW Signature)
 
 ```css
-background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+background: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%);
 ```
 
 **Usage**: Progress bars, performance cards, hero banners
@@ -36,7 +36,7 @@ background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
 
 | Performance Level | Achievement | Primary Color | Color Name | RGB | Background Tint |
 |-------------------|-------------|---------------|------------|-----|-----------------|
-| **Outstanding** | ≥115% | `#7C3AED` | WTW Purple | 124, 58, 237 | `#F3F4F6` |
+| **Outstanding** | ≥115% | `#7F35B2` | WTW Purple | 124, 58, 237 | `#F3F4F6` |
 | **Target Met** | 100-114% | `#059669` | Green | 5, 150, 105 | `#ECFDF5` |
 | **Near Target** | 90-99% | `#0891B2` | Cyan | 8, 145, 178 | `#F0F9FF` |
 | **Below Target** | 80-89% | `#F59E0B` | Amber | 245, 158, 11 | `#FFFBEB` |
@@ -60,7 +60,7 @@ VAR _performanceLevel =
 VAR _primaryColor =
     SWITCH(
         _performanceLevel,
-        "outstanding", "#7C3AED",
+        "outstanding", "#7F35B2",
         "target_met", "#059669",
         "near_target", "#0891B2",
         "below_target", "#F59E0B",
@@ -74,7 +74,7 @@ All performance colors have gradient variants for progress bars and fill areas:
 
 **Outstanding (WTW Purple)**:
 ```css
-background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+background: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%);
 ```
 
 **Target Met (Green)**:
@@ -161,23 +161,81 @@ VAR _themedBorder = "1px solid " & _primaryColor & "25"  -- 25 = ~15% opacity
 
 ## Data Visualization Color Palettes
 
-### Primary Data Palette (Multi-Category)
+Two named palettes are available. Pick one per report and apply it consistently.
 
-For bar charts, line charts, and other data visualizations with multiple categories:
+---
 
-| Order | Hex Color | Color Name | Use Case |
-|-------|-----------|------------|----------|
-| 1 | `#7C3AED` | WTW Purple | Primary series, most important category |
-| 2 | `#059669` | Green | Secondary series, positive indicators |
-| 3 | `#0891B2` | Cyan | Tertiary series, neutral data |
-| 4 | `#F59E0B` | Amber | Quaternary series, caution indicators |
-| 5 | `#EC4899` | Pink | Additional series |
-| 6 | `#8B5CF6` | Light Purple | Additional series |
+### Corporate Palette (WTW Brand-Aligned)
 
-**Usage Guidelines**:
+Anchored on WTW Corporate Purple. Use for formal executive reports and client-facing deliverables where brand alignment is mandatory.
+
+| Order | Hex | Name | Use |
+|-------|-----|------|-----|
+| 1 | `#7F35B2` | WTW Purple | Primary series |
+| 2 | `#059669` | Green | Secondary / positive |
+| 3 | `#0891B2` | Cyan | Tertiary / neutral |
+| 4 | `#F59E0B` | Amber | Caution |
+| 5 | `#EC4899` | Pink | Additional |
+| 6 | `#9B59C8` | Light Purple | Additional |
+
+**DAX block:**
+```dax
+VAR _c1 = "#7F35B2"
+VAR _c2 = "#059669"
+VAR _c3 = "#0891B2"
+VAR _c4 = "#F59E0B"
+VAR _c5 = "#EC4899"
+VAR _c6 = "#9B59C8"
+```
+
+---
+
+### Indigo Palette (Modern / Operational)
+
+Vivid, high-contrast sequence. Use for operational dashboards, leaderboards, and pipeline breakdown cards where visual pop and category distinction matter more than strict brand alignment.
+
+| Order | Hex | Name |
+|-------|-----|------|
+| 1 | `#4f46e5` | Indigo |
+| 2 | `#5ce1ff` | Sky Cyan |
+| 3 | `#e5e7eb` | Light Gray |
+| 4 | `#f59e0b` | Amber |
+| 5 | `#10b981` | Emerald |
+| 6 | `#ef4444` | Red |
+| 7 | `#8b5cf6` | Violet |
+| 8 | `#f97316` | Orange |
+| 9 | `#06b6d4` | Cyan |
+| 10 | `#84cc16` | Lime |
+| 11 | `#ec4899` | Pink |
+| 12 | `#14b8a6` | Teal |
+| fallback | `#94a3b8` | Slate |
+
+**Chart bar colors (Won / Open):**
+- Won Revenue: `#22C55E` (green)
+- Open Pipeline: `#22D3EE` (cyan)
+
+**DAX block:**
+```dax
+VAR _c1      = "#4f46e5"
+VAR _c2      = "#5ce1ff"
+VAR _c3      = "#e5e7eb"
+VAR _c4      = "#f59e0b"
+VAR _c5      = "#10b981"
+VAR _c6      = "#ef4444"
+VAR _c7      = "#8b5cf6"
+VAR _c8      = "#f97316"
+VAR _c9      = "#06b6d4"
+VAR _c10     = "#84cc16"
+VAR _c11     = "#ec4899"
+VAR _c12     = "#14b8a6"
+VAR _cFallbk = "#94a3b8"
+VAR _cWon    = "#22C55E"
+VAR _cOpen   = "#22D3EE"
+```
+
+**Usage Guidelines (both palettes)**:
 - Limit to **5-6 colors maximum** per chart for readability
-- Use WTW Purple for the most important series
-- Reserve red (#DC2626) for negative/critical data only
+- Reserve red for negative/critical data only
 - Maintain sufficient contrast between adjacent colors
 
 ### Sequential Palette (Single Hue Progression)
@@ -185,13 +243,13 @@ For bar charts, line charts, and other data visualizations with multiple categor
 For heatmaps, choropleth maps, or graduated scales:
 
 **Purple Sequential** (Light → Dark):
-1. `#F5F3FF` (lightest)
+1. `#F5F0FB` (lightest)
 2. `#E9D5FF`
 3. `#C4B5FD`
 4. `#A78BFA`
-5. `#8B5CF6`
-6. `#7C3AED`
-7. `#6D28D9` (darkest)
+5. `#9B59C8`
+6. `#7F35B2`
+7. `#6B2D97` (darkest)
 
 **Green Sequential** (Light → Dark):
 1. `#ECFDF5`
@@ -255,13 +313,13 @@ These combinations meet WCAG AA standards:
 - ⚠️ `#9CA3AF` (Muted Text) → 3.2:1 contrast (large text only)
 
 **White Text on Colored Backgrounds**:
-- ✅ `#FFFFFF` on `#7C3AED` (WTW Purple) → 5.2:1 contrast
+- ✅ `#FFFFFF` on `#7F35B2` (WTW Purple) → 5.2:1 contrast
 - ✅ `#FFFFFF` on `#059669` (Green) → 4.7:1 contrast
 - ✅ `#FFFFFF` on `#0891B2` (Cyan) → 3.5:1 contrast (large text only)
 - ✅ `#FFFFFF` on `#DC2626` (Red) → 5.5:1 contrast
 
 **Colored Text on White Background**:
-- ✅ `#7C3AED` (WTW Purple) on `#FFFFFF` → 5.2:1 contrast
+- ✅ `#7F35B2` (WTW Purple) on `#FFFFFF` → 5.2:1 contrast
 - ✅ `#059669` (Green) on `#FFFFFF` → 4.7:1 contrast
 - ⚠️ `#0891B2` (Cyan) on `#FFFFFF` → 3.5:1 contrast (large text only)
 - ✅ `#DC2626` (Red) on `#FFFFFF` → 5.5:1 contrast
@@ -307,7 +365,7 @@ These combinations meet WCAG AA standards:
 
 ### Charts (Native Visuals)
 
-- **Primary series**: WTW Purple (`#7C3AED`)
+- **Primary series**: WTW Purple (`#7F35B2`)
 - **Secondary series**: Green, Cyan, Amber (avoid red unless critical)
 - **Axis lines**: `#E5E7EB` (light gray)
 - **Grid lines**: `#F3F4F6` (very light gray)
@@ -326,8 +384,8 @@ These combinations meet WCAG AA standards:
 ### Button/Interactive Hover
 
 **Primary Button (WTW Purple)**:
-- Default: `#7C3AED`
-- Hover: `#6D28D9` (10% darker)
+- Default: `#7F35B2`
+- Hover: `#6B2D97` (10% darker)
 - Active: `#5B21B6` (20% darker)
 
 **Secondary Button (Neutral)**:
@@ -353,12 +411,12 @@ Copy this block into your DAX measures for consistent coloring:
 
 ```dax
 -- WTW Brand
-VAR _wtwPurple = "#7C3AED"
-VAR _wtwPurpleLight = "#8B5CF6"
-VAR _wtwPurpleDark = "#6D28D9"
+VAR _wtwPurple = "#7F35B2"
+VAR _wtwPurpleLight = "#9B59C8"
+VAR _wtwPurpleDark = "#6B2D97"
 
 -- Performance Colors
-VAR _colorOutstanding = "#7C3AED"
+VAR _colorOutstanding = "#7F35B2"
 VAR _colorTargetMet = "#059669"
 VAR _colorNearTarget = "#0891B2"
 VAR _colorBelowTarget = "#F59E0B"
@@ -396,9 +454,9 @@ Use when the Power BI report canvas background is dark (common in executive dash
 
 ### Brand Color on Dark
 
-WTW Purple remains `#7C3AED` on dark backgrounds — no adjustment needed (5.2:1 contrast on dark canvas).
+WTW Purple remains `#7F35B2` on dark backgrounds — no adjustment needed (5.2:1 contrast on dark canvas).
 
-For backgrounds behind purple elements, use `#1E0A45` (very dark purple) instead of `#F5F3FF`.
+For backgrounds behind purple elements, use `#1E0A45` (very dark purple) instead of `#F5F0FB`.
 
 ### Performance Colors on Dark
 
@@ -406,7 +464,7 @@ Performance colors are unchanged — they are bright enough to meet contrast on 
 
 | Level | Color | Contrast on `#0F172A` | Status |
 |-------|-------|----------------------|--------|
-| Outstanding (Purple) | `#7C3AED` | 5.2:1 | ✅ AA |
+| Outstanding (Purple) | `#7F35B2` | 5.2:1 | ✅ AA |
 | Target Met (Green) | `#10B981` | 6.1:1 | ✅ AA (use lighter shade) |
 | Near Target (Cyan) | `#22D3EE` | 8.4:1 | ✅ AA (use lighter shade) |
 | Below Target (Amber) | `#FBBF24` | 9.2:1 | ✅ AA (use lighter shade) |
@@ -452,10 +510,32 @@ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
 
 ---
 
+## Confirmed Color Pairings
+
+Validated combinations used in production WTW reports.
+
+### Nav + Table Header + Accent (Client Matrix)
+
+| Role | Hex | Notes |
+|---|---|---|
+| Page navigation / top bar | `#1E1B4B` | Deep indigo-navy — shares purple undertone with brand |
+| Table header background | `#ffffff` | Same as canvas — header recedes, data comes forward |
+| Table header text | `#6B7280` | Muted grey, weight 600 — visible but not dominant |
+| Table header bottom border | `1px solid #E5E7EB` | Matches row borders — consistent, no visual jump |
+| Accent (bullets, tier 1 dots) | `#7F35B2` | Brand purple reserved for data signals only |
+| Row / column borders | `1px solid #E5E7EB` | Standard medium border |
+| Outer container | `1px solid #E5E7EB`, `border-radius:8px` | Frames the table without competing |
+
+**Why this works**: Nav `#1E1B4B` anchors the page. White header lets the nav own the dark layer — the table floats below it cleanly. WTW purple appears only as accent (bullets, tier dots, C/P indicators) where it signals meaning, not decoration. Pattern matches Linear, Notion, Airtable — reads premium, not default BI.
+
+**Avoid**: `#051C2C` (blue-black) as nav alongside `#7F35B2` accents — blue vs purple tension is visible to a trained eye.
+
+---
+
 ## Checklist: Color System Compliance
 
 Before publishing, verify:
-- [ ] WTW Purple (`#7C3AED`) used for primary brand elements
+- [ ] WTW Purple (`#7F35B2`) used for primary brand elements
 - [ ] Performance colors follow standard thresholds (115%, 100%, 90%, 80%)
 - [ ] Neutral text hierarchy used (avoid colored text for labels)
 - [ ] All text meets WCAG AA contrast (4.5:1 for normal, 3:1 for large)
