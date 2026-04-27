@@ -22,7 +22,6 @@ Upstream reference: Gold Layer Documentation — R&B SalesOps. Source: PAS Silve
 | `Gold_SalesOps_Dim_Client` | Source-level party | `PartyId` |
 | `Gold_SalesOps_Dim_FinancialGeography` | WTW financial geography node | `GlobalFinancialGeographyId` |
 | `Gold_SalesOps_Fact_Transaction` | Transaction detail line (~434M rows) | `TransactionDetailId` |
-| `Gold_SalesOps_Bridge_ClientProductPresence` | Client × Product Line × Year | `ClientPartyId + GlobalProductLineId + InceptionYear` (composite) |
 
 ### Three levels of "client"
 
@@ -40,19 +39,16 @@ Illustrative: if Singtel has Property in Epic, Casualty in Eclipse, and Marine i
 
 | Table | Role for cross-sell |
 |---|---|
-| `Bridge_ClientProductPresence` | **Primary.** Presence engine — who has what. |
-| `Fact_Transaction` | Revenue dollars per client / line. Don't scan unless needed. |
+| `Fact_Transaction` | **Primary.** Provides both revenue dollars and presence (via DISTINCTCOUNT of Product Lines). |
 | `Dim_Client` | Client attributes, segmentation, tier, firmographics. |
+| `Dim_ProductLine` | Distinct list of Product Lines for slicers and whitespace mapping. |
 | `Dim_FinancialGeography` | Geographic slicing on transactions. |
-
-Roughly 60% of Stage 1 queries will hit Bridge only. Drop into Fact only when revenue is needed.
 
 ### Data traps documented in Gold
 
 - Revenue measure is `TotalWTWRevenueUSD_Adj` — sum with NO role filter. Using `SUM(GrossBrokerageUSD)` alone misses ShareBroker revenue; using unfiltered `NetPremiumUSD` double-counts.
 - If premium is needed: `GrossPremiumUSD` filtered on `GlobalPartyRoleId = 100`, or `NetPremiumUSD` filtered on `= 102`. Never both summed.
-- `GlobalProductLineId` is 24% NULL in `TransactionDetail`. Fact already COALESCEs with Product table; Bridge filters NULL out entirely.
-- Bridge only carries presence, not dollars. A client-product cell means at least one policy existed that year — no size signal.
+- `GlobalProductLineId` is 24% NULL in `TransactionDetail`. Fact already COALESCEs with Product table. For cross-sell analysis, filter out `GlobalProductLineId IS NULL`.
 - ShareBroker is 0.05% of clients — ignore for Stage 1.
 
 ---
@@ -74,17 +70,16 @@ Roughly 60% of Stage 1 queries will hit Bridge only. Drop into Fact only when re
 | Role | Model table name | Source | Storage |
 |---|---|---|---|
 | Fact | `Fact_Transaction` | `Gold_SalesOps_Fact_Transaction` | Direct Lake (fallback: Import + agg) |
-| Fact (factless) | `Fact_Presence` | `Gold_SalesOps_Bridge_ClientProductPresence` | Direct Lake |
 | Dim | `Dim_Client` | `Gold_SalesOps_Dim_Client` | Direct Lake |
-| Dim | `Dim_ProductLine` | New view (see below) | Import |
+| Dim | `Dim_ProductLine` | `Gold_SalesOps_Dim_ProductLine` (View) | Import |
 | Dim | `Dim_FinancialGeography` | `Gold_SalesOps_Dim_FinancialGeography` | Import |
 | Dim | `Dim_Date` | Generated calendar | Import, marked as date table |
 
-Bridge is renamed `Fact_Presence` at the semantic-model layer only. The Gold table name is unchanged. A factless fact table is the correct pattern for presence-only data.
+Since there is no physical Bridge table, presence metrics will be calculated directly on `Fact_Transaction` using DAX.
 
 ### New view: Dim_ProductLine
 
-Required because Bridge and Fact both carry `GlobalProductLineId` and `GlobalProductLine` as denormalised strings — there is no dedicated product-line dimension in Gold. Without this, the whitespace `CROSS JOIN` has no "all products" axis.
+Required because `Fact_Transaction` carries `GlobalProductLineId` and `GlobalProductLine` as denormalised strings — there is no dedicated product-line dimension in Gold. Without this, the whitespace `CROSS JOIN` has no "all products" axis.
 
 ```sql
 CREATE OR ALTER VIEW Gold_SalesOps_Dim_ProductLine AS
@@ -103,20 +98,12 @@ Small (~20 rows). Import mode.
 
 ```
 Dim_Date               1:* ──> Fact_Transaction[InceptionDate]
-Dim_Date               1:* ──> Fact_Presence[InceptionYear]  (via YearKey)
-
 Dim_Client             1:* ──> Fact_Transaction[ClientPartyId]
-Dim_Client             1:* ──> Fact_Presence[ClientPartyId]
-
 Dim_ProductLine        1:* ──> Fact_Transaction[GlobalProductLineId]
-Dim_ProductLine        1:* ──> Fact_Presence[GlobalProductLineId]
-
 Dim_FinancialGeography 1:* ──> Fact_Transaction[GlobalFinancialGeographyId]
 ```
 
-All single-direction. No bi-directional filtering — with two fact-like tables sharing dims, bi-di causes ambiguity.
-
-`Dim_FinancialGeography` only touches `Fact_Transaction`. Presence is client-level; geography is transaction-level. No direct path from Geography to `Fact_Presence`.
+All single-direction filtering.
 
 ### Dim_Client — columns exposed / hidden
 
@@ -131,7 +118,7 @@ All single-direction. No bi-directional filtering — with two fact-like tables 
 ### Penetration
 
 - `Client Count = DISTINCTCOUNT(Dim_Client[GlobalPartyId])`
-- `LOB Count` (per client) — distinct product lines held, via `Fact_Presence`
+- `LOB Count` (per client) — distinct product lines held, calculated via `DISTINCTCOUNT(Fact_Transaction[GlobalProductLineId])`
 - `LOB Bucket` — 1 / 2 / 3 / 4+
 - `% of clients in bucket`
 
@@ -162,12 +149,12 @@ SELECT
 FROM Gold_SalesOps_Dim_Client;
 ```
 
-### 2. Orphan ClientPartyId in Bridge
+### 2. Orphan ClientPartyId in Fact_Transaction
 
 ```sql
 SELECT COUNT(*) AS orphans
-FROM Gold_SalesOps_Bridge_ClientProductPresence b
-LEFT JOIN Gold_SalesOps_Dim_Client c ON c.PartyId = b.ClientPartyId
+FROM Gold_SalesOps_Fact_Transaction f
+LEFT JOIN Gold_SalesOps_Dim_Client c ON c.PartyId = f.ClientPartyId
 WHERE c.PartyId IS NULL;
 ```
 
@@ -176,12 +163,12 @@ WHERE c.PartyId IS NULL;
 ```sql
 WITH client_lobs AS (
     SELECT
-        dc.GlobalPartyId,
-        COUNT(DISTINCT b.GlobalProductLineId) AS lob_count
-    FROM Gold_SalesOps_Bridge_ClientProductPresence b
-    JOIN Gold_SalesOps_Dim_Client dc ON dc.PartyId = b.ClientPartyId
-    WHERE dc.GlobalPartyId IS NOT NULL
-    GROUP BY dc.GlobalPartyId
+        COALESCE(dc.GlobalPartyId, dc.PartyId) AS CrossSellEntityId,
+        COUNT(DISTINCT f.GlobalProductLineId) AS lob_count
+    FROM Gold_SalesOps_Fact_Transaction f
+    JOIN Gold_SalesOps_Dim_Client dc ON dc.PartyId = f.ClientPartyId
+    WHERE f.GlobalProductLineId IS NOT NULL
+    GROUP BY COALESCE(dc.GlobalPartyId, dc.PartyId)
 )
 SELECT
     CASE
