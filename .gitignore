@@ -27,6 +27,9 @@ Thumbs.db
 # Python virtual environments
 .venv/
 
+# PySpark / Databricks type stubs (auto-generated, not source)
+.stubs/
+
 # Temporary files
 *.tmp
 *.temp
