@@ -2,6 +2,23 @@
 
 Complete guide to creating professional HTML cards using DAX for Power BI reports. These components use HTML/CSS within DAX measures to create custom visualizations.
 
+## Table of Contents
+
+| Section | What's inside | Jump to when |
+|---------|--------------|--------------|
+| [Overview](#overview) | What an HTML card is and how it renders in Power BI | First-time orientation |
+| [Standard Container Structure](#standard-container-structure) | Root `<div>` boilerplate, dimensions, padding | Starting any card from scratch |
+| [Auto-Scale Layout (Responsive)](#auto-scale-layout-responsive) | `flex` + `100vh` patterns for variable visual frames | Card needs to resize with the visual |
+| [Shadow Clipping Prevention](#shadow-clipping-prevention) | Wrapper padding rules so shadows aren't cut off | Outer shadow looks clipped at edges |
+| [Grid Layouts](#grid-layouts) | 2/3/4-column grids for KPI strips | Multiple equal-weight KPIs side by side |
+| [Progress Bar with Benchmark](#progress-bar-with-benchmark) | Bar + target line + label | Showing actual vs target visually |
+| [Status Badge (Top-Right Corner)](#status-badge-top-right-corner) | Pill in upper right with status color | Performance indicator on a card |
+| [Summary Panel (Bottom Section)](#summary-panel-bottom-section) | Tinted insight strip at the bottom | Plain-language verdict / commentary |
+| [Typography Patterns](#typography-patterns) | Standard font sizes, weights, colors | Setting hero KPI / labels / body text |
+| [Complete Card Examples](#complete-card-examples) | Full Executive Summary card walkthrough | Building a new card by analogy |
+| [Best Practices](#best-practices) | What to do / not do (large section, ~365 lines) | When unsure about a structural choice |
+| [Catalogue Patterns](#catalogue-patterns) | Proven recipes (tile, two-zone, sticky matrix, gradient heatmap) | Picking a layout for a specific story |
+
 ## Overview
 
 HTML cards are created by:
@@ -1239,6 +1256,64 @@ VAR _insightPanel =
   "... repeat for B and C ..." &
 "</div>"
 ```
+
+---
+
+### Profile Card (Client / Entity Lookup)
+
+**Asset**: `assets/cards/loom-client-lookup.dax` · **Dimensions**: auto-scale (fills visual frame)
+
+A full-height profile card for a selected client or entity. Shows identity metadata (name, GUO parent, industry, country, tier), a 3-column KPI strip, held product class pills, and whitespace opportunity pills. `flex:1` on the last section eliminates bottom gap.
+
+**Key techniques:**
+- Guard with `COUNTROWS(VALUES(dim_client[PartyId])) = 1` — all heavy logic scoped inside the `IF` so it only runs when exactly one client is selected
+- `_noSelectionHtml` fallback — centred placeholder when no client is in filter context
+- `_heldClasses` derived from fact table (`SUMMARIZE(FILTER(fact, revenue > 0))`) — never from `VALUES(dim)`. See cross-sell pattern in `dax-patterns.md`
+- `EXCEPT(_allClasses, _heldClasses)` for whitespace gap
+- `TREATAS()` remaps column lineage when reading from `PenetrationMatrix` so `EXCEPT` resolves correctly
+- `flex:1` on `_secWhitespace` — expands into all remaining vertical space
+- All colors, font sizes, radius declared as token vars at the top of the measure (see `design-values.md`)
+
+**Card layout:**
+```
+Client Name                         (font-weight:700, _fzHeader)
+Part of [GUO]                       (conditional, _fzMeta, _textTertiary)
+Industry · Country                  (_fzMeta, _textTertiary)
+Tier / Segmentation                 (_fzMeta, _wtwPurple, font-weight:600)
+────────────────────────────────────────────────────────────
+[Revenue]    [Product Lines]    [Whitespace count]   ← _secKpis
+────────────────────────────────────────────────────────────
+CURRENT N PRODUCT CLASSES           ← _secHeld
+[pill] [pill] ...
+────────────────────────────────────────────────────────────
+WHITESPACE OPPORTUNITIES            ← _secWhitespace (flex:1)
+[pill] [pill] ...
+```
+
+**Token vars required** (declare at top of measure):
+```dax
+VAR _fontFamily    = "Segoe UI, sans-serif"
+VAR _wtwPurple     = "#7F35B2"
+VAR _wtwPurpleBg   = "#F5F0FB"
+VAR _wtwPurpleTint = "#D8B4FE"
+VAR _textPrimary   = "#181B1D"
+VAR _textSecondary = "#485257"
+VAR _textTertiary  = "#606E74"
+VAR _textMuted     = "#9CA3AF"
+VAR _textGreen     = "#059669"
+VAR _bgAlt         = "#F9FAFB"
+VAR _borderMedium  = "#E5E7EB"
+VAR _radiusSm      = "6px"
+VAR _radiusPill    = "99px"
+VAR _fzLabel       = "12px"
+VAR _fzMeta        = "13px"
+VAR _fzPill        = "13px"
+VAR _fzFallback    = "14px"
+VAR _fzHeader      = "17px"
+VAR _fzKpi         = "22px"
+```
+
+Full working code: `assets/cards/loom-client-lookup.dax`
 
 ---
 

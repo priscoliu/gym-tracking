@@ -2,6 +2,24 @@
 
 Complete guide to DAX naming conventions, variables, performance detection logic, and standard measure patterns for WTW Power BI reports.
 
+## Table of Contents
+
+| Section | What's inside | Jump to when |
+|---------|--------------|--------------|
+| [DAX Naming Conventions](#dax-naming-conventions) | Measure / variable / column naming rules | Starting a new measure or refactor |
+| [Performance Level Detection](#performance-level-detection) | SWITCH logic mapping % to "Outstanding/Met/Near/Below/Critical" | Building any KPI with a target |
+| [Standard Color Variables (HTML Cards)](#standard-color-variables-html-cards) | `_c1` … `_c5`, text + background tokens | At the top of every HTML card measure |
+| [Standard Measure Patterns](#standard-measure-patterns) | YTD, QTD, MTD, YoY, MoM, vs Target, prior-period | Building time intelligence measures |
+| [KPI Card Measures](#kpi-card-measures) | Returning HTML for a single KPI tile | Building a tile in a dashboard |
+| [Number Formatting](#number-formatting) | $K / $M / accounting-format helpers | Any currency value in HTML output |
+| [DAX Formatting Standards](#dax-formatting-standards-mandatory) | Indentation, line breaks, casing | Reviewing or normalising DAX style |
+| [DAX Optimization Best Practices](#dax-optimization-best-practices) | Variables over recalculation, avoid `FILTER(table)`, etc. | Slow measure or model running >3s |
+| [Common Patterns Cheat Sheet](#common-patterns-cheat-sheet) | One-line snippets for frequent tasks | Looking up a familiar pattern |
+| [HTML Card Patterns](#html-card-patterns) | DAX → HTML string assembly recipes | Composing a multi-section card |
+| [Cross-Sell & Whitespace Analysis](#cross-sell--whitespace-analysis) | `EXCEPT()` / penetration logic | Building a "what's missing" view |
+| [Pre-Aggregated Calculated Table (Matrix Performance)](#pre-aggregated-calculated-table-matrix-performance) | Calculated table to speed up matrix visuals | Matrix loads slowly, need to pre-roll |
+| [Checklist: DAX Best Practices](#checklist-dax-best-practices) | Quick review list | End-of-task self-check |
+
 ## DAX Naming Conventions
 
 ### Measures
@@ -93,7 +111,7 @@ VAR _achievementRatio = DIVIDE([Sales Total], [Sales Target], 0)
 VAR _primaryColor =
     SWITCH(
         TRUE(),
-        _achievementRatio >= 1.15, "#7C3AED",  -- WTW Purple (outstanding)
+        _achievementRatio >= 1.15, "#7F35B2",  -- WTW Purple (outstanding)
         _achievementRatio >= 1.0, "#059669",   -- Green (target met)
         _achievementRatio >= 0.9, "#0891B2",   -- Cyan (near target)
         _achievementRatio >= 0.8, "#F59E0B",   -- Amber (below target)
@@ -112,7 +130,7 @@ RETURN
 VAR _primaryColor =
     SWITCH(
         _performanceLevel,
-        "outstanding", "#7C3AED",  -- WTW Purple
+        "outstanding", "#7F35B2",  -- WTW Purple
         "target_met", "#059669",   -- Green
         "near_target", "#0891B2",  -- Cyan
         "below_target", "#F59E0B", -- Amber
@@ -134,7 +152,7 @@ VAR _backgroundTint =
 VAR _gradientFill =
     SWITCH(
         _performanceLevel,
-        "outstanding", "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+        "outstanding", "linear-gradient(135deg, #8B5CF6 0%, #7F35B2 100%)",
         "target_met", "linear-gradient(135deg, #10B981 0%, #059669 100%)",
         "near_target", "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)",
         "below_target", "linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)",
@@ -437,13 +455,52 @@ VAR _variance = [Sales vs Target %]
 RETURN
     SWITCH(
         TRUE(),
-        _variance >= 0.15, "#7C3AED",  -- WTW Purple
+        _variance >= 0.15, "#7F35B2",  -- WTW Purple
         _variance >= 0.10, "#059669",  -- Green
         _variance >= 0, "#0891B2",     -- Cyan
         _variance >= -0.10, "#F59E0B", -- Amber
         "#DC2626"                       -- Red
     )
 ```
+
+## DAX Formatting Standards (Mandatory)
+
+### Rule 1 — Always declare variables first
+
+Every non-trivial measure must open with VAR declarations before any RETURN logic. The only exception is a pure single-aggregation with no conditional logic (e.g. `SUM(Table[Col])`, `DISTINCTCOUNT(Table[Col])`).
+
+**❌ BAD**:
+```dax
+Global Client Count YoY % =
+DIVIDE([Client Count] - [Global Client Count PY], [Global Client Count PY])
+```
+
+**✅ GOOD**:
+```dax
+Global Client Count YoY % =
+VAR _current = [Client Count]
+VAR _prior = [Global Client Count PY]
+RETURN
+    DIVIDE(_current - _prior, _prior)
+```
+
+### Rule 2 — Capture every measure reference in a VAR before use
+
+Any `[Measure]` reference must be assigned to a `_variable` before it is used in logic. Never reference the same measure twice inline — always capture it once.
+
+**❌ BAD** (`[Global Client Count PY]` evaluated twice):
+```dax
+DIVIDE([Client Count] - [Global Client Count PY], [Global Client Count PY])
+```
+
+**✅ GOOD**:
+```dax
+VAR _current = [Client Count]
+VAR _prior = [Global Client Count PY]
+RETURN DIVIDE(_current - _prior, _prior)
+```
+
+---
 
 ## DAX Optimization Best Practices
 
@@ -538,6 +595,59 @@ VAR _rawData =
 
 Use `UNION` + `SELECTCOLUMNS` (not `SWITCH` returning tables) — all branches must share the same column schema (`Label`, `Revenue`, `Dim`). `SWITCH` returning tables causes "expression refers to multiple columns" errors.
 
+### Rule 3 — Large models: pre-aggregate with SUMMARIZE, never FILTER/SUMX over fact VALUES
+
+On models with 100M+ rows, **never** call a measure inside `FILTER(VALUES(fact[Key]), [Measure])` or `SUMX(VALUES(fact[Key]), [Measure])`. Each row triggers a full context transition — a separate storage engine query per client/product/key.
+
+**❌ BAD** (one storage engine round-trip per unique GlobalPartyId):
+```dax
+Clients with 1 LOB =
+VAR _clients =
+    FILTER(
+        VALUES(gold_salesops_fact_transaction[GlobalPartyId]),
+        [Client Product count] = 1
+    )
+RETURN COUNTROWS(_clients)
+```
+
+**✅ GOOD** (single vectorized fact scan, no context transitions):
+```dax
+Clients with 1 LOB =
+VAR _clientSummary =
+    ADDCOLUMNS(
+        SUMMARIZE(
+            gold_salesops_fact_transaction,
+            gold_salesops_fact_transaction[GlobalPartyId]
+        ),
+        "_classCount",
+        CALCULATE(
+            DISTINCTCOUNT(gold_salesops_fact_transaction[GlobalProductClassId]),
+            NOT ISBLANK(gold_salesops_fact_transaction[GlobalProductClassId])
+        )
+    )
+RETURN
+    COUNTROWS(FILTER(_clientSummary, [_classCount] = 1))
+```
+
+When you need a simple count of unique (key1, key2) pairs (e.g. total LOB-client associations), use SUMMARIZE directly — no ADDCOLUMNS needed:
+
+```dax
+LOB Count =
+VAR _pairs =
+    SUMMARIZE(
+        FILTER(fact, NOT ISBLANK(fact[ProductClassId])),
+        fact[PartyId],
+        fact[ProductClassId]
+    )
+RETURN COUNTROWS(_pairs)
+```
+
+**Anti-patterns that cause "expression services limit" errors on large models**:
+- `FILTER(VALUES(fact[Key]), [Measure])` — context transition per row
+- `SUMX(VALUES(fact[Key]), [Measure])` — context transition per row
+- `ADDCOLUMNS(VALUES(dim[Key]), "_col", [Measure])` when dim has many rows
+- Nested `CONCATENATEX` + `INTERSECT` over large virtual tables (flatten to SUMMARIZE first)
+
 ### Avoid Calculated Columns When Possible
 
 **❌ BAD** (calculated column — evaluated for every row in table):
@@ -599,7 +709,34 @@ VAR _borderMedium = "#E4E7E9"
 -- === Shadows (token-matched) ===
 VAR _shadowOuter = "0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05)"
 VAR _shadowInner = "0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.04)"
+-- === Typography (font-size strings for CSS) ===
+VAR _fs2xs = "0.5625rem"  -- 9px  micro labels
+VAR _fsXs  = "0.6875rem"  -- 11px captions, badges, muted hints
+VAR _fsSm  = "0.75rem"    -- 12px labels, sub-values
+VAR _fsMd  = "0.875rem"   -- 14px body text
+VAR _fsLg  = "1rem"       -- 16px secondary values
+VAR _fsXl  = "1.25rem"    -- 20px card values (small KPIs, N/A states)
+VAR _fs2xl = "1.5rem"     -- 24px KPI values
+VAR _fs3xl = "1.75rem"    -- 28px hero values, primary KPI
+-- === Border Radius (radius strings for CSS) ===
+VAR _radSm   = "4px"     -- tags, inner chips
+VAR _radMd   = "8px"     -- cards, panels, chart areas
+VAR _radLg   = "12px"    -- outer containers
+VAR _radXl   = "16px"    -- feature cards, modals
+VAR _radFull = "9999px"  -- pill badges, progress bars
 ```
+
+**Typography scale** maps to Segoe UI weights:
+- `_fs2xs` / `_fsXs` — always paired with `font-weight:600` (uppercase labels) or `font-weight:400` (hints)
+- `_fsSm` — labels and sub-values, `font-weight:400`–`600`
+- `_fsMd` — body, list text, `font-weight:400`
+- `_fsLg`–`_fs3xl` — KPI values, always `font-weight:700`; use `letter-spacing:-0.02em` at `_fs2xl`+
+
+**Radius conventions** (Corporate style — do not mix freely):
+- `_radSm` → badges, status chips, progress bar track
+- `_radMd` → inner card sections, chart area backgrounds
+- `_radLg` → card outer shells when a visible background is used
+- `_radFull` → pill badges and circular progress arcs
 
 ---
 
@@ -743,12 +880,143 @@ VAR _fmt = IF(_val = 0, "—", IF(_val >= 1000000, "$" & FORMAT(_val / 1000000, 
 
 ---
 
+## Cross-Sell & Whitespace Analysis
+
+Patterns for deriving which products a client holds and identifying gap (whitespace) opportunities. These patterns apply to any portfolio penetration or cross-sell analysis, not just CRB.
+
+### Why NOT to use VALUES(dim[Column]) for held products
+
+`VALUES(dim_product[GlobalProductClass])` traverses the relationship from the current filter context and returns **all** product classes linked to the selected client via any fact row — including rows with $0 or null revenue. This produces false positives: a client appears to "hold" every class they have ever been associated with, regardless of actual earned revenue.
+
+**Always derive held products from the fact table with an explicit revenue filter.**
+
+### Held products (fact-derived)
+
+```dax
+VAR _heldClasses =
+    SUMMARIZE(
+        FILTER(
+            fact_transaction,
+            fact_transaction[Revenue] > 0
+                && NOT ISBLANK(fact_transaction[ProductClassId])
+        ),
+        dim_product[GlobalProductClass]
+    )
+```
+
+`SUMMARIZE` over a filtered fact table returns only the product classes where the client has actual positive revenue. Column lineage from `dim_product` is preserved, enabling `EXCEPT()` to work correctly downstream.
+
+### Whitespace (gap analysis)
+
+```dax
+VAR _allClasses =
+    FILTER(
+        ALL(dim_product[GlobalProductClass]),
+        NOT ISBLANK(dim_product[GlobalProductClass])
+    )
+
+VAR _whitespace      = EXCEPT(_allClasses, _heldClasses)
+VAR _whitespaceCount = COUNTROWS(_whitespace)
+```
+
+`EXCEPT` returns every class in `_allClasses` that is not in `_heldClasses`. `ALL()` removes the current filter context so every possible product class is always in scope as a potential whitespace opportunity.
+
+### LOB / class count (always revenue-filtered)
+
+```dax
+VAR _lobCount =
+    CALCULATE(
+        DISTINCTCOUNT(fact_transaction[ProductLineId]),
+        fact_transaction[Revenue] > 0,
+        NOT ISBLANK(fact_transaction[ProductLineId])
+    )
+```
+
+Always add `Revenue > 0` to LOB and class counts. Without it, $0-revenue rows inflate the count and give misleading density metrics.
+
+---
+
+## Pre-Aggregated Calculated Table (Matrix Performance)
+
+### The problem
+
+A matrix visual evaluates its measure in every cell's filter context. A `Penetrate` measure using `SUM(fact[Revenue])` fires one storage engine query per cell. At 5,000 clients × 15 product classes = 75,000 separate fact table scans per render — causing slow load and 10M row limit errors when the Top N filter is removed.
+
+### The fix: pre-aggregate at model refresh
+
+Create a **hidden calculated table** that stores only the (client, product class) pairs with real revenue. The matrix measure does a fast `COUNTROWS(FILTER(small_table))` — no fact table scan per cell.
+
+**Step 1 — Calculated table (set Hidden = true in model)**
+
+```dax
+PenetrationMatrix =
+SUMMARIZE(
+    FILTER(
+        fact_transaction,
+        fact_transaction[Revenue] > 0
+            && NOT ISBLANK(fact_transaction[ProductClassId])
+    ),
+    dim_client[ClientName],
+    dim_product[GlobalProductClass]
+)
+```
+
+**Step 2 — Matrix measure**
+
+```dax
+Penetrate =
+VAR _client = SELECTEDVALUE(dim_client[ClientName])
+VAR _class  = SELECTEDVALUE(dim_product[GlobalProductClass])
+RETURN
+IF(
+    COUNTROWS(
+        FILTER(
+            PenetrationMatrix,
+            PenetrationMatrix[ClientName]          = _client
+                && PenetrationMatrix[GlobalProductClass] = _class
+        )
+    ) > 0,
+    "P"
+)
+```
+
+**Step 3 — Reference from HTML card with TREATAS**
+
+When the same table is used inside an HTML card for `_heldClasses`, remap column lineage with `TREATAS` so `EXCEPT()` resolves correctly:
+
+```dax
+VAR _selectedClient = SELECTEDVALUE(dim_client[ClientName])
+VAR _heldClasses =
+    TREATAS(
+        CALCULATETABLE(
+            VALUES(PenetrationMatrix[GlobalProductClass]),
+            PenetrationMatrix[ClientName] = _selectedClient
+        ),
+        dim_product[GlobalProductClass]
+    )
+```
+
+**Performance comparison**
+
+| Approach | Fact scans per render (5K × 15) | Behaviour |
+|---|---|---|
+| `SUM(fact[Revenue])` per cell | 75,000 | Slow / times out |
+| `COUNTROWS(FILTER(PenetrationMatrix))` | 0 | Fast |
+
+Keep the Top N visual filter as a guard — even with a pre-aggregated table, rendering more than 10M cells hits Power BI's visual row limit regardless of measure speed.
+
+---
+
 ## Checklist: DAX Best Practices
 
 Before publishing measures, verify:
 - [ ] Measures use `[Square Brackets]`
 - [ ] Variables use `_underscoreCamelCase`
+- [ ] **Every non-trivial measure opens with VAR declarations** (Rule 1)
+- [ ] **Every `[Measure]` reference is captured in a VAR before use** (Rule 2)
 - [ ] Variables used to avoid recalculation
+- [ ] No `FILTER(VALUES(fact[Key]), [Measure])` or `SUMX(VALUES(fact[Key]), [Measure])` on large tables (Rule 3)
+- [ ] Pre-aggregation uses `SUMMARIZE` or `ADDCOLUMNS(SUMMARIZE(...))` instead of context-transitioning iterations
 - [ ] Filters applied early in calculation context
 - [ ] `DIVIDE()` used instead of `/` for safe division
 - [ ] `SELECTEDVALUE()` used for single value checks
