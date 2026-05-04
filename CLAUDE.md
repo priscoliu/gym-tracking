@@ -14,19 +14,19 @@ Python · PySpark · SQL · DAX · Power Query (M) · HTML5/CSS · Microsoft Fab
 
 ## File Registry (current state)
 
+All Fabric source files are now under `fabric-workspace/` at the project root.
+
 | Layer | Folder | Files |
 |---|---|---|
-| Bronze | `Transformers/Alteryx-Migration/Fabric-Bronze/Billing/` | `src_Saiba_crb.m`, `src_arias_crb.m`, `src_eclipse_crb.m`, `src_eclipse_london.m`, `src_eglobal_income_report.m`, `src_eglobal_premium_report.m`, `src_gswin_crb.m` |
-| Bronze | `Transformers/Alteryx-Migration/Fabric-Bronze/CRM/` | `01_bronze_pipeline_crm.json` (Fabric Data Pipeline) |
-| Silver | `Transformers/Alteryx-Migration/Fabric-Silver/Chloe/` | `02_silver_notebook_eclipse.ipynb`, `02_silver_notebook_arias.ipynb`, `02_silver_notebook_gswin.ipynb`, `02_silver_notebook_saiba.ipynb`, `02_silver_notebook_eglobal.ipynb`, `ref_Chloe_eglobal_product_mapping.m` |
-| Silver | `Transformers/Alteryx-Migration/Fabric-Silver/Baseline/` | *(not started — ignore)* |
-| Silver | `Transformers/Alteryx-Migration/Fabric-Silver/CRM/` | *(not started — ignore)* |
-| Gold | `Transformers/Global-Loom/notebooks/facts/` | `03_gold_fact_transaction.ipynb`, `03_gold_fact_invoice.ipynb` |
-| Gold | `Transformers/Global-Loom/notebooks/dimensions/` | `03_gold_dim_date.ipynb`, `03_gold_dim_policy.ipynb`, `03_gold_dim_party.ipynb`, `03_gold_dim_product.ipynb`, `03_gold_dim_geography.ipynb`, `03_gold_dim_financial_segment.ipynb`, `03_gold_dim_data_source.ipynb` |
-| Gold | `Transformers/Global-Loom/notebooks/bridge/` | `03_gold_bridge_policy_party.ipynb` |
-| Gold | `Transformers/Global-Loom/exploration/` | `00_explore_pas_silver.ipynb`, `00_explore_deep_dive.ipynb` *(Phase 0 — PAS profiling)* |
-| Gold | `Transformers/Global-Loom/docs/` | `INDEX.md`, `EXECUTIVE_SUMMARY.md`, `ACTION_ITEMS.md`, `FILE_STRUCTURE.md`, `OPTIMIZATION_SUMMARY.md`, `00_data_exploration_results.md`, `01_star_schema_plan.md`, `02_validation_summary.md`, `03_source_table_audit.md` |
-| Source | `Transformers/Alteryx-Migration/Source-Analysis/` | Original Alteryx `.yxmd` |
+| Bronze | `fabric-workspace/Fabric-Bronze/Billing/` | `src_Saiba_crb.m`, `src_arias_crb.m`, `src_eclipse_crb.m`, `src_eclipse_london.m`, `src_eglobal_income_report.m`, `src_eglobal_premium_report.m`, `src_gswin_crb.m`, `src_ret_oracle.m`, `src_wr_spm.m` |
+| Bronze | `fabric-workspace/Fabric-Bronze/CRM/` | `01_bronze_pipeline_crm.json` (Fabric Data Pipeline) |
+| Silver | `fabric-workspace/Fabric-Silver/Chloe/` | `02_silver_notebook_eclipse.ipynb`, `02_silver_notebook_arias.ipynb`, `02_silver_notebook_gswin.ipynb`, `02_silver_notebook_saiba.ipynb`, `02_silver_notebook_eglobal.ipynb`, `ref_Chloe_eglobal_product_mapping.m` |
+| Silver | `fabric-workspace/Fabric-Silver/Baseline/` | `arias_crb_baseline.m`, `eclipse_crb_baseline.m`, `eglobal_income_baseline.m`, `gswin_crb_baseline.m`, `ret_oracle_baseline.m`, `saiba_crb_baseline.m`, `wr_spm_baseline.m` |
+| Silver | `fabric-workspace/Fabric-Silver/CRM/` | `02_silver_clean_crm_account.sql`, `02_silver_clean_crm_opportunity.sql`, `02_silver_clean_crm_opportunity_unified.sql`, `02_silver_clean_crm_product.sql`, `02_silver_clean_crm_profitcenter.sql`, `02_silver_clean_crm_users.sql`, `02_silver_master_crm_sales.sql`, `02_silver_notebook_crm_crb.ipynb`, `APAC Sales Model.ipynb`, `ref_legacy_cis_schema.md` |
+| Gold | `fabric-workspace/Global-Loom/New Gold layer notebooks/` | `gold_01_dim_client.ipynb`, `gold_02_dim_financial_geography.ipynb`, `gold_03_fact_transaction.ipynb`, `gold_04_fact_transaction_premium.ipynb`, `gold_05_dim_policy.ipynb`, `gold_06_dim_product.ipynb`, `gold_07_dim_organisation.ipynb`, `gold_08_cross_sell_checks_and_views.ipynb` |
+| Gold | `fabric-workspace/Global-Loom/Archieve files/` | Old v1 notebooks — archived, do not use |
+| Gold | `fabric-workspace/Global-Loom/Docs/` | `2026-04-27-data-gaps.md`, `Gold_Layer_Documentation 1.md` |
+| Source | `fabric-workspace/Source-Analysis/` | Original Alteryx `.yxmd` |
 
 ## Naming Conventions (strict)
 
