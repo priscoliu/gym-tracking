@@ -159,9 +159,33 @@ VAR _themedBorder = "1px solid " & _primaryColor & "25"  -- 25 = ~15% opacity
 - `25` = ~15% opacity (moderate)
 - `40` = ~25% opacity (visible)
 
+## WTW Power BI Theme File
+
+The official WTW theme file is at `.agent/skills/wtw-powerbi/references/wtw.json`.
+Apply it in Power BI Desktop via **View → Themes → Browse for themes**.
+
+**Theme data colors (9-color sequence, repeating):**
+
+| # | Hex | Swatch |
+|---|-----|--------|
+| 1 | `#521380` | Deep Purple |
+| 2 | `#D124B8` | Magenta |
+| 3 | `#F75784` | Coral Pink |
+| 4 | `#7F35B2` | WTW Purple |
+| 5 | `#850A31` | Dark Crimson |
+| 6 | `#CA2254` | Rose Red |
+| 7 | `#A56BCD` | Light Purple |
+| 8 | `#940D81` | Dark Magenta |
+| 9 | `#5a031f` | Dark Wine |
+
+**Semantic colors from theme:**
+- Good: `#1F856A` · Neutral: `#CA8100` · Bad: `#B2242E`
+
+---
+
 ## Data Visualization Color Palettes
 
-Two named palettes are available. Pick one per report and apply it consistently.
+Three named palettes are available. Pick one per report and apply it consistently.
 
 ---
 
@@ -233,7 +257,40 @@ VAR _cWon    = "#22C55E"
 VAR _cOpen   = "#22D3EE"
 ```
 
-**Usage Guidelines (both palettes)**:
+---
+
+### WTW Theme Palette (Official Theme File)
+
+From the official `wtw.json` theme file. Use when the report has the WTW theme applied — these colors match exactly what Power BI will auto-assign to series.
+
+| Order | Hex | Name |
+|-------|-----|------|
+| 1 | `#521380` | Deep Purple |
+| 2 | `#D124B8` | Magenta |
+| 3 | `#F75784` | Coral Pink |
+| 4 | `#7F35B2` | WTW Purple |
+| 5 | `#850A31` | Dark Crimson |
+| 6 | `#CA2254` | Rose Red |
+| 7 | `#A56BCD` | Light Purple |
+| 8 | `#940D81` | Dark Magenta |
+| 9 | `#5a031f` | Dark Wine |
+
+**DAX block:**
+```dax
+VAR _c1 = "#521380"
+VAR _c2 = "#D124B8"
+VAR _c3 = "#F75784"
+VAR _c4 = "#7F35B2"
+VAR _c5 = "#850A31"
+VAR _c6 = "#CA2254"
+VAR _c7 = "#A56BCD"
+VAR _c8 = "#940D81"
+VAR _c9 = "#5a031f"
+```
+
+---
+
+**Usage Guidelines (all palettes)**:
 - Limit to **5-6 colors maximum** per chart for readability
 - Reserve red for negative/critical data only
 - Maintain sufficient contrast between adjacent colors
