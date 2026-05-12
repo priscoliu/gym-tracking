@@ -2,30 +2,37 @@
 
 Complete color palette, thresholds, gradients, and accessibility guidelines for WTW-branded Power BI reports.
 
+> **Authoritative brand spec**: [wtw-brand-design-system.md](wtw-brand-design-system.md). For the full Ultraviolet 0–990 scale, the three official color combinations, diverging palettes, and brand semantic colors (Success / Error / Submarine), see that file. This file documents **operational palettes** (performance thresholds, dashboard categorical colors) that complement the brand spec.
+
 ## WTW Brand Colors
 
-### Primary Brand Color: WTW Corporate Purple
+### Primary Brand Color: WTW Ultraviolet (Corporate Purple)
 
-**Main Purple**: `#7F35B2`
+**Brand purple**: `#7F35B2` — sits at **Ultraviolet 600** in the full 0–990 scale.
 
-**Variations**:
-- Light Purple: `#9B59C8`
-- Dark Purple: `#6B2D97`
+**Working levels** (the most commonly used):
+- **UV-400** `#B07BD6` — minimum level for graphic objects on white (3:1)
+- **UV-500** `#995BC5` — minimum level for **text** on white (4.5:1)
+- **UV-600** `#7F35B2` — brand purple
+- **UV-700** `#611E90` — pressed/active states
+- **UV-750** `#521380` — categorical color #1 in the official order
 
 **Usage**:
-- Primary CTAs and buttons
-- Outstanding performance indicators
+- Primary CTAs and buttons (UV-600)
+- Outstanding performance indicators (UV-600)
 - Brand highlights and accents
 - Hero metrics and key values
 
 **Background Tints**:
-- Subtle background: `#F5F0FB` (5% opacity)
+- Subtle background: `#F5F0FB` (≈ UV-50)
 - Neutral background: `#F3F4F6` (gray, when purple is too strong)
+
+**Text-over-fill rule**: black/GM-900 text on UV levels below 500; white text on UV levels 500 and above.
 
 ### Purple Gradient (WTW Signature)
 
 ```css
-background: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%);
+background: linear-gradient(135deg, #995BC5 0%, #7F35B2 100%);
 ```
 
 **Usage**: Progress bars, performance cards, hero banners
@@ -74,7 +81,7 @@ All performance colors have gradient variants for progress bars and fill areas:
 
 **Outstanding (WTW Purple)**:
 ```css
-background: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%);
+background: linear-gradient(135deg, #995BC5 0%, #7F35B2 100%);
 ```
 
 **Target Met (Green)**:
@@ -200,7 +207,7 @@ Anchored on WTW Corporate Purple. Use for formal executive reports and client-fa
 | 3 | `#0891B2` | Cyan | Tertiary / neutral |
 | 4 | `#F59E0B` | Amber | Caution |
 | 5 | `#EC4899` | Pink | Additional |
-| 6 | `#9B59C8` | Light Purple | Additional |
+| 6 | `#995BC5` | Light Purple | Additional |
 
 **DAX block:**
 ```dax
@@ -209,7 +216,7 @@ VAR _c2 = "#059669"
 VAR _c3 = "#0891B2"
 VAR _c4 = "#F59E0B"
 VAR _c5 = "#EC4899"
-VAR _c6 = "#9B59C8"
+VAR _c6 = "#995BC5"
 ```
 
 ---
@@ -297,16 +304,25 @@ VAR _c9 = "#5a031f"
 
 ### Sequential Palette (Single Hue Progression)
 
-For heatmaps, choropleth maps, or graduated scales:
+For heatmaps, choropleth maps, or graduated scales.
 
-**Purple Sequential** (Light → Dark):
-1. `#F5F0FB` (lightest)
-2. `#E9D5FF`
-3. `#C4B5FD`
-4. `#A78BFA`
-5. `#9B59C8`
-6. `#7F35B2`
-7. `#6B2D97` (darkest)
+**Rule**: lighter = lower values; darker = higher values. Working range **levels 400–800** for accessibility on white. May start at white (0) for true zero / no-data, used cautiously.
+
+**WTW Ultraviolet Sequential** (Light → Dark — official brand ramp):
+1. `#FFFFFF` (UV-0, white) — use only for true zero / no-data
+2. `#B07BD6` (UV-400)
+3. `#A56BCD` (UV-450)
+4. `#995BC5` (UV-500)
+5. `#8E4BBD` (UV-550)
+6. `#7F35B2` (UV-600)
+7. `#742CA5` (UV-650)
+8. `#611E90` (UV-700)
+9. `#521380` (UV-750)
+10. `#41056D` (UV-800)
+
+For a typical 5–6 stop heatmap, use: `#FFFFFF → #B07BD6 → #995BC5 → #8E4BBD → #7F35B2 → #521380` (or pick evenly spaced UV levels in the 400–800 range).
+
+Other single-hue brand sequentials (Fireworks, Coral Reef, Stratosphere, Infinity, Submarine, Mandarin) and the full 0–990 scale are documented in [wtw-brand-design-system.md](wtw-brand-design-system.md).
 
 **Green Sequential** (Light → Dark):
 1. `#ECFDF5`
@@ -442,7 +458,7 @@ These combinations meet WCAG AA standards:
 
 **Primary Button (WTW Purple)**:
 - Default: `#7F35B2`
-- Hover: `#6B2D97` (10% darker)
+- Hover: `#611E90` (10% darker)
 - Active: `#5B21B6` (20% darker)
 
 **Secondary Button (Neutral)**:
@@ -469,8 +485,8 @@ Copy this block into your DAX measures for consistent coloring:
 ```dax
 -- WTW Brand
 VAR _wtwPurple = "#7F35B2"
-VAR _wtwPurpleLight = "#9B59C8"
-VAR _wtwPurpleDark = "#6B2D97"
+VAR _wtwPurpleLight = "#995BC5"
+VAR _wtwPurpleDark = "#611E90"
 
 -- Performance Colors
 VAR _colorOutstanding = "#7F35B2"

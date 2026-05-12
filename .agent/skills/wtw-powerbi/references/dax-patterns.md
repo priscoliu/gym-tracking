@@ -152,7 +152,7 @@ VAR _backgroundTint =
 VAR _gradientFill =
     SWITCH(
         _performanceLevel,
-        "outstanding", "linear-gradient(135deg, #8B5CF6 0%, #7F35B2 100%)",
+        "outstanding", "linear-gradient(135deg, #995BC5 0%, #7F35B2 100%)",
         "target_met", "linear-gradient(135deg, #10B981 0%, #059669 100%)",
         "near_target", "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)",
         "below_target", "linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)",

@@ -20,13 +20,13 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
 ```css
 :root {
   /* === Brand === */
-  --wtw-purple:        #7C3AED;
-  --wtw-purple-light:  #8B5CF6;
-  --wtw-purple-dark:   #6D28D9;
+  --wtw-purple:        #7F35B2;
+  --wtw-purple-light:  #995BC5;
+  --wtw-purple-dark:   #611E90;
   --wtw-purple-bg:     #F5F3FF;
 
   /* === Performance Colors === */
-  --color-outstanding: #7C3AED;
+  --color-outstanding: #7F35B2;
   --color-target-met:  #059669;
   --color-near-target: #0891B2;
   --color-below:       #F59E0B;
@@ -104,16 +104,16 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| `--wtw-purple` | `#7C3AED` | Primary brand, outstanding performance, CTAs |
-| `--wtw-purple-light` | `#8B5CF6` | Gradient start, lighter accents |
-| `--wtw-purple-dark` | `#6D28D9` | Hover states, pressed states |
+| `--wtw-purple` | `#7F35B2` | Primary brand, outstanding performance, CTAs |
+| `--wtw-purple-light` | `#995BC5` | Gradient start, lighter accents |
+| `--wtw-purple-dark` | `#611E90` | Hover states, pressed states |
 | `--wtw-purple-bg` | `#F5F3FF` | Subtle background tint |
 
 ### Performance Colors
 
 | Level | Threshold | Color | Hex | Background |
 |-------|-----------|-------|-----|------------|
-| Outstanding | ≥115% | WTW Purple | `#7C3AED` | `#F3F4F6` |
+| Outstanding | ≥115% | WTW Purple | `#7F35B2` | `#F3F4F6` |
 | Target Met | 100–114% | Green | `#059669` | `#ECFDF5` |
 | Near Target | 90–99% | Cyan | `#0891B2` | `#F0F9FF` |
 | Below Target | 80–89% | Amber | `#F59E0B` | `#FFFBEB` |
@@ -122,7 +122,7 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
 ### Performance Gradients
 
 ```
-outstanding: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)
+outstanding: linear-gradient(135deg, #995BC5 0%, #7F35B2 100%)
 target_met:  linear-gradient(135deg, #10B981 0%, #059669 100%)
 near_target: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)
 below:       linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)
@@ -141,7 +141,7 @@ critical:    linear-gradient(135deg, #F87171 0%, #DC2626 100%)
 
 ### Multi-Category Chart Palette
 
-Order: `#7C3AED` → `#059669` → `#0891B2` → `#F59E0B` → `#EC4899` → `#8B5CF6`
+Order: `#7F35B2` → `#059669` → `#0891B2` → `#F59E0B` → `#EC4899` → `#995BC5`
 - Reserve `#DC2626` for critical/negative data only
 - Limit to 5–6 colors per chart
 
@@ -209,8 +209,8 @@ Base unit: **4px**. All spacing is a multiple of 4.
 
 **Themed border with opacity** (performance-colored):
 ```css
-border: 1px solid #7C3AED20;  /* 20 = ~12% opacity */
-border: 1px solid #7C3AED25;  /* 25 = ~15% opacity */
+border: 1px solid #7F35B220;  /* 20 = ~12% opacity */
+border: 1px solid #7F35B225;  /* 25 = ~15% opacity */
 ```
 
 ---
@@ -221,9 +221,9 @@ Paste at the top of any DAX measure that uses WTW styling:
 
 ```dax
 -- Brand
-VAR _wtwPurple      = "#7C3AED"
-VAR _wtwPurpleLight = "#8B5CF6"
-VAR _wtwPurpleDark  = "#6D28D9"
+VAR _wtwPurple      = "#7F35B2"
+VAR _wtwPurpleLight = "#995BC5"
+VAR _wtwPurpleDark  = "#611E90"
 
 -- Text hierarchy
 VAR _textPrimary   = "#1E293B"

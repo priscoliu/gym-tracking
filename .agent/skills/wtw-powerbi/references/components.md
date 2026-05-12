@@ -34,7 +34,7 @@ RETURN
 "<div style='
     width: 1160px;
     padding: 16px 24px;
-    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+    background: linear-gradient(135deg, #7F35B2 0%, #611E90 100%);
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
@@ -72,7 +72,7 @@ Horizontal tab-style navigation for multi-section reports (use with bookmarks).
     border-radius: 10px;
     width: fit-content;
 ">
-  <button style="padding: 8px 16px; border-radius: 8px; border: none; background: #7C3AED; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;">Overview</button>
+  <button style="padding: 8px 16px; border-radius: 8px; border: none; background: #7F35B2; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;">Overview</button>
   <button style="padding: 8px 16px; border-radius: 8px; border: none; background: transparent; color: #6B7280; font-size: 14px; cursor: pointer;">By Region</button>
   <button style="padding: 8px 16px; border-radius: 8px; border: none; background: transparent; color: #6B7280; font-size: 14px; cursor: pointer;">Detail</button>
 </nav>
@@ -126,7 +126,7 @@ RETURN
 "<div style='font-size: 11px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px;'>Filters:</div>" &
 
 -- Render each filter chip
-"<div style='padding: 4px 10px; background: #F5F3FF; border: 1px solid #7C3AED25; border-radius: 99px; font-size: 12px; font-weight: 600; color: #7C3AED;'>" & _period & "</div>" &
+"<div style='padding: 4px 10px; background: #F5F0FB; border: 1px solid #7F35B225; border-radius: 99px; font-size: 12px; font-weight: 600; color: #7F35B2;'>" & _period & "</div>" &
 "<div style='padding: 4px 10px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 99px; font-size: 12px; color: #4B5563;'>" & _region & "</div>" &
 "<div style='padding: 4px 10px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 99px; font-size: 12px; color: #4B5563;'>" & _product & "</div>" &
 
@@ -161,7 +161,7 @@ VAR _headerRow =
 VAR _rows = CONCATENATEX(
     _tableData,
     VAR _ratio  = [Ratio]
-    VAR _color  = SWITCH(TRUE(), _ratio >= 1.15, "#7C3AED", _ratio >= 1.0, "#059669", _ratio >= 0.9, "#0891B2", _ratio >= 0.8, "#F59E0B", "#DC2626")
+    VAR _color  = SWITCH(TRUE(), _ratio >= 1.15, "#7F35B2", _ratio >= 1.0, "#059669", _ratio >= 0.9, "#0891B2", _ratio >= 0.8, "#F59E0B", "#DC2626")
     VAR _bg     = IF(MOD(RANKX(_tableData, [Actual],, DESC, DENSE), 2) = 0, "#F9FAFB", "#FFFFFF")
     RETURN
     "<tr style='background: " & _bg & ";'>" &
@@ -315,9 +315,9 @@ VAR _icon  = "🔄"
 -- Style options: "default" | "purple" | "green" | "gray"
 VAR _style = "purple"
 
-VAR _bg    = SWITCH(_style, "purple", "#F5F3FF", "green", "#ECFDF5", "#F3F4F6")
-VAR _color = SWITCH(_style, "purple", "#7C3AED", "green", "#059669", "#4B5563")
-VAR _border = SWITCH(_style, "purple", "#7C3AED25", "green", "#05966925", "#E5E7EB")
+VAR _bg    = SWITCH(_style, "purple", "#F5F0FB", "green", "#ECFDF5", "#F3F4F6")
+VAR _color = SWITCH(_style, "purple", "#7F35B2", "green", "#059669", "#4B5563")
+VAR _border = SWITCH(_style, "purple", "#7F35B225", "green", "#05966925", "#E5E7EB")
 
 RETURN
 "<span style='
@@ -403,7 +403,7 @@ CONCATENATEX(
     VAR _lbl   = [Value1]
     VAR _val   = [Value2]
     VAR _ratio = [Value3]
-    VAR _color = SWITCH(TRUE(), _ratio >= 1.15, "#7C3AED", _ratio >= 1.0, "#059669", _ratio >= 0.9, "#0891B2", _ratio >= 0.8, "#F59E0B", "#DC2626")
+    VAR _color = SWITCH(TRUE(), _ratio >= 1.15, "#7F35B2", _ratio >= 1.0, "#059669", _ratio >= 0.9, "#0891B2", _ratio >= 0.8, "#F59E0B", "#DC2626")
     RETURN
     "<div style='padding: 8px 14px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);'>" &
     "<div style='font-size: 10px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;'>" & _lbl & "</div>" &

@@ -2,6 +2,17 @@
 
 Complete guide to grid system, spacing, typography, and visual styling for WTW Power BI reports.
 
+> **Authoritative brand spec for colors, structure, and accessibility**: [wtw-brand-design-system.md](wtw-brand-design-system.md). This file covers Power-BI-specific layout/grid/spacing patterns that build *on top of* the brand spec.
+
+## Visualization Structure (Brand)
+
+Every WTW chart has four parts — see [wtw-brand-design-system.md §8](wtw-brand-design-system.md):
+
+1. **Container** — outer shape + padding (24px default). Borders OFF by default; 10px radius if used.
+2. **Header** — title (required), subtitle (optional), figure number (optional).
+3. **Body** — chart content; left-aligned by default, centered only for content that doesn't fill the width (pie, donut).
+4. **Footer** — caption + source + copyright. 24px gap from body; 16px between footer elements.
+
 ## Pre-Build Design Thinking
 
 Answer these before opening Power BI Desktop. The answers determine canvas size, layout density, colour emphasis, and typography scale.
@@ -162,6 +173,14 @@ For native Power BI visuals, use these settings:
 
 ## Borders & Visual Effects
 
+### Border Rule (brand)
+
+**Borders are OFF by default.** Only add a border when it serves a purpose (separation, contrast requirement). When used:
+- **Simple solid line** only — no dashed/double/multi-stroke.
+- **Functional border** (where the border creates a 3:1 contrast separation): use **GM-400 (`#8F9194`) or darker**.
+- **Decorative border** (light visual frame): use GM Light (`#E6E6E6`) or `#F3F4F6`.
+- **Border radius**: **10px default** for any container border (project standard).
+
 ### Border System
 
 **Light Border** (subtle separation):
@@ -174,16 +193,22 @@ border: 1px solid #F3F4F6;
 border: 1px solid #E5E7EB;
 ```
 
+**Functional Border** (meets 3:1 contrast on white):
+```css
+border: 1px solid #8F9194;   /* GM-400 — brand minimum */
+```
+
 **Themed Border** (performance-colored with opacity):
 ```css
-border: 1px solid #7C3AED20;  /* 20 = ~12% opacity */
+border: 1px solid #7F35B220;  /* 20 = ~12% opacity */
 ```
 
 ### Border Radius
 
 | Element | Border Radius | Use Case |
 |---------|---------------|----------|
-| **Outer Containers** | 12px | Main card containers |
+| **Outer Containers (brand default)** | **10px** | All new card containers |
+| **Outer Containers (legacy)** | 12px | Existing templates only |
 | **Inner Cards** | 8px | Nested metric cards |
 | **Progress Bars** | 5px | Progress bar tracks |
 | **Status Badges** | 8px | Small status indicators |
@@ -200,8 +225,8 @@ background: linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%);
 
 **Performance Bar Gradients** (see color-system.md for full palette):
 ```css
-/* Outstanding (WTW Purple) */
-background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+/* Outstanding (WTW Purple — UV-500 → UV-600) */
+background: linear-gradient(135deg, #995BC5 0%, #7F35B2 100%);
 
 /* Target Met (Green) */
 background: linear-gradient(135deg, #10B981 0%, #059669 100%);
@@ -215,7 +240,7 @@ background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
 **Subtle Tinted Background** (for summary panels):
 ```css
 background: linear-gradient(135deg, #F3F4F6 0%, rgba(255,255,255,0.8) 100%);
-border: 1px solid #7C3AED25;
+border: 1px solid #7F35B225;
 ```
 
 ## Visual Organization Best Practices

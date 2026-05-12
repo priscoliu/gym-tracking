@@ -15,12 +15,33 @@ WTW reports should communicate authority and precision. Every visual choice earn
 
 ## Brand Essentials
 
-- **Primary color**: WTW Corporate Purple `#7F35B2`
+- **Primary color**: WTW Ultraviolet 600 = `#7F35B2` (the corporate purple). Full Ultraviolet scale runs 0 → 990 — see brand spec for all levels.
 - **Canvas**: `1280×720px` (presentations) or `1440×1080px` (complex reports)
 - **Grid**: 12-column, 60–80px side margins
 - **Font**: Segoe UI — Regular (400) for body, Semibold (600) for titles, Bold (700) for KPI values
+- **Borders**: OFF by default. When used, `border-radius: 10px` and GM-400 (`#8F9194`) or darker for functional borders.
+
+> **Authoritative brand spec**: [references/wtw-brand-design-system.md](references/wtw-brand-design-system.md). Where any other file in this skill conflicts with the brand spec, the brand spec wins.
 
 Full design values reference: [references/design-values.md](references/design-values.md)
+
+## Review & Fix Commands (bonded to this skill)
+
+These commands live in [commands/](commands/) inside this skill folder. Each loads the brand spec and audits or fixes the target file.
+
+| Command file | Purpose |
+|---|---|
+| [commands/color-review.md](commands/color-review.md) | Audit colors against Ultraviolet scale, combinations, contrast levels |
+| [commands/typography-review.md](commands/typography-review.md) | Audit fonts, sizes, hierarchy, accessibility minimums |
+| [commands/structure-review.md](commands/structure-review.md) | Audit Container/Header/Body/Footer compliance, borders, padding |
+| [commands/accessibility-review.md](commands/accessibility-review.md) | WCAG AA audit + Power BI a11y pane delegations |
+| [commands/brand-color-fix.md](commands/brand-color-fix.md) | Action: replace off-brand hex codes with closest official equivalents (asks for confirmation) |
+
+**Invocation**:
+- Try `/wtw-powerbi:color-review` (namespaced form) in Claude Code's `/` palette after restarting.
+- Or trigger by phrase — say "color-review this file", "review typography against brand", "fix the brand colors here" etc. — and this skill loads the matching command file from `commands/` and follows its procedure exactly.
+
+When triggered by phrase, **read the corresponding `commands/<name>.md` file first** and follow its procedure as written. Do not improvise the review — the command file IS the spec.
 
 ## Template Fidelity — Match the Source Exactly
 

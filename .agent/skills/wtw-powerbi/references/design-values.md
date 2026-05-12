@@ -21,11 +21,11 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
 
 ```css
 :root {
-  /* === Brand === */
-  --wtw-purple:        #7F35B2;
-  --wtw-purple-light:  #9B59C8;
-  --wtw-purple-dark:   #6B2D97;
-  --wtw-purple-bg:     #F5F0FB;
+  /* === Brand (WTW Ultraviolet — see wtw-brand-design-system.md for full 0–990 scale) === */
+  --wtw-purple:        #7F35B2;   /* UV-600 = brand purple */
+  --wtw-purple-light:  #995BC5;   /* UV-500 */
+  --wtw-purple-dark:   #611E90;   /* UV-700 */
+  --wtw-purple-bg:     #F5F0FB;   /* near UV-50 — light tint */
 
   /* === Performance Colors === */
   --color-outstanding: #7F35B2;
@@ -87,11 +87,12 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
   --shadow-inner: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
   --shadow-soft:  0 4px 8px rgba(0,0,0,0.04);
 
-  /* === Border Radius === */
-  --radius-sm:   6px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-pill: 99px;
+  /* === Border Radius (brand default = 10px when borders are used) === */
+  --radius-sm:      6px;
+  --radius-md:      8px;
+  --radius-default: 10px;   /* WTW brand default for any container border */
+  --radius-lg:      12px;   /* legacy templates only — prefer --radius-default for new work */
+  --radius-pill:    99px;
 
   /* === Advanced element colors === */
   --color-first-level:   #485257;
@@ -117,14 +118,17 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
 
 ## Colors
 
-### Brand Purple
+### Brand Purple (WTW Ultraviolet)
 
-| Name | Hex | Use |
-|------|-----|-----|
-| WTW Purple | `#7F35B2` | Primary brand, outstanding performance, CTAs |
-| Purple Light | `#9B59C8` | Gradient start, lighter accents |
-| Purple Dark | `#6B2D97` | Hover states, pressed states |
-| Purple Bg | `#F5F0FB` | Subtle background tint |
+| Name | Hex | Level | Use |
+|------|-----|-------|-----|
+| WTW Purple | `#7F35B2` | UV-600 | Primary brand, outstanding performance, CTAs |
+| Purple Light | `#995BC5` | UV-500 | Gradient start, lighter accents — minimum level for **text** on white (4.5:1) |
+| Purple Dark | `#611E90` | UV-700 | Hover states, pressed states |
+| Purple Darkest | `#521380` | UV-750 | Categorical color #1 in the official order |
+| Purple Bg | `#F5F0FB` | ~UV-50 | Subtle background tint |
+
+Full 0–990 Ultraviolet scale and all color combinations: [wtw-brand-design-system.md](wtw-brand-design-system.md). For semantic brand colors (WTW Success / Error / Submarine) see the same file.
 
 ### Performance Colors
 
@@ -139,7 +143,7 @@ Paste this into the `<style>` block of any WTW HTML template (standalone HTML, n
 ### Performance Gradients
 
 ```
-outstanding: linear-gradient(135deg, #9B59C8 0%, #7F35B2 100%)
+outstanding: linear-gradient(135deg, #995BC5 0%, #7F35B2 100%)
 target_met:  linear-gradient(135deg, #10B981 0%, #059669 100%)
 near_target: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)
 below:       linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)
@@ -160,7 +164,7 @@ critical:    linear-gradient(135deg, #F87171 0%, #DC2626 100%)
 
 Two palettes available — see [color-system.md](color-system.md) for full details.
 
-**Corporate** (WTW brand-aligned): `#7F35B2` → `#059669` → `#0891B2` → `#F59E0B` → `#EC4899` → `#9B59C8`
+**Corporate** (WTW brand-aligned): `#7F35B2` → `#059669` → `#0891B2` → `#F59E0B` → `#EC4899` → `#995BC5`
 
 **Indigo** (modern / operational): `#4f46e5` → `#5ce1ff` → `#e5e7eb` → `#f59e0b` → `#10b981` → `#ef4444` → …
 
@@ -221,13 +225,17 @@ Base unit: **4px**. All spacing is a multiple of 4.
 
 | Name | Value | Use |
 |------|-------|-----|
-| `--border-light` | `#F3F4F6` | Subtle dividers |
+| `--border-light` | `#F3F4F6` | Subtle dividers (≈ Gray Matter Light) |
 | `--border-medium` | `#E5E7EB` | Standard borders |
-| `--border-dark` | `#374151` | Benchmark lines |
+| `--border-functional` | `#8F9194` | **Brand minimum for functional borders — meets 3:1 on white (GM-400)** |
+| `--border-dark` | `#374151` | Benchmark lines, emphasis |
 | `--radius-sm` | 6px | Buttons |
 | `--radius-md` | 8px | Inner cards, badges |
-| `--radius-lg` | 12px | Outer containers |
+| `--radius-default` | 10px | **Brand default — use for any container border** |
+| `--radius-lg` | 12px | Legacy templates only |
 | `--radius-pill` | 99px | Pills, tags |
+
+> **Brand default**: borders are **OFF** unless they serve a purpose (separation, contrast). When used, prefer `--radius-default` (10px) and `--border-functional` color or darker.
 
 **Themed border with opacity** (performance-colored):
 
@@ -243,10 +251,10 @@ border: 1px solid #7F35B225;  /* 25 = ~15% opacity */
 Paste at the top of any DAX measure that uses WTW styling:
 
 ```dax
--- Brand (Corporate Purple)
-VAR _wtwPurple      = "#7F35B2"
-VAR _wtwPurpleLight = "#9B59C8"
-VAR _wtwPurpleDark  = "#6B2D97"
+-- Brand (WTW Ultraviolet — see wtw-brand-design-system.md for full 0–990 scale)
+VAR _wtwPurple      = "#7F35B2"   -- UV-600 (brand purple)
+VAR _wtwPurpleLight = "#995BC5"   -- UV-500
+VAR _wtwPurpleDark  = "#611E90"   -- UV-700
 
 -- Text hierarchy
 VAR _textPrimary   = "#181B1D"

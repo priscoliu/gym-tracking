@@ -30,7 +30,7 @@ Pick one mode before opening Power BI Desktop. The mode sets canvas size, densit
 - At most one slicer (date range) — position top-right or in filter panel
 - No axis labels if data labels are on
 - No legends if only one series
-- Shadow: glow effect — set shadow colour to `#7C3AED` at 30% opacity on the purple hero card
+- Shadow: glow effect — set shadow colour to `#7F35B2` at 30% opacity on the purple hero card
 
 ---
 

@@ -307,7 +307,7 @@ VAR _performanceLevel =
 VAR _primaryColor =
     SWITCH(
         _performanceLevel,
-        "outstanding", "#7C3AED",
+        "outstanding", "#7F35B2",
         "target_met", "#059669",
         "near_target", "#0891B2",
         "below_target", "#F59E0B",
@@ -381,7 +381,7 @@ VAR _summaryHTML =
 **Complete example**:
 ```dax
 VAR _summaryHTML =
-    "<div style='background: linear-gradient(135deg, #F3F4F6 0%, rgba(255,255,255,0.8) 100%); border: 1px solid #7C3AED25; border-radius: 8px; padding: 12px 16px;'>" &
+    "<div style='background: linear-gradient(135deg, #F3F4F6 0%, rgba(255,255,255,0.8) 100%); border: 1px solid #7F35B225; border-radius: 8px; padding: 12px 16px;'>" &
     "<div style='display: flex; justify-content: space-between; align-items: center;'>" &
     "<div>" &
     "<div style='font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;'>Key Insight</div>" &
@@ -548,9 +548,9 @@ VAR _performanceLevel =
     SWITCH(TRUE(), _achievementRatio >= 1.15, "outstanding", _achievementRatio >= 1.0, "target_met", _achievementRatio >= 0.9, "near_target", _achievementRatio >= 0.8, "below_target", "critical")
 
 -- Colors
-VAR _primaryColor = SWITCH(_performanceLevel, "outstanding", "#7C3AED", "target_met", "#059669", "near_target", "#0891B2", "below_target", "#F59E0B", "#DC2626")
+VAR _primaryColor = SWITCH(_performanceLevel, "outstanding", "#7F35B2", "target_met", "#059669", "near_target", "#0891B2", "below_target", "#F59E0B", "#DC2626")
 VAR _backgroundTint = SWITCH(_performanceLevel, "outstanding", "#F3F4F6", "target_met", "#ECFDF5", "near_target", "#F0F9FF", "below_target", "#FFFBEB", "#FEF2F2")
-VAR _gradientFill = SWITCH(_performanceLevel, "outstanding", "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)", "target_met", "linear-gradient(135deg, #10B981 0%, #059669 100%)", "near_target", "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)", "below_target", "linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)", "linear-gradient(135deg, #F87171 0%, #DC2626 100%)")
+VAR _gradientFill = SWITCH(_performanceLevel, "outstanding", "linear-gradient(135deg, #995BC5 0%, #7F35B2 100%)", "target_met", "linear-gradient(135deg, #10B981 0%, #059669 100%)", "near_target", "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)", "below_target", "linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%)", "linear-gradient(135deg, #F87171 0%, #DC2626 100%)")
 
 -- Metrics
 VAR _progressPercent = MIN(_achievementRatio, 1)
@@ -793,7 +793,7 @@ RETURN
 
 .sales-table tbody tr:focus-within {
     background: #F3F4F6;
-    outline: 2px solid #7C3AED;
+    outline: 2px solid #7F35B2;
     outline-offset: -2px;
 }
 
@@ -853,7 +853,7 @@ RETURN
 /* Footer - refined with proper hierarchy */
 .table-footer {
     background: #FAFAFA;
-    border-top: 2px solid #7C3AED;
+    border-top: 2px solid #7F35B2;
 }
 
 /* Footer label - WTW --text-sm (14px) / 600 */
@@ -868,7 +868,7 @@ RETURN
 .table-footer .num-cell {
     font-size: 18px;
     font-weight: 700;
-    color: #7C3AED;
+    color: #7F35B2;
 }
 
 /* Refined scrollbar - macOS style */

@@ -85,10 +85,10 @@ transition: box-shadow 200ms ease;
 
 ```css
 .btn-primary {
-  background-color: #7C3AED;
+  background-color: #7F35B2;
   transition: background-color 150ms ease, transform 100ms ease;
 }
-.btn-primary:hover  { background-color: #6D28D9; }
+.btn-primary:hover  { background-color: #611E90; }
 .btn-primary:active { background-color: #5B21B6; transform: scale(0.98); }
 ```
 
