@@ -1,6 +1,6 @@
 # WTW Data Visualization — Official Brand Design System
 
-> **Source**: WTW Data Visualization Guidelines (brand book PDF, captured 2026-05-12).
+> **Source**: WTW Data Visualization Guidelines v1.0 (January 2024, full PDF reviewed 2026-05-12).
 > **Status**: Authoritative. Where this file conflicts with other references in this skill, this file wins.
 
 ---
@@ -15,6 +15,8 @@ Always use:
 - Limited other uses as outlined.
 
 Never produce a "candy" palette (random multi-color charts). This does not read as WTW.
+
+**Start with one color, add more only as needed.** The goal is to communicate precisely with as few visual elements as possible.
 
 ---
 
@@ -38,18 +40,20 @@ Scale runs 0 (white) to 990 (near-black). Lower number = lighter. Brand purple `
 | 700   | #611e90  | 10:1              |
 | 750   | #521380  | 11.9:1            |
 | 800   | #41056d  | 14.3:1            |
-| UV Dark | #48086f | (single shade, alt to 750) |
+| UV Dark | #48086f | 13.63:1 (named brand dark) |
 
 ### Contrast rules from the scale
 
+**Contrast levels are identical across all WTW color scales** — any level-400 of any brand color is ~3.15:1 on white, any level-500 is ~4.5:1, regardless of hue.
+
 - **3:1 graphic objects on white** → use level **400** or higher.
-- **3:1 graphic objects on gray** (Base-50 / Gray Matter Light) → use level **450** or higher.
+- **3:1 graphic objects on GM-50 gray** → use level **450** or higher.
 - **4.5:1 text on white** → use level **500** or higher.
-- **3:1 graphic objects on gray** → use level **550** or higher.
+- **3:1 graphic objects on GM Light** → use level **550** or higher.
 - Below 500 → use **BLACK text on top** to meet 4.5:1.
 - 500 and above → use **WHITE text on top** to meet 4.5:1.
 
-> **Working rule**: most data visualizations use **levels 400–900** to retain accessibility on white and gray backgrounds.
+> **Working rule**: most data visualizations use **levels 400–800** to retain accessibility on white and gray backgrounds.
 
 ---
 
@@ -62,7 +66,7 @@ When more than one color is needed, pick **one** combination per report and stic
 | Color       | 400      | 500      | 550      | 600      | 650      | 700      | 750      | 800      |
 |-------------|----------|----------|----------|----------|----------|----------|----------|----------|
 | Ultraviolet | b07bd6   | 995bc5   | 8e4bbd   | 7f35b2   | 742ca5   | 611e90   | 521380   | 41056d   |
-| Fireworks   | —        | d124b8   | —        | —        | 940d81   | —        | —        | 530247   |
+| Fireworks   | —        | d124b8   | —        | —        | 940d81   | 7b086b   | —        | 530247   |
 | Coral Reef  | f75784   | db3363   | ca2254   | —        | a0113d   | —        | —        | 5a031f   |
 
 ### Combination 2 — Ultraviolet + Stratosphere + Infinity
@@ -76,20 +80,39 @@ When more than one color is needed, pick **one** combination per report and stic
 
 | Color     | 400      | 500      | 550     | 650      | 700      | 800      |
 |-----------|----------|----------|---------|----------|----------|----------|
-| Submarine | ca8100   | a76900   | 965d00  | —        | —        | 3e2400   |
+| Submarine | ca8100   | a76900   | 965d00  | 744700   | —        | 3e2400   |
 | Mandarin  | —        | c25700   | —       | 8b3700   | 742c00   | 3e2400   |
 
 ### Categorical color ORDER rule (9 colors)
 
-When applying a combination to a categorical chart, apply in this fixed order so the most recognizable WTW tones lead:
+Apply in this fixed order so the most recognizable WTW tones lead. Colors are at least 100 levels apart from adjacent colors for adequate contrast.
 
-**For Combination 1:**
-1. UV 750 → 2. FW 500 → 3. CR 400 → 4. UV 600 → 5. FW 700 → 6. CR 550 → 7. UV 450 → 8. FW 650 → 9. CR 800
+**Combination 1 (UV + FW + CR):**
+UV-750 `#521380` → FW-500 `#d124b8` → CR-400 `#f75784` → UV-600 `#7f35b2` → FW-700 `#7b086b` → CR-550 `#ca2254` → UV-450 `#a56bcd` → FW-650 `#940d81` → CR-800 `#5a031f`
 
-Same pattern for Combinations 2 and 3 (replace FW/CR with the combo's two partners).
+**Combination 2 (UV + ST + IN):**
+UV-750 `#521380` → ST-500 `#1a71ef` → IN-400 `#24a19b` → UV-600 `#7f35b2` → ST-700 `#043e8e` → IN-550 `#1d7575` → UV-450 `#a56bcd` → ST-650 `#074cad` → IN-800 `#0f2f31`
 
-For **9 colors with Ultraviolet only** (single-hue categorical):
-UV 750, 500, 400, 600, 700, 550, 450, 650, 800.
+**Combination 3 (UV + MA + SU):**
+UV-750 `#521380` → MA-500 `#c25700` → SU-400 `#ca8100` → UV-600 `#7f35b2` → MA-700 `#742c00` → SU-550 `#965d00` → UV-450 `#a56bcd` → MA-650 `#8b3700` → SU-800 `#3e2400`
+
+**For 9 colors with Ultraviolet only (single-hue categorical):**
+UV-750, UV-500, UV-400, UV-600, UV-700, UV-550, UV-450, UV-650, UV-800
+
+### Extending to 10–12 colors
+
+Insert additional colors after every 3rd position to distribute evenly (level-500 at position 4, level-800 at position 8, level-650 at position 12).
+
+Available extension sets — choose **one** not already in use:
+
+| Color       | 10th (500) | 11th (800) | 12th (650) |
+|-------------|------------|------------|------------|
+| Fireworks   | #d124b8    | #530247    | #940d81    |
+| Coral Reef  | #db3363    | #5a031f    | #a0113d    |
+| Stratosphere| #1a71ef    | #01285d    | #074cad    |
+| Infinity    | #208382    | #0f2f31    | #1d7575    |
+| Submarine   | #a76900    | #3e2400    | #744700    |
+| Mandarin    | #c25700    | #3e2400    | #8b3700    |
 
 ---
 
@@ -106,6 +129,17 @@ UV 750, 500, 400, 600, 700, 550, 450, 650, 800.
 
 Full GM scale runs 10 → 990 in same level system as Ultraviolet. Same contrast properties.
 
+### Gray types (different grays for different contexts)
+
+| Gray              | Purpose                                           |
+|-------------------|---------------------------------------------------|
+| WTW Gray Matter   | Standard brand gray for collateral and reports   |
+| WTW Violet Mist   | UV-tinted gray — for digital design system only  |
+| WTW Base Gray     | Cool-tinted gray — for software design system    |
+| Black tints       | Unbranded; use for text when needed              |
+
+Use **Gray Matter** for all WTW-branded data visualizations and reports.
+
 ### Highlighting with a second color (Gray Matter + accent)
 
 Use Gray Matter as the chart primary, then a single brand color at **level 400+** to draw attention. For Ultraviolet highlights, use UV-400 or above.
@@ -114,13 +148,15 @@ Use Gray Matter as the chart primary, then a single brand color at **level 400+*
 
 ## 5. WTW Semantic Colors
 
-| Role     | Color name      |
-|----------|-----------------|
-| Success  | WTW Success (teal/green) |
-| Caution  | WTW Submarine (amber)    |
-| Error    | WTW Error (red)          |
+| Role     | Color name               | Usage |
+|----------|--------------------------|-------|
+| Success  | WTW Success (teal/green) | Positive outcomes |
+| Warning  | WTW Warning (amber/yellow) | Caution — **separate color** from WTW Submarine |
+| Error    | WTW Error (red)          | Negative outcomes |
 
 Each has a 0–990 scale. Use level 400+ on white, 500+ for text. Never rely on color alone — pair with text/icon.
+
+> **WTW Warning vs WTW Submarine**: These are different colors. Submarine is a brand combination color (used in Combination 3 charts). Warning is the semantic amber for status/alert meaning only. Do not substitute one for the other.
 
 ---
 
@@ -138,15 +174,44 @@ For heatmaps, choropleths, graduated scales.
 
 ## 7. Diverging Palettes
 
-For variance, growth, deviation.
+For variance, growth, deviation. Center is white (absence of data) or a level-25 tint (continuous transition).
 
-- **Default (most brand-aligned)**: Ultraviolet (negative) ↔ white/GM-25 ↔ Gray Matter (positive)
-- **Combination 1**: Ultraviolet ↔ Coral Reef; Coral Reef ↔ Stratosphere; Fireworks ↔ Infinity
-- **Combination 2**: Ultraviolet ↔ Stratosphere; Stratosphere ↔ Fireworks; Infinity ↔ Stratosphere
-- **Combination 3**: Ultraviolet ↔ Submarine; Submarine ↔ Stratosphere; Mandarin ↔ Stratosphere
-- **Special use** (when a specific semantic meaning is needed): green↔red, cool↔hot. Use carefully; may break the rest of the layout's combination.
+### Brand-aligned diverging pairs (use by combination)
 
-Decide whether the **midpoint should be white** (absence of data) or **tinted** (continuous transition).
+**Default (most brand-aligned):**
+UV ↔ Gray Matter — midpoint: white or GM-25
+
+**Combination 1 pairs:**
+- UV ↔ CR — midpoint: white or `#fef7fb`
+- CR ↔ ST — midpoint: white or `#fbf8ff`
+- FW ↔ IN — midpoint: white or `#f7f8ff`
+
+**Combination 2 pairs:**
+- UV ↔ ST — midpoint: white or `#f9f8ff`
+- ST ↔ FW — midpoint: white or `#faf8fe`
+- IN ↔ ST — midpoint: white or `#f2faff`
+
+**Combination 3 pairs:**
+- UV ↔ SU — midpoint: white or `#fff7fa`
+- SU ↔ ST — midpoint: white or `#f5faf7`
+- MA ↔ ST — midpoint: white or `#f5faf5`
+
+Rules:
+- Use darker colors further from center, lighter toward center.
+- Use prescribed pairings only — do not mix across combinations.
+- Use as many color stops as needed.
+
+### Alternate diverging palettes (special semantic use only)
+
+Use **only** when a specific positive/negative or hot/cold meaning is required and the brand palette cannot express it. These are not WTW brand combinations — use carefully; may conflict with other elements.
+
+**Positive to negative (green ↔ red):**
+`#004030` `#005c47` `#00785e` `#1f964a` `#54b545` `#8cd14a` `#cce84f` `#f7f7bf` ← mid → `#faf2de` `#f7d691` `#fcb052` `#fc7833` `#ed4729` `#d11f14` `#9e1730` `#6e1221`
+
+Compact (5-stop): `#004d3b` `#38a645` `#edf08c` `#fac26b` `#de331f`
+
+**Cool to hot (blue ↔ red):**
+`#411f86` `#3646ae` `#3464d0` `#3582ef` `#57a4f1` `#7cc8f0` `#a6e6e3` `#e4f7f4` ← mid → `#faf5be` `#f7db14` `#f4b425` `#fb7b2b` `#ee4829` `#d01e14` `#9e1830` `#6e1121`
 
 ---
 
@@ -170,6 +235,16 @@ Every viz has **four parts**:
   - Functional (3:1 contrast required): **GM-400 `#8F9194` or darker**.
   - Always a **simple solid line**.
   - **Border radius = 10px** (project default for this workspace).
+
+### Background color accessibility thresholds
+
+| Background          | Min color level for graphic objects (3:1) | Min color level for text (4.5:1) |
+|---------------------|-------------------------------------------|----------------------------------|
+| White               | 400                                       | 500                              |
+| Gray Matter-50      | 450                                       | 550                              |
+| Gray Matter Light   | 500                                       | 600                              |
+
+Prefer **white backgrounds** for data visualizations. If using gray, use GM-50 (not full GM Light) as it requires smaller color shifts.
 
 ### Header
 
@@ -208,14 +283,14 @@ Every viz has **four parts**:
 
 ### InDesign / print collateral
 
-| Element       | Weight     | Size       | Color    |
-|---------------|------------|------------|----------|
-| Figure number | Regular    | 8px/10px   | GM-700 / black |
-| Chart title   | Semibold   | 8pt/10pt   | GM-900 / black |
-| Chart subtitle| Regular    | 8pt/10pt   | GM-700   |
-| Data/axis     | Regular    | 8pt/10pt   | GM-900   |
-| Legend        | Medium     | 8pt/10pt   | GM-900   |
-| Caption       | Regular    | 8pt/10pt   | GM-900   |
+| Element        | Weight           | Size      | Color    |
+|----------------|------------------|-----------|----------|
+| Figure number  | Regular          | 8px/10px  | GM-700 / black |
+| Chart title    | Semibold         | 8pt/10pt  | GM-900 / black |
+| Chart subtitle | Regular          | 8pt/10pt  | GM-700   |
+| Data/axis      | Regular          | 8pt/10pt  | GM-900   |
+| Legend         | Medium           | 8pt/10pt  | GM-900   |
+| Caption        | Regular          | 8pt/10pt  | GM-900   |
 
 ### Accessibility rules for type
 
@@ -231,26 +306,29 @@ Every viz has **four parts**:
 
 ### Contrast requirements
 
-| Element              | Minimum contrast |
-|----------------------|------------------|
-| Normal text (<18pt)  | 4.5:1            |
-| Large text (≥18pt or ≥14pt bold) | 3:1 |
-| Graphic objects (bars, lines, non-text) | 3:1 |
-| Logos / pure decoration | exempt        |
+| Element                                  | Minimum contrast |
+|------------------------------------------|------------------|
+| Normal text (<18pt)                      | 4.5:1            |
+| Large text (≥18pt or ≥14pt bold)         | 3:1              |
+| Graphic objects (bars, lines, non-text)  | 3:1              |
+| Logos / pure decoration                  | exempt           |
 
-### Solving contrast challenges
+### Multi-color chart rules
 
-- **Use outlines**: add a border in the background color (typically white) around shapes so each color borders the outline, not the next color.
-- **No more than 3 solid colors touching** if relying on color contrast alone.
-- For complex viz: reduce colors, use **patterns** / hatching, use **different line types** (dotted, dashed), use **markers** (circle/square/triangle), label directly.
+- **Maximum 3 solid colors touching** (including background) without a divider.
+- For 4+ colors: add a **white/background-color outline** (3px preferred) around each shape — each color then only needs to contrast against the outline, not each other.
+- Any two colors ≥400 levels apart automatically meet the 3:1 requirement.
+
+### Power BI specific limitation
+
+**Power BI does not reproduce outlines around shapes.** Therefore:
+- Designs should use colors that meet contrast requirements without relying on outlines.
+- Ensure colors touching each other are ≥400 levels apart.
+- Include a data table as an accessibility alternative for complex multi-color charts.
 
 ### Never rely on color alone
 
-Always pair color with:
-- Text labels,
-- Icons,
-- Patterns or shapes,
-- Position/order.
+Always pair color with text labels, icons, patterns/shapes, or position/order.
 
 ### Alternative paths
 
@@ -283,6 +361,15 @@ For complex viz that can't fully meet contrast:
 - Optional **drop shadow**: 50% opacity, no offset, 5px size.
 - Text must meet contrast on the fill color.
 
+### Axis and grid lines
+
+| Context     | 1px informative line (4.5:1) | 3px informative line (3:1) |
+|-------------|------------------------------|----------------------------|
+| On white    | GM-500                       | GM-400                     |
+| On GM-50    | GM-600                       | GM-500                     |
+
+Decorative lines (not needed to read the data) are exempt from contrast requirements.
+
 ---
 
 ## 12. Project-specific Defaults (this workspace)
@@ -291,6 +378,8 @@ For complex viz that can't fully meet contrast:
 - Use the **Corporate palette** (Ultraviolet) for all WTW-branded reports unless explicit CRM/sales-operations context warrants the Indigo palette.
 - No emojis in code, comments, or measure expressions. (Emojis in HTML card OUTPUT are allowed.)
 - All HTML cards use `font-family: 'Segoe UI', sans-serif;` — Graphik (print brand font) is not available in Power BI.
+- **No gradients** in data visualization fills — solid colors only (limited pattern fills for accessibility where needed).
+- **No graphic/image fills** in charts.
 
 ---
 
@@ -307,6 +396,7 @@ VAR _uv650 = "#742CA5"
 VAR _uv700 = "#611E90"
 VAR _uv750 = "#521380"
 VAR _uv800 = "#41056D"
+VAR _uvDark = "#48086F"  // named brand dark
 
 -- Gray Matter
 VAR _gmLight = "#E6E6E6"
@@ -316,9 +406,10 @@ VAR _gm400   = "#8F9194"
 VAR _gm700   = "#414244"
 VAR _gm900   = "#171718"
 
--- Combination 1 partners
+-- Combination 1 partners (UV + Fireworks + Coral Reef)
 VAR _fw500 = "#D124B8"
 VAR _fw650 = "#940D81"
+VAR _fw700 = "#7B086B"
 VAR _fw800 = "#530247"
 VAR _cr400 = "#F75784"
 VAR _cr500 = "#DB3363"
@@ -326,7 +417,7 @@ VAR _cr550 = "#CA2254"
 VAR _cr650 = "#A0113D"
 VAR _cr800 = "#5A031F"
 
--- Combination 2 partners
+-- Combination 2 partners (UV + Stratosphere + Infinity)
 VAR _st500 = "#1A71EF"
 VAR _st650 = "#074CAD"
 VAR _st700 = "#043E8E"
@@ -336,10 +427,11 @@ VAR _in500 = "#208382"
 VAR _in550 = "#1D7575"
 VAR _in800 = "#0F2F31"
 
--- Combination 3 partners
+-- Combination 3 partners (UV + Submarine + Mandarin)
 VAR _su400 = "#CA8100"
 VAR _su500 = "#A76900"
 VAR _su550 = "#965D00"
+VAR _su650 = "#744700"
 VAR _su800 = "#3E2400"
 VAR _ma500 = "#C25700"
 VAR _ma650 = "#8B3700"
