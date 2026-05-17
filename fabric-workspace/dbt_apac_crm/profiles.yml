@@ -1,0 +1,16 @@
+apac_crm:
+  target: dev
+  outputs:
+    dev:
+      type: fabric
+      driver: 'ODBC Driver 18 for SQL Server'
+      # Get this from Fabric portal: APAC_Reporting_WH > Settings > SQL connection string
+      server: '<your-workspace>.datawarehouse.fabric.microsoft.com'
+      port: 1433
+      database: wh_sales_pipeline_gold
+      schema: dbo
+      authentication: CLI
+      encrypt: true
+      trust_cert: false
+      connect_timeout: 30
+      retries: 3

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>APAC CRM Pipeline — Current vs dbt Future</title>
+<style>
+  :root {
+    --purple: #7F35B2;
+    --purple-dark: #5B2487;
+    --purple-light: #F3EBF9;
+    --text-dark: #1E1B4B;
+    --text-body: #374151;
+    --text-muted: #6B7280;
+    --border: #E5E7EB;
+    --surface: #F9FAFB;
+    --white: #FFFFFF;
+    --amber: #F59E0B;
+    --amber-dark: #D97706;
+    --amber-light: #FFFBEB;
+    --green: #16A34A;
+    --green-light: #F0FDF4;
+    --red: #EF4444;
+    --red-light: #FEF2F2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #EEF2F7;
+    color: var(--text-body);
+    padding: 28px;
+    min-height: 100vh;
+  }
+
+  .page-header { margin-bottom: 20px; }
+  .page-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: -0.3px;
+  }
+  .page-header .subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-body);
+  }
+  .legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Grid: row-label + 3 data columns */
+  .grid {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    background: var(--white);
+  }
+
+  /* Column headers — row 1 of grid */
+  .ch {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ch.empty { background: var(--white); }
+  .ch.current {
+    background: #F3F4F6;
+    color: var(--text-body);
+    border-left: 1px solid var(--border);
+  }
+  .ch.phase1 {
+    background: var(--amber-light);
+    color: var(--amber-dark);
+    border-left: 1px solid var(--border);
+    border-bottom-color: var(--amber);
+  }
+  .ch.phase23 {
+    background: var(--purple-light);
+    color: var(--purple-dark);
+    border-left: 1px solid var(--border);
+    border-bottom-color: var(--purple);
+  }
+  .ch .phase-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    width: fit-content;
+    letter-spacing: 0.4px;
+  }
+  .ch.current .phase-tag { background: #D1D5DB; color: #374151; }
+  .ch.phase1 .phase-tag { background: #FDE68A; color: #92400E; }
+  .ch.phase23 .phase-tag { background: #D8B4FE; color: #5B2487; }
+
+  /* Row labels */
+  .rl {
+    padding: 16px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .rl .layer { font-size: 11px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.6px; }
+  .rl .sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+
+  /* Cells */
+  .cell {
+    padding: 14px 15px;
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-size: 11.5px;
+    vertical-align: top;
+  }
+  .cell.no-change {
+    background: #FAFAFA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nc-label {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .nc-dash { font-size: 22px; opacity: 0.2; display: block; margin-bottom: 4px; }
+
+  /* Process blocks */
+  .proc { margin-bottom: 12px; }
+  .proc:last-child { margin-bottom: 0; }
+  .proc-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+  }
+  .proc-name {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  /* Tool tags */
+  .tag {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .tag.pyspark  { background: #FFF3E0; color: #BF360C; }
+  .tag.dbt      { background: #E8F5E9; color: #1B5E20; }
+  .tag.sql      { background: #E3F2FD; color: #0D47A1; }
+  .tag.pipeline { background: #EDE7F6; color: #4527A0; }
+  .tag.dataflow { background: #FCE4EC; color: #880E4F; }
+  .tag.powerbi  { background: #FFF8E1; color: #E65100; }
+  .tag.delta    { background: #E0F2FE; color: #0369A1; }
+
+  /* Status badges */
+  .badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .badge.new      { background: #DCFCE7; color: #166534; }
+  .badge.retained { background: #DBEAFE; color: #1D4ED8; }
+  .badge.retired-b { background: #FEE2E2; color: #991B1B; }
+  .badge.repointed { background: var(--purple-light); color: var(--purple-dark); }
+
+  /* Artifacts */
+  .arts { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
+  .art {
+    display: inline-block;
+    font-size: 10px;
+    font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 7px;
+    color: var(--text-body);
+    white-space: nowrap;
+  }
+  .art.new     { background: var(--green-light); border-color: #86EFAC; color: #166534; }
+  .art.changed { background: var(--amber-light); border-color: #FCD34D; color: #92400E; }
+  .art.retired { background: var(--red-light); border-color: #FCA5A5; color: #991B1B; text-decoration: line-through; }
+  .art.warn    { background: #FFF7ED; border-color: #FDBA74; color: #9A3412; }
+
+  /* Notes */
+  .note {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    padding: 3px 8px;
+    border-left: 2px solid var(--border);
+    line-height: 1.5;
+  }
+  .note.problem { border-color: var(--red); color: #991B1B; background: var(--red-light); border-radius: 0 3px 3px 0; }
+  .note.fixed   { border-color: var(--green); color: #166534; }
+  .note.defer   { border-color: var(--amber); color: #92400E; }
+  .note.retire  { border-color: var(--red); color: #991B1B; }
+
+  .lbl {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 7px;
+    margin-bottom: 2px;
+  }
+  .lbl:first-child { margin-top: 0; }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 10px 0;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .wtw-badge {
+    background: var(--purple);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  /* Remove bottom border on last row */
+  .grid > .rl:last-of-type,
+  .grid > .cell:nth-last-child(-n+3) {
+    border-bottom: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>APAC CRM Pipeline — Current State → dbt Future</h1>
+  <div class="subtitle">Technical architecture · Bronze / Silver / Gold / Power BI · 3-phase migration plan</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#16A34A"></div> New / changed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div> Deferred to next phase</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div> Retired / removed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6B7280"></div> Unchanged</div>
+  <div class="legend-item"><span class="art" style="font-size:10px">table_name</span> &nbsp;artifact / table</div>
+</div>
+
+<div class="grid">
+
+  <!-- ── COLUMN HEADERS ── -->
+  <div class="ch empty"></div>
+
+  <div class="ch current">
+    <span class="phase-tag">As-is</span>
+    Current State
+  </div>
+
+  <div class="ch phase1">
+    <span class="phase-tag">Phase 1 · ~12–14 days</span>
+    Tidy &amp; Mapping Consolidation
+  </div>
+
+  <div class="ch phase23">
+    <span class="phase-tag">Phase 2–3</span>
+    dbt + Warehouse + Star Schema
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       ROW 1 — BRONZE / INGESTION
+  ══════════════════════════════════════ -->
+  <div class="rl">
+    <div class="layer">Bronze</div>
+    <div class="sub">Raw ingestion &amp; reference data</div>
+  </div>
+
+  <!-- Bronze · Current -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pipeline">Fabric Pipeline</span>
+        <span class="proc-name">01_bronze_pipeline_crm.json</span>
+      </div>
+      <span class="lbl">Source → Lakehouse</span>
+      <div class="arts">
+        <span class="art">Dynamics 365</span>
+        <span class="art">→</span>
+        <span class="art warn">APAC_CRM_Analytics_LH</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag dataflow">Dataflow</span>
+        <span class="proc-name">9 mapping tables (dataflow-managed)</span>
+      </div>
+      <div class="arts">
+        <span class="art">Product to Business Mapping</span>
+        <span class="art">CRB_Sub Product Class to GLOB Mapping</span>
+        <span class="art">Profit Center to Business Mapping</span>
+        <span class="art">CRB_Profit Center to GLOB Mapping</span>
+        <span class="art">Service Owner Office Mapping</span>
+        <span class="art">CRB_Pipeline Phase Mapping</span>
+        <span class="art">Frequency Mapping</span>
+        <span class="art">CRB_Exchange Rate</span>
+        <span class="art">CRB_Assumed Pipeline</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag sql">SQL</span>
+        <span class="proc-name">Copy_Os.sql / Copy_O.sql</span>
+      </div>
+      <div class="note problem">Gold-style joins &amp; revenue aggregation live in Bronze — medallion layers inverted</div>
+    </div>
+  </div>
+
+  <!-- Bronze · Phase 1 -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pipeline">Fabric Pipeline</span>
+        <span class="proc-name">D365 ingest</span>
+      </div>
+      <span class="lbl">Lakehouse renamed</span>
+      <div class="arts">
+        <span class="art changed">APAC_CRM_Analytics_bronze_LH</span>
+      </div>
+      <div class="note fixed">13 code references updated across notebooks + SQL files</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag delta">Native Delta</span>
+        <span class="proc-name">9 ref_* tables replace dataflows</span>
+        <span class="badge new">New</span>
+      </div>
+      <div class="arts">
+        <span class="art new">ref_product</span>
+        <span class="art new">ref_profitcenter</span>
+        <span class="art new">ref_territory</span>
+        <span class="art new">ref_japan_desk_owners</span>
+        <span class="art new">ref_pipeline_phase</span>
+        <span class="art new">ref_frequency</span>
+        <span class="art new">ref_fx_rates</span>
+        <span class="art new">ref_assumed_pipeline</span>
+      </div>
+      <div class="note fixed">57 hard-coded Asia Specialty PCs → ref_profitcenter.IsAsiaSpecialty<br>30 Japan Desk names → ref_japan_desk_owners<br>APAC region / exclusion lists → ref_territory flags</div>
+      <div class="arts" style="margin-top:6px">
+        <span class="art retired">9 dataflows disabled (90-day archive)</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag sql">SQL</span>
+        <span class="proc-name">Copy_Os.sql / Copy_O.sql</span>
+      </div>
+      <div class="note defer">Still running — Bronze redesign deferred to Phase 2</div>
+    </div>
+  </div>
+
+  <!-- Bronze · Phase 2–3 -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pipeline">Fabric Pipeline</span>
+        <span class="proc-name">D365 raw table copies</span>
+      </div>
+      <div class="arts">
+        <span class="art">APAC_CRM_Analytics_bronze_LH</span>
+      </div>
+      <div class="note fixed">Pure raw landing — no joins, no aggregation. True Bronze layer.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <span class="lbl">ref_* tables (retained, managed as dbt seeds)</span>
+      <div class="arts">
+        <span class="art">ref_product</span>
+        <span class="art">ref_profitcenter</span>
+        <span class="art">ref_territory</span>
+        <span class="art">ref_japan_desk_owners</span>
+        <span class="art">ref_pipeline_phase</span>
+        <span class="art">ref_frequency</span>
+        <span class="art">ref_fx_rates</span>
+        <span class="art">ref_assumed_pipeline</span>
+      </div>
+      <div class="note fixed">Adding a mapping = 1 row insert. No code change required.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="arts">
+        <span class="art retired">Copy_Os.sql</span>
+        <span class="art retired">Copy_O.sql</span>
+      </div>
+      <div class="note retire">Retired — logic moved to dbt intermediate models</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       ROW 2 — SILVER / TRANSFORM
+  ══════════════════════════════════════ -->
+  <div class="rl">
+    <div class="layer">Silver</div>
+    <div class="sub">Transform, enrich &amp; model</div>
+  </div>
+
+  <!-- Silver · Current -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pyspark">PySpark</span>
+        <span class="proc-name">APAC Sales Model.ipynb</span>
+      </div>
+      <span class="lbl">Reads</span>
+      <div class="arts">
+        <span class="art warn">APAC_CRM_Analytics_LH</span>
+        <span class="art">Product to Business Mapping</span>
+        <span class="art">Profit Center to Business Mapping</span>
+        <span class="art">Service Owner Office Mapping</span>
+        <span class="art">Frequency Mapping</span>
+      </div>
+      <div class="note problem">+ 57 hard-coded Asia Specialty PCs<br>+ APAC region filter ["Asia","Australasia","Vietnam","India","China"]<br>+ exclusion list ["Canada","Germany","GB","Turkey","USA"]</div>
+      <span class="lbl">Writes → APAC_Reporting_LH</span>
+      <div class="arts">
+        <span class="art">APAC_Sales_Pipeline_FACT</span>
+        <span class="art">DIM_Account</span>
+        <span class="art">DIM_Segment</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pyspark">PySpark</span>
+        <span class="proc-name">02_silver_notebook_crm_crb.ipynb</span>
+      </div>
+      <span class="lbl">Reads</span>
+      <div class="arts">
+        <span class="art warn">APAC_CRM_Analytics_LH</span>
+        <span class="art">CRB_Sub Product Class to GLOB Mapping</span>
+        <span class="art">CRB_Profit Center to GLOB Mapping</span>
+        <span class="art">CRB_Pipeline Phase Mapping</span>
+        <span class="art">CRB_Exchange Rate</span>
+        <span class="art">CRB_Assumed Pipeline</span>
+      </div>
+      <div class="note problem">+ 30 hard-coded Japan Desk owner names<br>+ 9 country split filters hard-coded in Step 4</div>
+      <span class="lbl">Writes → APAC_Reporting_LH</span>
+      <div class="arts">
+        <span class="art">APAC_CRB_ALL_RECORDS</span>
+        <span class="art">CRB_SG</span>
+        <span class="art">CRB_HK</span>
+        <span class="art">CRB_India</span>
+        <span class="art">CRB_Taiwan</span>
+        <span class="art">CRB_Philippines</span>
+        <span class="art">CRB_China</span>
+        <span class="art">CRB_AU</span>
+        <span class="art">CRB_NZ</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag sql">SQL</span>
+        <span class="proc-name">7 Silver SQL views</span>
+      </div>
+      <div class="arts">
+        <span class="art">02_silver_clean_crm_opportunity.sql</span>
+        <span class="art">02_silver_clean_crm_account.sql</span>
+        <span class="art">02_silver_master_crm_sales.sql</span>
+        <span class="art">+ 4 more</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Silver · Phase 1 -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pyspark">PySpark</span>
+        <span class="proc-name">APAC Sales Model.ipynb</span>
+        <span class="badge retained">Retained</span>
+      </div>
+      <span class="lbl">Reads (updated)</span>
+      <div class="arts">
+        <span class="art changed">APAC_CRM_Analytics_bronze_LH</span>
+        <span class="art new">ref_product</span>
+        <span class="art new">ref_profitcenter</span>
+        <span class="art new">ref_territory</span>
+        <span class="art new">ref_frequency</span>
+      </div>
+      <div class="note fixed">Hard-coded lists removed — all rules read from ref tables via join (F.trim + F.upper on both sides)</div>
+      <span class="lbl">Writes (unchanged)</span>
+      <div class="arts">
+        <span class="art">APAC_Sales_Pipeline_FACT</span>
+        <span class="art">DIM_Account</span>
+        <span class="art">DIM_Segment</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pyspark">PySpark</span>
+        <span class="proc-name">02_silver_notebook_crm_crb.ipynb</span>
+        <span class="badge retained">Retained</span>
+      </div>
+      <span class="lbl">Reads (updated)</span>
+      <div class="arts">
+        <span class="art changed">APAC_CRM_Analytics_bronze_LH</span>
+        <span class="art new">ref_product</span>
+        <span class="art new">ref_profitcenter</span>
+        <span class="art new">ref_japan_desk_owners</span>
+        <span class="art new">ref_pipeline_phase</span>
+        <span class="art new">ref_fx_rates</span>
+        <span class="art new">ref_assumed_pipeline</span>
+      </div>
+      <span class="lbl">Writes (unchanged)</span>
+      <div class="arts">
+        <span class="art">APAC_CRB_ALL_RECORDS</span>
+        <span class="art">CRB_SG</span>
+        <span class="art">CRB_HK</span>
+        <span class="art">+ 6 country tables</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag sql">SQL</span>
+        <span class="proc-name">7 Silver SQL views</span>
+        <span class="badge retained">Retained</span>
+      </div>
+      <div class="note fixed">Lakehouse references updated to APAC_CRM_Analytics_bronze_LH; mapping joins repointed to ref_* tables</div>
+    </div>
+  </div>
+
+  <!-- Silver · Phase 2–3 -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag dbt">dbt-fabric</span>
+        <span class="proc-name">dbt project (T-SQL)</span>
+        <span class="badge new">New</span>
+      </div>
+      <span class="lbl">Model layers</span>
+      <div class="arts">
+        <span class="art new">sources</span>
+        <span class="art new">→ staging</span>
+        <span class="art new">→ intermediate</span>
+        <span class="art new">→ marts</span>
+      </div>
+      <span class="lbl">Writes to Warehouses</span>
+      <div class="arts">
+        <span class="art new">APAC_Reporting_WH</span>
+        <span class="art new">Global_Loom_WH</span>
+      </div>
+      <div class="note fixed">Adding a new mapping = 1 row in a ref table or dbt seed. No notebook edit. No pipeline change.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <span class="lbl">Retired after validation</span>
+      <div class="arts">
+        <span class="art retired">APAC Sales Model.ipynb</span>
+        <span class="art retired">02_silver_notebook_crm_crb.ipynb</span>
+        <span class="art retired">APAC_Reporting_LH</span>
+      </div>
+      <div class="note retire">Output validated against Phase 1 snapshots (row count + revenue totals) before cutover</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       ROW 3 — GOLD / STAR SCHEMA
+  ══════════════════════════════════════ -->
+  <div class="rl">
+    <div class="layer">Gold</div>
+    <div class="sub">Star schema &amp; conformed dims</div>
+  </div>
+
+  <!-- Gold · Current -->
+  <div class="cell">
+    <div class="note problem" style="margin-bottom:8px">No Gold layer for CRM. Silver is the terminal layer — wide flat tables fed directly to Power BI.</div>
+    <div class="arts">
+      <span class="art warn">APAC_Sales_Pipeline_FACT</span>
+      <span class="art warn">DIM_Account</span>
+      <span class="art warn">DIM_Segment</span>
+    </div>
+    <div class="note problem" style="margin-top:8px">Not a true star schema. Adding a dimension requires notebook code changes.</div>
+  </div>
+
+  <!-- Gold · Phase 1 — no change -->
+  <div class="cell no-change">
+    <div class="nc-label">
+      <span class="nc-dash">—</span>
+      No change<br>deferred to Phase 2–3
+    </div>
+  </div>
+
+  <!-- Gold · Phase 2–3 -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag dbt">dbt-fabric</span>
+        <span class="proc-name">Star schema marts</span>
+        <span class="badge new">New</span>
+      </div>
+      <span class="lbl">Fact table</span>
+      <div class="arts">
+        <span class="art new">fact_crm_opportunity</span>
+      </div>
+      <span class="lbl">Dimensions (9)</span>
+      <div class="arts">
+        <span class="art new">dim_account</span>
+        <span class="art new">dim_user</span>
+        <span class="art new">dim_product</span>
+        <span class="art new">dim_profitcenter</span>
+        <span class="art new">dim_territory</span>
+        <span class="art new">dim_pipeline_phase</span>
+        <span class="art new">dim_frequency</span>
+        <span class="art new">dim_date</span>
+        <span class="art new">dim_currency</span>
+      </div>
+      <span class="lbl">Bridge</span>
+      <div class="arts">
+        <span class="art new">bridge_account_tags</span>
+      </div>
+      <div class="note fixed">In APAC_Reporting_WH + Global_Loom_WH · country/region segmentation via filter context, not separate tables</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       ROW 4 — POWER BI / CONSUMERS
+  ══════════════════════════════════════ -->
+  <div class="rl">
+    <div class="layer">Power BI</div>
+    <div class="sub">Dashboards &amp; exports</div>
+  </div>
+
+  <!-- Power BI · Current -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag powerbi">Power BI</span>
+        <span class="proc-name">APAC Sales Dashboard</span>
+      </div>
+      <div class="arts">
+        <span class="art warn">APAC_Reporting_LH</span>
+      </div>
+      <div class="note">Wide flat table — APAC_Sales_Pipeline_FACT</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag powerbi">Power BI</span>
+        <span class="proc-name">ANZ Dashboards</span>
+      </div>
+      <div class="arts">
+        <span class="art warn">APAC_Reporting_LH</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag dataflow">Dataflow</span>
+        <span class="proc-name">9 CRB CSV exports</span>
+      </div>
+      <div class="arts">
+        <span class="art">CRB_SG.csv</span>
+        <span class="art">CRB_HK.csv</span>
+        <span class="art">CRB_India.csv</span>
+        <span class="art">CRB_Taiwan.csv</span>
+        <span class="art">CRB_Philippines.csv</span>
+        <span class="art">CRB_China.csv</span>
+        <span class="art">CRB_AU.csv</span>
+        <span class="art">CRB_NZ.csv</span>
+        <span class="art">+ 1 more</span>
+      </div>
+      <div class="note problem">9 separate dataflows — one per country. Adding a country = new dataflow + new notebook filter</div>
+    </div>
+  </div>
+
+  <!-- Power BI · Phase 1 — no change -->
+  <div class="cell no-change">
+    <div class="nc-label">
+      <span class="nc-dash">—</span>
+      No change<br>deferred to Phase 3
+    </div>
+  </div>
+
+  <!-- Power BI · Phase 2–3 -->
+  <div class="cell">
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag powerbi">Power BI</span>
+        <span class="proc-name">APAC Sales Dashboard</span>
+        <span class="badge repointed">Repointed</span>
+      </div>
+      <div class="arts">
+        <span class="art new">APAC_Reporting_WH</span>
+      </div>
+      <div class="note fixed">Direct Lake on star schema — fact_crm_opportunity + dims</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag powerbi">Power BI</span>
+        <span class="proc-name">ANZ Dashboards</span>
+        <span class="badge repointed">Repointed</span>
+      </div>
+      <div class="arts">
+        <span class="art new">APAC_Reporting_WH</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="proc">
+      <div class="proc-head">
+        <span class="tag pipeline">Fabric Pipeline</span>
+        <span class="proc-name">CRB CSV export job</span>
+        <span class="badge new">Replaced</span>
+      </div>
+      <div class="arts">
+        <span class="art new">1 parameterised pipeline job</span>
+      </div>
+      <div class="note fixed">9 parameterised queries on star schema. Adding a country = add a parameter row. No new dataflow.</div>
+      <div class="arts" style="margin-top:6px">
+        <span class="art retired">9 CRB dataflows retired</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div>APAC CRM pipeline · Phase 1 approved 2026-05-05 · Generated 2026-05-14</div>
+  <div class="wtw-badge">WTW Data Solutions</div>
+</div>
+
+</body>
+</html>

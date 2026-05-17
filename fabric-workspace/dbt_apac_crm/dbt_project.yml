@@ -1,0 +1,28 @@
+name: 'dbt_apac_crm'
+version: '1.0.0'
+config-version: 2
+
+profile: 'apac_crm'
+
+model-paths: ["models"]
+seed-paths:  ["seeds"]
+test-paths:  ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  dbt_apac_crm:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: gold
+      +materialized: table
+
+seeds:
+  dbt_apac_crm:
+    +schema: gold
+    +quote_columns: false

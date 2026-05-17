@@ -1,0 +1,25 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: "APAC CRM Bronze Lakehouse — raw D365 tables and legacy CIS"
+    database: APAC_CRM_Analytics_bronze_LH
+    schema: dbo
+    tables:
+      - name: src_crm_opportunity
+        description: "D365 Opportunity + Income Assignment records"
+
+      - name: src_crm_account
+        description: "D365 Account master"
+
+      - name: src_crm_product
+        description: "D365 LOB Product Class"
+
+      - name: src_crm_profitcenter
+        description: "D365 Profit Center custom entity"
+
+      - name: src_crm_users
+        description: "D365 System Users"
+
+      - name: src_crm_legacy_cis
+        description: "Legacy CIS flat file — historical opportunities pre-D365"
