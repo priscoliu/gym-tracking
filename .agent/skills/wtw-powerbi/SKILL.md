@@ -36,6 +36,9 @@ These commands live in [commands/](commands/) inside this skill folder. Each loa
 | [commands/structure-review.md](commands/structure-review.md) | Audit Container/Header/Body/Footer compliance, borders, padding |
 | [commands/accessibility-review.md](commands/accessibility-review.md) | WCAG AA audit + Power BI a11y pane delegations |
 | [commands/brand-color-fix.md](commands/brand-color-fix.md) | Action: replace off-brand hex codes with closest official equivalents (asks for confirmation) |
+| [commands/dax-review.md](commands/dax-review.md) | Audit DAX measures — naming, DIVIDE safety, performance anti-patterns, WTW thresholds |
+| [commands/full-audit.md](commands/full-audit.md) | Run all five reviews in one pass — color, typography, structure, accessibility, DAX |
+| [commands/report-scaffold.md](commands/report-scaffold.md) | Interactive: scaffold a new report page — mode, layout, starter measures, asset recommendation |
 
 **Invocation**:
 - Try `/wtw-powerbi:color-review` (namespaced form) in Claude Code's `/` palette after restarting.
@@ -87,6 +90,13 @@ Why this rule is here: previous cards built "from the same template" silently ch
   - **Default to Corporate** spacing (16px padding, 8px outer radius, tight 4/8px base, multi-layered elevation: `box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 8px 16px rgba(0,0,0,0.04), 0 24px 32px rgba(0,0,0,0.06);`). Switch to **Modern** (32px padding, 20px radius, generous 24px gaps, soft ambient `box-shadow: 0 20px 40px -8px rgba(0,0,0,0.08);`) only when the user asks for a "breathable", "modern", "marketing", or "landing-page" feel. Ask only if the context is ambiguous.
   - 12-column grid calculations, standard card widths
   - Modal pop-up pattern, minimize redundancy rules
+
+### Design Tokens
+- **Single source of truth for all CSS + DAX values**: See [references/tokens.md](references/tokens.md)
+  - CSS variables block (paste into any HTML template `<style>`)
+  - DAX variable block (paste at top of any measure using WTW styling)
+  - Colors, typography, spacing, shadows, border radii
+- **Power BI theme file**: `references/wtw.json` — import in Power BI Desktop → View → Themes
 
 ### DAX Patterns
 - **Measures & logic**: See [references/dax-patterns.md](references/dax-patterns.md)

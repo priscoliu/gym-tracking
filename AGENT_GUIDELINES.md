@@ -42,11 +42,13 @@ All naming follows strict patterns. No exceptions without team agreement.
 
 | Layer | Folder | Files |
 | :--- | :--- | :--- |
-| Bronze | `Fabric-Bronze/Billing/` | `01_bronze_ingest_eglobal.m`, `01_bronze_ingest_income_report.m` |
-| Bronze | `Fabric-Bronze/CRM/` | *(D365 Data Pipeline — managed in Fabric)* |
-| Silver | `Fabric-Silver/Chloe/` | `02_silver_clean_eglobal.m`, `02_silver_notebook_eclipse.ipynb`, `02_silver_notebook_arias.ipynb`, `02_silver_notebook_gswin.ipynb`, `02_silver_notebook_saiba.ipynb` |
-| Silver | `Fabric-Silver/Baseline/` | *(upcoming — user's unified baseline project)* |
-| Gold | `Global-Loom/` | `00_explore_pas_silver.ipynb` *(Phase 0 — data profiling)* |
+| Bronze | `fabric-workspace/Fabric-Bronze/Billing/` | `src_Saiba_crb.m`, `src_arias_crb.m`, `src_eclipse_crb.m`, `src_eclipse_london.m`, `src_eglobal_income_report.m`, `src_eglobal_premium_report.m`, `src_gswin_crb.m`, `src_ret_oracle.m`, `src_wr_spm.m` |
+| Bronze | `fabric-workspace/Fabric-Bronze/CRM/` | `01_bronze_pipeline_crm.json` (Fabric Data Pipeline) |
+| Silver | `fabric-workspace/Fabric-Silver/Chloe/` | `02_silver_notebook_eclipse.ipynb`, `02_silver_notebook_arias.ipynb`, `02_silver_notebook_gswin.ipynb`, `02_silver_notebook_saiba.ipynb`, `02_silver_notebook_eglobal.ipynb`, `ref_Chloe_eglobal_product_mapping.m` |
+| Silver | `fabric-workspace/Fabric-Silver/Baseline/` | `arias_crb_baseline.m`, `eclipse_crb_baseline.m`, `eglobal_income_baseline.m`, `gswin_crb_baseline.m`, `ret_oracle_baseline.m`, `saiba_crb_baseline.m`, `wr_spm_baseline.m` |
+| Silver | `fabric-workspace/Fabric-Silver/CRM/` | `02_silver_clean_crm_account.sql`, `02_silver_clean_crm_opportunity.sql`, `02_silver_clean_crm_opportunity_unified.sql`, `02_silver_clean_crm_product.sql`, `02_silver_clean_crm_profitcenter.sql`, `02_silver_clean_crm_users.sql`, `02_silver_master_crm_sales.sql`, `02_silver_notebook_crm_crb.ipynb`, `APAC Sales Model.ipynb` |
+| Gold | `fabric-workspace/Global-Loom/New Gold layer notebooks/` | `gold_01_dim_client.ipynb`, `gold_02_dim_financial_geography.ipynb`, `gold_03_fact_transaction.ipynb`, `gold_04_dim_transaction_premium.ipynb`, `gold_05_dim_policy.ipynb`, `gold_06_dim_product.ipynb`, `gold_07_dim_organisation.ipynb`, `gold_08_cross_sell_checks_and_views.ipynb` |
+| Source | `fabric-workspace/Source-Analysis/` | Original Alteryx `.yxmd` |
 
 **ETL Action Keywords**:
 
