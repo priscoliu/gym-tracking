@@ -6,7 +6,7 @@ import urllib.error
 from datetime import datetime
 
 class XunjiClient:
-    def __init__(self, api_key="xjllm_5acea9452dc995e6df3334fc9a60f33a8a43e08dbda02428", cache_dir="xunji_cache"):
+    def __init__(self, api_key="xjllm_5acea9452dc995e6df3334fc9a60f33a8a43e08dbda02428", cache_dir="cache"):
         self.api_key = api_key
         self.base_url = "https://trains.xunjiapp.cn/api_trains_for_llm"
         self.cache_dir = cache_dir
@@ -81,6 +81,74 @@ class XunjiClient:
                     
                 print(f"[SUCCESS] Saved {len(res_array)} records to cache.")
                 return res_array
+                
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8') if e.read() else ""
+            print(f"[HTTP ERROR] {e.code}: {error_body}")
+            return None
+        except Exception as e:
+            print(f"[ERROR] {str(e)}")
+            return None
+
+    def upsert_training_data(self, res_array):
+        """
+        Upsert training data. All items in res_array must belong to the same date.
+        """
+        if not res_array:
+            print("[ERROR] res_array is empty")
+            return None
+            
+        print(f"[API] Upserting {len(res_array)} records to {self.base_url}")
+        upsert_url = self.base_url.replace("/api_trains_for_llm", "/api_upsert_trains_for_llm")
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "Accept-Encoding": "gzip"
+        }
+        
+        payload = json.dumps({"res": res_array}).encode('utf-8')
+        req = urllib.request.Request(upsert_url, data=payload, headers=headers, method='POST')
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                content_encoding = response.headers.get('Content-Encoding', '')
+                raw_data = response.read()
+                
+                if 'gzip' in content_encoding:
+                    content = gzip.decompress(raw_data).decode('utf-8')
+                else:
+                    content = raw_data.decode('utf-8')
+                
+                try:
+                    result = json.loads(content)
+                except json.JSONDecodeError:
+                    print(f"[ERROR] Invalid JSON response: {content}")
+                    return None
+                    
+                if not isinstance(result, dict):
+                    print(f"[ERROR] Expected dict response, got {type(result)}: {result}")
+                    return None
+                    
+                if result.get("success") is False:
+                    print(f"[ERROR] API request failed: {result}")
+                    return None
+                    
+                final_res = result.get("res", [])
+                if final_res and isinstance(final_res, list):
+                    # Extract datestr from first record to cache it
+                    first_record = final_res[0]
+                    datestr = first_record.split(',')[0]
+                    # handle YYMMDD if necessary, assuming YYYY-MM-DD
+                    if len(datestr) == 6:
+                        datestr = f"20{datestr[:2]}-{datestr[2:4]}-{datestr[4:]}"
+                    
+                    cache_path = os.path.join(self.cache_dir, f"trains_{datestr}.json")
+                    with open(cache_path, 'w', encoding='utf-8') as f:
+                        json.dump(final_res, f, ensure_ascii=False, indent=2)
+                    print(f"[SUCCESS] Upserted and cached {len(final_res)} records for {datestr}.")
+                
+                return final_res
                 
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8') if e.read() else ""
