@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: "APAC CRM Bronze Lakehouse — raw D365 entity pulls"
+    database: APAC_CRM_Analytics_bronze_LH
+    schema: dbo
+    tables:
+      - name: src_crm_opportunity
+      - name: src_crm_opportunity_service
+      - name: src_crm_income_assignment
+      - name: src_crm_account
+      - name: src_crm_systemuser
+      - name: src_crm_office
+      - name: src_crm_profitcenter
+      - name: src_crm_currency
+      - name: src_crm_productclass
+      - name: src_crm_tags_bridge_opportunity
+      - name: src_crm_tags_bridge_account
+      - name: src_crm_crb_key_large_accounts
+      - name: src_crm_activity
+      - name: src_crm_lead
