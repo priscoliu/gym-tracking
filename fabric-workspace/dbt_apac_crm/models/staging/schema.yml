@@ -1,0 +1,151 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: "APAC CRM Bronze Lakehouse — raw D365 entity pulls"
+    database: APAC_CRM_Analytics_bronze_LH
+    schema: dbo
+    tables:
+      - name: src_crm_opportunity
+      - name: src_crm_opportunity_service
+      - name: src_crm_income_assignment
+      - name: src_crm_account
+      - name: src_crm_systemuser
+      - name: src_crm_office
+      - name: src_crm_profitcenter
+      - name: src_crm_currency
+      - name: src_crm_productclass
+      - name: src_crm_tags_bridge_opportunity
+      - name: src_crm_tags_bridge_account
+      - name: src_crm_crb_key_large_accounts
+      - name: src_crm_activity
+      - name: src_crm_lead
+
+models:
+  - name: stg_crm_opportunity
+    description: "One row per CRM opportunity from D365"
+    columns:
+      - name: OpportunityId
+        tests:
+          - unique
+          - not_null
+      - name: StatusCodeName
+        tests:
+          - not_null
+
+  - name: stg_crm_opportunity_service
+    description: "One row per opportunity service line"
+    columns:
+      - name: OpportunityServiceId
+        tests:
+          - unique
+          - not_null
+      - name: OpportunityId
+        tests:
+          - not_null
+
+  - name: stg_crm_income_assignment
+    description: "Colleague split records per service line"
+    columns:
+      - name: IncomeAssignmentId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_account
+    description: "Global D365 accounts"
+    columns:
+      - name: AccountId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_systemuser
+    description: "Active licensed D365 users"
+    columns:
+      - name: SystemUserId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_office
+    description: "D365 office reference"
+    columns:
+      - name: OfficeId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_profitcenter
+    description: "D365 profit center reference"
+    columns:
+      - name: ProfitCenterId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_currency
+    description: "D365 transaction currency"
+    columns:
+      - name: CurrencyId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_productclass
+    description: "D365 product class / LOB reference"
+    columns:
+      - name: ProductClassId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_tags_bridge_opportunity
+    description: "Opportunity-tag bridge — one row per opportunity-tag pair"
+    columns:
+      - name: OpportunityId
+        tests:
+          - not_null
+      - name: TagId
+        tests:
+          - not_null
+
+  - name: stg_crm_tags_bridge_account
+    description: "Account-tag bridge with inheritance (direct, parent, global parent)"
+    columns:
+      - name: BridgeKey
+        tests:
+          - unique
+          - not_null
+      - name: TagSource
+        tests:
+          - accepted_values:
+              values: ['Direct', 'Parent', 'Global Parent']
+
+  - name: stg_crm_crb_key_large_accounts
+    description: "Key/large account tag inheritance with LOB classification"
+    columns:
+      - name: KeyAccountType
+        tests:
+          - accepted_values:
+              values: ['Subsidiary', 'Main']
+      - name: Lob
+        tests:
+          - accepted_values:
+              values: ['CORPORATE RISK & BROKING', 'INSURANCE CONSULTING AND TECHNOLOGY', 'WORK & REWARDS', 'NONE']
+
+  - name: stg_crm_activity
+    description: "D365 activities (open and completed)"
+    columns:
+      - name: ActivityId
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_crm_lead
+    description: "D365 leads (open and converted)"
+    columns:
+      - name: LeadId
+        tests:
+          - unique
+          - not_null
