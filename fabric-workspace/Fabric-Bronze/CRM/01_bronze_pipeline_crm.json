@@ -1,1007 +1,1012 @@
 {
-    "name": "01_bronze_ETL_crm",
-    "objectId": "0ea1073f-5755-4cc7-9231-86afa43d84e4",
-    "properties": {
-        "activities": [
-            {
-                "name": "Copy SystemUser",
-                "description": "src_crm_systemuser — raw systemuser entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_systemuser\n-- Output: src_crm_systemuser  → APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse — systemuser entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active users — this is\n-- reference data used at Silver for both opportunity owner and colleague involved.\n--\n-- dbt Phase 2: joins to src_crm_opportunity on ownerid = systemuserid\n--   and to src_crm_income_assignment on rs_colleague = systemuserid.\n-- =============================================================================\n\nSELECT\n    systemuserid,\n    [fullname],\n    domainname,\n    territoryidname,\n    rs_officename,\n    address1_country,\n    rs_profitcentername\nFROM\n    systemuser\nWHERE\n    isdisabled = 0\nand\n    islicensed = 1",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "systemuserid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_systemuser"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Account",
-                "description": "src_crm_account — raw account entity, no joins",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\r\n-- 01_bronze_ingest_crm_account\r\n-- Output: src_crm_account  → APAC_CRM_Analytics_bronze_LH\r\n-- Source: Dataverse — account entity\r\n-- Layer:  Bronze\r\n--\r\n-- Bronze contract: raw D365 columns only. No filter by region — accounts are\r\n-- global reference data used for enrichment at Silver.\r\n--\r\n-- dbt Phase 2: joins to src_crm_opportunity on parentaccountid = accountid.\r\n-- =============================================================================\r\n\r\nSELECT\r\n    accountid,\r\n    accountnumber,\r\n    [name],\r\n    parentaccountid,\r\n    parentaccountidname,\r\n    rs_ultimateglobalparentname,\r\n    rs_dunsnumber,\r\n    rs_clientsegmentationname,\r\n    rs_industryname,\r\n    rs_primarysiccodename,\r\n    rs_address1countryname,\r\n    address1_stateorprovince,\r\n    statecodename\r\nFROM\r\n    account\r\nWHERE\r\n    statecode = 0\r\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "accountid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_account"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Office",
-                "description": "src_crm_office — raw rs_office entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\r\n-- 01_bronze_ingest_crm_office\r\n-- Output: src_crm_office  → APAC_CRM_Analytics_bronze_LH\r\n-- Source: Dataverse — rs_office entity\r\n-- Layer:  Bronze\r\n--\r\n-- Bronze contract: raw D365 columns only. Pull all active offices — used at\r\n-- Silver for subregion/country fallback in APAC filter logic.\r\n--\r\n-- dbt Phase 2: joins to src_crm_opportunity on rs_office = rs_officeid\r\n--   and to src_crm_opportunity_service on rs_office = rs_officeid.\r\n-- =============================================================================\r\n\r\nSELECT\r\n    rs_officeid,\r\n    rs_name,\r\n    rs_countryname,\r\n    rs_subregionname,\r\n    statecodename\r\nFROM\r\n    rs_office\r\nWHERE\r\n    statecode = 0\r\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "rs_officeid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_office"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy ProfitCenter",
-                "description": "src_crm_profitcenter — raw rs_profitcenter entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_profitcenter\n-- Output: src_crm_profitcenter  → APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse — rs_profitcenter entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active profit centers —\n-- used at Silver to resolve Finance Level 1 from income assignment.\n--\n-- dbt Phase 2: source for dim_profitcenter.\n-- =============================================================================\n\nSELECT\n    rs_profitcenterid,\n    rs_name,\n    rs_financelevel1name,\n    [rs_businessname],\n    [rs_lobname],\n    [rs_segmentname],\n    statecode\nFROM\n    rs_profitcenter\nWHERE\n    statecode = 0\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "rs_profitcenterid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_profitcenter"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Currency",
-                "description": "src_crm_currency — raw transactioncurrency entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_currency\n-- Output: src_crm_currency  → APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse — transactioncurrency entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active currencies.\n--\n-- dbt Phase 2: source for dim_currency.\n-- =============================================================================\n\nSELECT\n    transactioncurrencyid,\n    currencyname,\n    [exchangerate],\n    [currencysymbol],\n    [isocurrencycode],\n    statecode\nFROM\n    transactioncurrency\nWHERE\n    statecode = 0\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "transactioncurrencyid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_currency"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy ProductClass",
-                "description": "src_crm_product — rs_productclass entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "SELECT \r\n    rs_productclassid, \r\n    createdon, \r\n    modifiedon, \r\n    rs_name, \r\n    rs_segmentname, \r\n    rs_businessname, \r\n    statecodename\r\nFROM rs_productclass \r\nORDER BY rs_name ASC",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "rs_productclassid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_productclass"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy opportunity_Tags",
-                "description": "src_crm_tags — opportunity-tag junction (rs_rs_tagslist_opportunity)",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\r\n-- 01_bronze_ingest_crm_tags\r\n-- Output: src_crm_tags  → APAC_CRM_Analytics_bronze_LH\r\n-- Source: Dataverse — rs_tagslist + rs_rs_tagslist_opportunity (junction)\r\n-- Layer:  Bronze\r\n--\r\n-- Bronze contract: one row per opportunity-tag combination. The STRING_AGG\r\n-- aggregation to produce \"tag1 / tag2\" strings is Silver responsibility.\r\n--\r\n-- dbt Phase 2: source for bridge_account_tags or inline in stg_crm__opportunity.\r\n-- =============================================================================\r\n\r\nSELECT\r\n    ot.opportunityid,\r\n    ot.rs_tagslistid,\r\n    tag.rs_name AS TagName\r\nFROM\r\n    rs_rs_tagslist_opportunity ot\r\n    LEFT JOIN rs_tagslist tag ON tag.rs_tagslistid = ot.rs_tagslistid\r\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "opportunityid",
-                                "rs_tagslistid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_tags_bridge_opportunity"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Tags_Accounts",
-                "description": "src_crm_bridge_account_tags — tag inheritance bridge",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "SELECT \r\n    ROW_NUMBER() OVER (ORDER BY accountid, TagID) AS BridgeKey, \r\n    accountid AS AccountID, \r\n    TagID, \r\n    TagSource, \r\n    'Account' AS EntityType \r\n    FROM (SELECT DISTINCT a.accountid, tag.rs_tagslistid AS TagID, 'Direct' AS TagSource FROM account a INNER JOIN rs_account_rs_tagslist atl ON atl.accountid = a.accountid INNER JOIN rs_tagslist tag ON tag.rs_tagslistid = atl.rs_tagslistid WHERE tag.rs_name IN ('Large Account - Asia - International - R&B - CRB', '#AsiaTMOs', 'Global Standards - APAC CRB - International - R&B - CRB', 'Global Standards - APAC ICT - International - R&B - ICT', 'Global Standards - APAC W&R - International - HWC - W&R', 'AUNZ CRB Large Accounts - International - R&B - CRB', 'International Industries AFB Tag') UNION ALL SELECT DISTINCT a.accountid, tag.rs_tagslistid AS TagID, 'Parent' AS TagSource FROM account a INNER JOIN account pa ON a.parentaccountid = pa.accountid INNER JOIN rs_account_rs_tagslist atl ON atl.accountid = pa.accountid INNER JOIN rs_tagslist tag ON tag.rs_tagslistid = atl.rs_tagslistid WHERE pa.accountnumber IS NOT NULL AND tag.rs_name IN ('Large Account - Asia - International - R&B - CRB', '#AsiaTMOs', 'Global Standards - APAC CRB - International - R&B - CRB', 'Global Standards - APAC ICT - International - R&B - ICT', 'Global Standards - APAC W&R - International - HWC - W&R', 'AUNZ CRB Large Accounts - International - R&B - CRB', 'International Industries AFB Tag') UNION ALL SELECT DISTINCT a.accountid, tag.rs_tagslistid AS TagID, 'Global Parent' AS TagSource FROM account a INNER JOIN account gpa ON a.rs_ultimateglobalparent = gpa.accountid INNER JOIN rs_account_rs_tagslist atl ON atl.accountid = gpa.accountid INNER JOIN rs_tagslist tag ON tag.rs_tagslistid = atl.rs_tagslistid WHERE gpa.accountnumber IS NOT NULL AND tag.rs_name IN ('Large Account - Asia - International - R&B - CRB', '#AsiaTMOs', 'Global Standards - APAC CRB - International - R&B - CRB', 'Global Standards - APAC ICT - International - R&B - ICT', 'Global Standards - APAC W&R - International - HWC - W&R', 'AUNZ CRB Large Accounts - International - R&B - CRB', 'International Industries AFB Tag')) AS AllAccountTags",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Overwrite",
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_tags_bridge_account"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy KeyAccounts",
-                "description": "src_crm_key_accounts — key account tag inheritance (3-part UNION)",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "SELECT COALESCE(a.accountnumber, a.name) AS GCID, pa.name AS TaggedAccount, pa.rs_address1countryname AS Country, tag.[rs_name] AS AccountTagList, CASE WHEN tag.[rs_name] LIKE '%CRB%' THEN 'CORPORATE RISK & BROKING' WHEN tag.[rs_name] LIKE '%ICT%' THEN 'INSURANCE CONSULTING AND TECHNOLOGY' WHEN tag.[rs_name] LIKE '%W&R%' THEN 'WORK & REWARDS' ELSE 'NONE' END AS Lob, a.name AS AccountName, 'Subsidiary' AS KeyAccountType FROM account a WITH (NOLOCK) INNER JOIN account pa WITH (NOLOCK) ON a.parentaccountid = pa.accountid LEFT JOIN rs_account_rs_tagslist atl WITH (NOLOCK) ON atl.[accountid] = pa.accountid LEFT JOIN rs_tagslist tag WITH (NOLOCK) ON tag.[rs_tagslistid] = atl.[rs_tagslistid] WHERE pa.accountnumber IS NOT NULL AND tag.[rs_name] IN ('Large Account - Asia - International - R&B - CRB', '#AsiaTMOs', 'Global Standards - APAC CRB - International - R&B - CRB', 'Global Standards - APAC ICT - International - R&B - ICT', 'Global Standards - APAC W&R - International - HWC - W&R', 'AUNZ CRB Large Accounts - International - R&B - CRB') UNION SELECT COALESCE(a.accountnumber, a.name) AS GCID, gpa.name AS TaggedAccount, gpa.rs_address1countryname AS Country, tag.rs_name AS AccountTagList, CASE WHEN tag.[rs_name] LIKE '%CRB%' THEN 'CORPORATE RISK & BROKING' WHEN tag.[rs_name] LIKE '%ICT%' THEN 'INSURANCE CONSULTING AND TECHNOLOGY' WHEN tag.[rs_name] LIKE '%W&R%' THEN 'WORK & REWARDS' ELSE 'NONE' END AS Lob, a.name AS AccountName, 'Subsidiary' AS KeyAccountType FROM account a WITH (NOLOCK) INNER JOIN account gpa WITH (NOLOCK) ON a.[rs_ultimateglobalparent] = gpa.accountid LEFT JOIN rs_account_rs_tagslist atl WITH (NOLOCK) ON atl.accountid = gpa.accountid LEFT JOIN rs_tagslist tag WITH (NOLOCK) ON tag.rs_tagslistid = atl.rs_tagslistid WHERE gpa.accountnumber IS NOT NULL AND tag.rs_name IN ('Large Account - Asia - International - R&B - CRB', '#AsiaTMOs', 'Global Standards - APAC CRB - International - R&B - CRB', 'Global Standards - APAC ICT - International - R&B - ICT', 'Global Standards - APAC W&R - International - HWC - W&R', 'AUNZ CRB Large Accounts - International - R&B - CRB') UNION SELECT COALESCE(a.accountnumber, a.name) AS GCID, a.name AS TaggedAccount, a.rs_address1countryname AS Country, tag.[rs_name] AS AccountTagList, CASE WHEN tag.[rs_name] LIKE '%CRB%' THEN 'CORPORATE RISK & BROKING' WHEN tag.[rs_name] LIKE '%ICT%' THEN 'INSURANCE CONSULTING AND TECHNOLOGY' WHEN tag.[rs_name] LIKE '%W&R%' THEN 'WORK & REWARDS' ELSE 'NONE' END AS Lob, a.name AS AccountName, 'Main' AS KeyAccountType FROM account a WITH (NOLOCK) LEFT JOIN rs_account_rs_tagslist atl WITH (NOLOCK) ON atl.[accountid] = a.accountid LEFT JOIN rs_tagslist tag WITH (NOLOCK) ON tag.[rs_tagslistid] = atl.[rs_tagslistid] WHERE tag.[rs_name] IN ('Large Account - Asia - International - R&B - CRB', '#AsiaTMOs', 'Global Standards - APAC CRB - International - R&B - CRB', 'Global Standards - APAC ICT - International - R&B - ICT', 'Global Standards - APAC W&R - International - HWC - W&R', 'AUNZ CRB Large Accounts - International - R&B - CRB')",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Overwrite",
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_crb_key_large_accounts"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Opportunity",
-                "description": "src_crm_opportunity — raw opportunity entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\r\n-- 01_bronze_ingest_crm_opportunity\r\n-- Output: src_crm_opportunity  → APAC_CRM_Analytics_bronze_LH\r\n-- Source: Dataverse — opportunity entity\r\n-- Layer:  Bronze\r\n--\r\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\r\n-- APAC scope filter applied here on rs_regionname (direct field only).\r\n-- Full APAC filter (via office / territory fallback) is Silver responsibility.\r\n--\r\n-- dbt Phase 2: this table becomes the primary source for stg_crm__opportunity.\r\n-- =============================================================================\r\n\r\nSELECT\r\n    opportunityid,\r\n    rs_opportunitynumber,\r\n    [name],\r\n    stepname,\r\n    [description],\r\n    rs_formname,\r\n    rs_productclassname,\r\n    rs_productsubclassname,\r\n    rs_frequencyname,\r\n    statuscodename,\r\n    statecodename,\r\n    statecode,\r\n    rs_opportunitytypename,\r\n    rs_opportunitysubtypename,\r\n    estimatedvalue,\r\n    estimatedvalue_base,\r\n    rs_weightedincome,\r\n    rs_weightedincome_base,\r\n    transactioncurrencyid,\r\n    rs_probabilityname,\r\n    rs_premium_base,\r\n    rs_projectstartdate,\r\n    rs_latestmodifieddate,\r\n    createdon,\r\n    actualclosedate,\r\n    campaignidname,\r\n    parentaccountid,\r\n    parentaccountidname,\r\n    ownerid,\r\n    owneridname,\r\n    rs_regionname,\r\n    rs_officename,\r\n    rs_office,\r\n    rs_incomeassignmentprofitcenter1name,\r\n    rs_incomeassignmentfinancelevel11name,\r\n    rs_inceptiondate,\r\n    originatingleadid\r\nFROM\r\n    opportunity\r\nWHERE\r\n    statuscodename != 'Duplicate Entry'",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "opportunityid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_opportunity"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy OpportunityService",
-                "description": "src_crm_opportunity_service — raw rs_opportunityservice entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_opportunity_service\n-- Output: src_crm_opportunity_service  → APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse — rs_opportunityservice entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\n-- Active service lines only (statecode = 0). Inactive lines are irrelevant.\n--\n-- dbt Phase 2: joins to src_crm_opportunity on rs_opportunity = opportunityid.\n-- =============================================================================\n\nSELECT\n    rs_opportunityserviceid,\n    rs_opportunity,\n    rs_opportunityname,\n    rs_lobname,\n    rs_servicename,\n    rs_frequencyname,\n    rs_linevalue,\n    rs_linevalue_base,\n    transactioncurrencyid,\n    rs_officename,\n    rs_office,\n    statecode,\n    createdon,\n    modifiedon\nFROM\n    rs_opportunityservice\nWHERE\n    statecode = 0\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "rs_opportunityserviceid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_opportunity_service"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy IncomeAssignment",
-                "description": "src_crm_income_assignment — raw rs_incomeassignment entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_income_assignment\n-- Output: src_crm_income_assignment  → APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse — rs_incomeassignment entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\n-- Include both active (0) and null statecode rows — null is valid for legacy IA.\n--\n-- dbt Phase 2: joins to src_crm_opportunity_service on\n--   rs_serviceline = rs_opportunityserviceid.\n-- =============================================================================\n\nSELECT\n    rs_incomeassignmentid,\n    rs_serviceline,\n    rs_colleague,\n    rs_colleaguename,\n    rs_profitcenter,\n    rs_profitcentername,\n    rs_share,\n    rs_share_base,\n    statecode,\n    createdon,\n    modifiedon\nFROM\n    rs_incomeassignment\nWHERE\n    statecode = 0 OR statecode IS NULL\n",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "rs_incomeassignmentid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_income_assignment"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Activity",
-                "description": "src_crm_activity — raw activitypointer entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "SELECT activityid, activitytypecodename, subject, regardingobjectid, regardingobjectidname, ownerid, owneridname, owninguser, createdon, createdbyname, modifiedon, modifiedbyname, scheduledstart, scheduledend, actualstart, actualend, statecode, statecodename, prioritycodename FROM activitypointer WHERE statecode IN (0, 1)",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "activityid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_activity"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
-            },
-            {
-                "name": "Copy Lead",
-                "description": "src_crm_lead — raw lead entity",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 3,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "typeProperties": {
-                    "source": {
-                        "type": "SqlServerSource",
-                        "sqlReaderQuery": "SELECT leadid, fullname, firstname, lastname, companyname, emailaddress1, telephone1, mobilephone, subject, [description], leadsourcecodename, industrycodename, sic, budgetamount, budgetamount_base, numberofemployees, estimatedvalue, estimatedclosedate, ownerid, owneridname, statecode, statecodename, statuscodename, createdon, modifiedon FROM lead WHERE statecode IN (0, 1)",
-                        "queryTimeout": "02:00:00",
-                        "partitionOption": "None",
-                        "datasetSettings": {
-                            "annotations": [],
-                            "type": "SqlServerTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "database": "wtwcrb"
-                            },
-                            "externalReferences": {
-                                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
-                            }
-                        }
-                    },
-                    "sink": {
-                        "type": "LakehouseTableSink",
-                        "tableActionOption": "Upsert",
-                        "upsertSettings": {
-                            "keys": [
-                                "leadid"
-                            ]
-                        },
-                        "partitionOption": "None",
-                        "applyVOrder": true,
-                        "datasetSettings": {
-                            "annotations": [],
-                            "linkedService": {
-                                "name": "APAC_CRM_Analytics_bronze_LH",
-                                "properties": {
-                                    "annotations": [],
-                                    "type": "Lakehouse",
-                                    "typeProperties": {
-                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                                        "rootFolder": "Tables"
-                                    }
-                                }
-                            },
-                            "type": "LakehouseTable",
-                            "schema": [],
-                            "typeProperties": {
-                                "table": "src_crm_lead"
-                            }
-                        }
-                    },
-                    "enableStaging": false,
-                    "translator": {
-                        "type": "TabularTranslator",
-                        "typeConversion": true,
-                        "typeConversionSettings": {
-                            "allowDataTruncation": true,
-                            "treatBooleanAsNumber": false
-                        }
-                    }
-                }
+  "name": "01_bronze_ETL_crm",
+  "objectId": "0ea1073f-5755-4cc7-9231-86afa43d84e4",
+  "properties": {
+    "activities": [
+      {
+        "name": "Copy SystemUser",
+        "description": "src_crm_systemuser - raw systemuser entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_systemuser\n-- Output: src_crm_systemuser  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - systemuser entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active users - this is\n-- reference data used at Silver for both opportunity owner and colleague involved.\n--\n-- dbt Phase 2: joins to src_crm_opportunity on ownerid = systemuserid\n--   and to src_crm_income_assignment on rs_colleague = systemuserid.\n-- =============================================================================\n\nSELECT\n    systemuserid,\n    [fullname],\n    domainname,\n    territoryidname,\n    rs_officename,\n    address1_country,\n    rs_profitcentername\nFROM\n    systemuser\nWHERE\n    isdisabled = 0\n    AND islicensed = 1",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
             }
-        ]
-    }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "systemuserid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_systemuser"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy Account",
+        "description": "src_crm_account - raw account entity, no joins",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_account\n-- Output: src_crm_account  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - account entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No filter by region - accounts are\n-- global reference data used for enrichment at Silver.\n--\n-- dbt Phase 2: joins to src_crm_opportunity on parentaccountid = accountid.\n-- =============================================================================\n\nSELECT\n    accountid,\n    accountnumber,\n    [name],\n    parentaccountid,\n    parentaccountidname,\n    rs_ultimateglobalparentname,\n    rs_dunsnumber,\n    rs_clientsegmentationname,\n    rs_industryname,\n    rs_primarysiccodename,\n    rs_address1countryname,\n    address1_stateorprovince,\n    statecodename\nFROM\n    account\nWHERE\n    statecode = 0",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "accountid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_account"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy Office",
+        "description": "src_crm_office - raw rs_office entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_office\n-- Output: src_crm_office  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_office entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active offices - used at\n-- Silver for subregion/country fallback in APAC filter logic.\n--\n-- dbt Phase 2: joins to src_crm_opportunity on rs_office = rs_officeid\n--   and to src_crm_opportunity_service on rs_office = rs_officeid.\n-- =============================================================================\n\nSELECT\n    rs_officeid,\n    rs_name,\n    rs_countryname,\n    rs_subregionname,\n    statecodename\nFROM\n    rs_office\nWHERE\n    statecode = 0",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_officeid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_office"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy ProfitCenter",
+        "description": "src_crm_profitcenter - raw rs_profitcenter entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_profitcenter\n-- Output: src_crm_profitcenter  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_profitcenter entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active profit centers -\n-- used at Silver to resolve Finance Level 1 from income assignment.\n--\n-- dbt Phase 2: source for dim_profitcenter.\n-- =============================================================================\n\nSELECT\n    rs_profitcenterid,\n    rs_name,\n    rs_financelevel1name,\n    rs_businessname,\n    rs_lobname,\n    rs_segmentname,\n    statecode\nFROM\n    rs_profitcenter\nWHERE\n    statecode = 0",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_profitcenterid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_profitcenter"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy Currency",
+        "description": "src_crm_currency - raw transactioncurrency entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_currency\n-- Output: src_crm_currency  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - transactioncurrency entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Pull all active currencies.\n--\n-- dbt Phase 2: source for dim_currency.\n-- =============================================================================\n\nSELECT\n    transactioncurrencyid,\n    currencyname,\n    exchangerate,\n    currencysymbol,\n    isocurrencycode,\n    statecode\nFROM\n    transactioncurrency\nWHERE\n    statecode = 0",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "transactioncurrencyid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_currency"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy ProductClass",
+        "description": "src_crm_product - rs_productclass entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_productclass\n-- Output: src_crm_productclass  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_productclass entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No statecode filter at Bronze - keep\n-- all rows including inactive product classes for historical opportunity lookup.\n--\n-- dbt Phase 2: source for dim_product.\n-- =============================================================================\n\nSELECT\n    rs_productclassid,\n    createdon,\n    modifiedon,\n    rs_name,\n    rs_segmentname,\n    rs_businessname,\n    statecodename\nFROM\n    rs_productclass\nORDER BY\n    rs_name ASC",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_productclassid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_productclass"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy OpportunityTagsList",
+        "description": "src_crm_opportunity_tagslist - raw rs_rs_tagslist_opportunity junction",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_opportunity_tagslist\n-- Output: src_crm_opportunity_tagslist  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_rs_tagslist_opportunity junction table\n-- Layer:  Bronze\n--\n-- Bronze contract: raw many-to-many junction between opportunity and rs_tagslist.\n-- TagName lookup is dbt intermediate responsibility (join to stg_crm_tagslist).\n--\n-- Composite key: opportunityid + rs_tagslistid\n-- =============================================================================\n\nSELECT\n    opportunityid,\n    rs_tagslistid\nFROM\n    rs_rs_tagslist_opportunity",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "opportunityid",
+                "rs_tagslistid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_opportunity_tagslist"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy Opportunity",
+        "description": "src_crm_opportunity - raw opportunity entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_opportunity\n-- Output: src_crm_opportunity  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - opportunity entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\n-- APAC scope filter applied here on rs_regionname (direct field only).\n-- Full APAC filter (via office / territory fallback) is Silver responsibility.\n--\n-- dbt Phase 2: this table becomes the primary source for stg_crm__opportunity.\n-- =============================================================================\n\nSELECT\n    opportunityid,\n    rs_opportunitynumber,\n    [name],\n    stepname,\n    [description],\n    rs_formname,\n    rs_productclassname,\n    rs_productsubclassname,\n    rs_frequencyname,\n    statuscodename,\n    statecodename,\n    statecode,\n    rs_opportunitytypename,\n    rs_opportunitysubtypename,\n    estimatedvalue,\n    estimatedvalue_base,\n    rs_weightedincome,\n    rs_weightedincome_base,\n    transactioncurrencyid,\n    rs_probabilityname,\n    rs_premium_base,\n    rs_projectstartdate,\n    rs_latestmodifieddate,\n    createdon,\n    actualclosedate,\n    campaignidname,\n    parentaccountid,\n    parentaccountidname,\n    ownerid,\n    owneridname,\n    rs_regionname,\n    rs_officename,\n    rs_office,\n    rs_incomeassignmentprofitcenter1name,\n    rs_incomeassignmentfinancelevel11name,\n    rs_inceptiondate,\n    originatingleadid\nFROM\n    opportunity\nWHERE\n    statuscodename != 'Duplicate Entry'",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "opportunityid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_opportunity"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy OpportunityService",
+        "description": "src_crm_opportunity_service - raw rs_opportunityservice entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_opportunity_service\n-- Output: src_crm_opportunity_service  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_opportunityservice entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\n-- Active service lines only (statecode = 0). Inactive lines are irrelevant.\n--\n-- dbt Phase 2: joins to src_crm_opportunity on rs_opportunity = opportunityid.\n-- =============================================================================\n\nSELECT\n    rs_opportunityserviceid,\n    rs_opportunity,\n    rs_opportunityname,\n    rs_lobname,\n    rs_servicename,\n    rs_frequencyname,\n    rs_linevalue,\n    rs_linevalue_base,\n    transactioncurrencyid,\n    rs_officename,\n    rs_office,\n    statecode,\n    createdon,\n    modifiedon\nFROM\n    rs_opportunityservice\nWHERE\n    statecode = 0",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_opportunityserviceid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_opportunity_service"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy IncomeAssignment",
+        "description": "src_crm_income_assignment - raw rs_incomeassignment entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_income_assignment\n-- Output: src_crm_income_assignment  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_incomeassignment entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\n-- Include both active (0) and null statecode rows - null is valid for legacy IA.\n--\n-- dbt Phase 2: joins to src_crm_opportunity_service on\n--   rs_serviceline = rs_opportunityserviceid.\n-- =============================================================================\n\nSELECT\n    rs_incomeassignmentid,\n    rs_serviceline,\n    rs_colleague,\n    rs_colleaguename,\n    rs_profitcenter,\n    rs_profitcentername,\n    rs_share,\n    rs_share_base,\n    statecode,\n    createdon,\n    modifiedon\nFROM\n    rs_incomeassignment\nWHERE\n    statecode = 0 OR statecode IS NULL",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_incomeassignmentid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_income_assignment"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy Activity",
+        "description": "src_crm_activity - raw activitypointer entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_activity\n-- Output: src_crm_activity  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - activitypointer entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation.\n-- regardingobjectidname carries the linked entity name. The entity type code\n-- column does not exist on this CRM instance - Silver resolves type via joins.\n-- Region and office resolution (via systemuser join) is Silver responsibility.\n-- Replaces: Activity.Dataflow (two regional variants -> one unfiltered pull).\n--\n-- dbt Phase 2: source for stg_crm__activity.\n-- =============================================================================\n\nSELECT\n    activityid,\n    activitytypecodename,\n    subject,\n    regardingobjectid,\n    regardingobjectidname,\n    ownerid,\n    owneridname,\n    owninguser,\n    createdon,\n    createdbyname,\n    modifiedon,\n    modifiedbyname,\n    scheduledstart,\n    scheduledend,\n    actualstart,\n    actualend,\n    statecode,\n    statecodename,\n    prioritycodename\nFROM\n    activitypointer\nWHERE\n    statecode IN (0, 1)",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "activityid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_activity"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy Lead",
+        "description": "src_crm_lead - raw lead entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_lead\n-- Output: src_crm_lead  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - lead entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No joins, no aggregation, no region\n-- filter. ANZ vs APAC scope is Silver responsibility.\n-- Replaces: ANZ_Leads.Dataflow + APAC Leads_.Dataflow (two regional variants\n-- collapsed into one unfiltered Bronze pull).\n--\n-- dbt Phase 2: source for stg_crm__lead.\n-- =============================================================================\n\nSELECT\n    leadid,\n    fullname,\n    firstname,\n    lastname,\n    companyname,\n    emailaddress1,\n    telephone1,\n    mobilephone,\n    subject,\n    [description],\n    leadsourcecodename,\n    industrycodename,\n    sic,\n    budgetamount,\n    budgetamount_base,\n    numberofemployees,\n    estimatedvalue,\n    estimatedclosedate,\n    ownerid,\n    owneridname,\n    statecode,\n    statecodename,\n    statuscodename,\n    createdon,\n    modifiedon\nFROM\n    lead\nWHERE\n    statecode IN (0, 1)",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "leadid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_lead"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy TagsList",
+        "description": "src_crm_tagslist - raw rs_tagslist entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_tagslist\n-- Output: src_crm_tagslist  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_tagslist entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No filter - pull all tags.\n-- Tag filtering for APAC business rules is dbt intermediate responsibility.\n-- =============================================================================\n\nSELECT\n    rs_tagslistid,\n    rs_name,\n    statecode,\n    statecodename,\n    createdon,\n    modifiedon\nFROM\n    rs_tagslist",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_tagslistid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_tagslist"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      },
+      {
+        "name": "Copy AccountTagsList",
+        "description": "src_crm_account_tagslist - raw rs_account_rs_tagslist junction",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_account_tagslist\n-- Output: src_crm_account_tagslist  -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_account_rs_tagslist junction table\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. Many-to-many junction between\n-- account and rs_tagslist. No filter - pull all rows.\n--\n-- Composite key: accountid + rs_tagslistid\n-- =============================================================================\n\nSELECT\n    accountid,\n    rs_tagslistid\nFROM\n    rs_account_rs_tagslist",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Overwrite",
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_account_tagslist"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
+      }
+    ]
+  }
 }

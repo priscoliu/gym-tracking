@@ -16,7 +16,7 @@ SELECT
     rs_name,
     rs_countryname,
     rs_subregionname,
-    statecode
+    statecodename
 FROM
     rs_office
 WHERE

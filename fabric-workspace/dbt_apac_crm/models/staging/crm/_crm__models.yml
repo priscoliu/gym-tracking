@@ -79,8 +79,8 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_tags_bridge_opportunity
-    description: "Opportunity-tag bridge — one row per opportunity-tag pair"
+  - name: stg_crm_opportunity_tagslist
+    description: "Raw opportunity-tag junction. TagName lookup is intermediate responsibility."
     columns:
       - name: OpportunityId
         tests:
@@ -89,29 +89,23 @@ models:
         tests:
           - not_null
 
-  - name: stg_crm_tags_bridge_account
-    description: "Account-tag bridge with inheritance (direct, parent, global parent)"
+  - name: stg_crm_tagslist
+    description: "All D365 tags (raw). Filter to APAC-relevant in intermediate layer."
     columns:
-      - name: BridgeKey
+      - name: TagId
         tests:
           - unique
           - not_null
-      - name: TagSource
-        tests:
-          - accepted_values:
-              values: ['Direct', 'Parent', 'Global Parent']
 
-  - name: stg_crm_crb_key_large_accounts
-    description: "Key/large account tag inheritance with LOB classification"
+  - name: stg_crm_account_tagslist
+    description: "Raw account-tag junction. Inheritance (Direct/Parent/Global Parent) is intermediate responsibility."
     columns:
-      - name: KeyAccountType
+      - name: AccountId
         tests:
-          - accepted_values:
-              values: ['Subsidiary', 'Main']
-      - name: Lob
+          - not_null
+      - name: TagId
         tests:
-          - accepted_values:
-              values: ['CORPORATE RISK & BROKING', 'INSURANCE CONSULTING AND TECHNOLOGY', 'WORK & REWARDS', 'NONE']
+          - not_null
 
   - name: stg_crm_activity
     description: "D365 activities (open and completed)"

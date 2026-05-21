@@ -14,7 +14,7 @@ renamed as (
         -- normalised for country-based joins in intermediate layer
         upper(ltrim(rtrim(cast(rs_countryname  as nvarchar(255))))) as Country,
         cast(rs_subregionname as nvarchar(255))  as SubRegionName,
-        cast(statecode        as int)            as StateCode
+        cast(statecodename    as nvarchar(100))  as StateCodeName
     from source
     where rs_officeid is not null
 )
