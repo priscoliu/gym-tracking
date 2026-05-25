@@ -1,678 +1,720 @@
 {
-  "name": "01_bronze_ingest_crb_billings",
-  "objectId": "fb90092c-3ca0-4fd6-b58d-7dea9a19f8a8",
-  "properties": {
-    "activities": [
-      {
-        "name": "Copy SPM",
-        "description": "Copy SPM raw data - raw excel files",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": true,
-              "wildcardFileName": "*.xlsx"
+    "name": "01_bronze_ingest_crb_billings",
+    "objectId": "fb90092c-3ca0-4fd6-b58d-7dea9a19f8a8",
+    "properties": {
+        "activities": [
+            {
+                "name": "Copy SPM",
+                "description": "Copy SPM raw data - raw excel files",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": true,
+                            "wildcardFileName": "*.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/SPM"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/spm"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
+                }
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/SPM"
+            {
+                "name": "Copy Arias",
+                "description": "Copy Arias Revenue raw excel file",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "Arias Revenue.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/Arias"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/arias"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/spm"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy Arias",
-        "description": "Copy Arias Revenue raw excel file",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "Arias Revenue.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/Arias"
+            {
+                "name": "Copy Eclipse CRB",
+                "description": "Copy Eclipse Recurring Report raw excel file",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "Eclipse Recurring Report.xlsm"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/Eclipse"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/eclipse_crb"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/arias"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy Eclipse CRB",
-        "description": "Copy Eclipse Recurring Report raw excel file",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "Eclipse Recurring Report.xlsm"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/Eclipse"
+            {
+                "name": "Copy Eclipse London Non Asia",
+                "description": "Copy Eclipse Non Asia MIR 12046 PowerBI file from rb-projects site",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFolderPath": "Shared Documents/General/1. Project Management/CRB Data/Data_Eclipse",
+                            "wildcardFileName": "Eclipse_Non Asia Client and Asia Insurer Reporting _MIR_12046_PowerBI File.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "13180d4d-7efe-469d-9af1-2e1f04ed19d8"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "AzureBlobStorageWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/eclipse_london"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/eclipse_crb"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy Eclipse London Asia",
-        "description": "Copy Eclipse Asia MIR 12047 PowerBI file from rb-projects site",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": true,
-              "wildcardFileName": "Eclipse_Asia Client and Asia Insurer Reporting _MIR_12047_PowerBI File.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation"
+            {
+                "name": "Copy eGlobal Income",
+                "description": "Copy eGlobal IncomebyDepartmentandClient report files",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "IncomebyDepartmentandClient*.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/eGlobal"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/eglobal_income"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "REPLACE_WITH_RB_PROJECTS_CONNECTION_ID"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/eclipse_london"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy Eclipse London Non Asia",
-        "description": "Copy Eclipse Non Asia MIR 12046 PowerBI file from rb-projects site",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": true,
-              "wildcardFileName": "Eclipse_Non Asia Client and Asia Insurer Reporting _MIR_12046_PowerBI File.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation"
+            {
+                "name": "Copy eGlobal Premium",
+                "description": "Copy eGlobal Premium_Volume_Report files",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "Premium_Volume_Report*.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/eGlobal"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/eglobal_premium"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "REPLACE_WITH_RB_PROJECTS_CONNECTION_ID"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/eclipse_london"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy eGlobal Income",
-        "description": "Copy eGlobal IncomebyDepartmentandClient report files",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "IncomebyDepartmentandClient*.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/eGlobal"
+            {
+                "name": "Copy GSWin",
+                "description": "Copy GSWin Data raw excel file",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "GSWin Data.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/GSWin"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/gswin"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/eglobal_income"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy eGlobal Premium",
-        "description": "Copy eGlobal Premium_Volume_Report files",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "Premium_Volume_Report*.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/eGlobal"
+            {
+                "name": "Copy Oracle RET",
+                "description": "Copy Oracle RET raw excel files",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "*.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/Oracle (RET)"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/oracle"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/eglobal_premium"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy GSWin",
-        "description": "Copy GSWin Data raw excel file",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "GSWin Data.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/GSWin"
+            {
+                "name": "Copy Saiba",
+                "description": "Copy Saiba baseline raw excel file",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFileName": "For Baseline - Saiba 2018 onwards (Entry Date).xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation",
+                                    "folderPath": "Data Library/Client Baseline/02. Raw Data/Saiba"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/saiba"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/gswin"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy Oracle RET",
-        "description": "Copy Oracle RET raw excel files",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "*.xlsx"
             },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/Oracle (RET)"
+            {
+                "name": "Copy Eclipse London Asia",
+                "description": "Copy Eclipse Asia MIR 12046 PowerBI file from rb-projects site",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "SharePointOnlineFileStoreReadSettings",
+                            "recursive": false,
+                            "wildcardFolderPath": "Shared Documents/General/1. Project Management/CRB Data/Data_Eclipse",
+                            "wildcardFileName": "Eclipse_Asia Client and Asia Insurer Reporting _MIR_12047_PowerBI File.xlsx"
+                        },
+                        "formatSettings": {
+                            "type": "BinaryReadSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "SharePointOnlineFileStoreLocation"
+                                }
+                            },
+                            "externalReferences": {
+                                "connection": "13180d4d-7efe-469d-9af1-2e1f04ed19d8"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "BinarySink",
+                        "storeSettings": {
+                            "type": "AzureBlobStorageWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "APAC_CRM_Analytics_bronze_LH",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                                        "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                                        "rootFolder": "Files"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
+                                    }
+                                }
+                            },
+                            "type": "Binary",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "folderPath": "billing/eclipse_london"
+                                }
+                            }
+                        }
+                    },
+                    "enableStaging": false
                 }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
             }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/oracle"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      },
-      {
-        "name": "Copy Saiba",
-        "description": "Copy Saiba baseline raw excel file",
-        "type": "Copy",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        },
-        "typeProperties": {
-          "source": {
-            "type": "BinarySource",
-            "storeSettings": {
-              "type": "SharePointOnlineFileStoreReadSettings",
-              "recursive": false,
-              "wildcardFileName": "For Baseline - Saiba 2018 onwards (Entry Date).xlsx"
-            },
-            "formatSettings": { "type": "BinaryReadSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "SharePointOnlineFileStoreLocation",
-                  "folderPath": "Data Library/Client Baseline/02. Raw Data/Saiba"
-                }
-              },
-              "externalReferences": {
-                "connection": "8cccb69f-a24e-4e94-800a-ebd55450939d"
-              }
-            }
-          },
-          "sink": {
-            "type": "BinarySink",
-            "storeSettings": { "type": "LakehouseWriteSettings" },
-            "datasetSettings": {
-              "annotations": [],
-              "connectionSettings": {
-                "name": "APAC_CRM_Analytics_bronze_LH",
-                "properties": {
-                  "annotations": [],
-                  "type": "Lakehouse",
-                  "typeProperties": {
-                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
-                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
-                    "rootFolder": "Files"
-                  },
-                  "externalReferences": {
-                    "connection": "58a60761-d63c-42b7-844c-81a7490d1445"
-                  }
-                }
-              },
-              "type": "Binary",
-              "typeProperties": {
-                "location": {
-                  "type": "LakehouseLocation",
-                  "folderPath": "billing/saiba"
-                }
-              }
-            }
-          },
-          "enableStaging": false
-        }
-      }
-    ],
-    "lastModifiedByObjectId": "bd19cf2a-c4b3-4f59-ba67-80409c35fdbc",
-    "lastPublishTime": "2026-05-22T04:59:14Z"
-  }
+        ],
+        "lastModifiedByObjectId": "bd19cf2a-c4b3-4f59-ba67-80409c35fdbc",
+        "lastPublishTime": "2026-05-25T00:27:34Z"
+    }
 }
