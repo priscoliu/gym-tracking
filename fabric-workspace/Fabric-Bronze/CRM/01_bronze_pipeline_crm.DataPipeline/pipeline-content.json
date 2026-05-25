@@ -1006,6 +1006,78 @@
             }
           }
         }
+      },
+      {
+        "name": "Copy ProductSubClass",
+        "description": "src_crm_productsubclass - raw productsubclass entity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "SqlServerSource",
+            "sqlReaderQuery": "-- =============================================================================\n-- 01_bronze_ingest_crm_productsubclass\n-- Output: src_crm_productsubclass -> APAC_CRM_Analytics_bronze_LH\n-- Source: Dataverse - rs_productsubclass entity\n-- Layer:  Bronze\n--\n-- Bronze contract: raw D365 columns only. No statecode filter at Bronze - keep\n-- all rows including inactive sub-classes for historical opportunity lookup.\n--\n-- dbt Phase 2: source for dim_product (child of rs_productclass).\n-- =============================================================================\n\nSELECT\n    rs_productsubclassid,\n    createdon,\n    modifiedon,\n    rs_name,\n    rs_productclassid,\n    rs_productclassidname,\n    statecodename\nFROM\n    rs_productsubclass\nORDER BY\n    rs_name ASC",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [],
+              "type": "SqlServerTable",
+              "schema": [],
+              "typeProperties": {
+                "database": "wtwcrb"
+              },
+              "externalReferences": {
+                "connection": "1cc13e34-2473-4d65-99ac-f6bc684cbf7a"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "rs_productsubclassid"
+              ]
+            },
+            "partitionOption": "None",
+            "applyVOrder": true,
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "APAC_CRM_Analytics_bronze_LH",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "76ec20c3-c400-415a-99c6-708f8207d5f9",
+                    "artifactId": "1c0d3357-c170-4ddd-9738-e1c90bbe99f2",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "src_crm_productsubclass"
+              }
+            }
+          },
+          "enableStaging": false,
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          }
+        }
       }
     ]
   }

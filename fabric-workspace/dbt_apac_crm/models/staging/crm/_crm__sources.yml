@@ -15,6 +15,7 @@ sources:
       - name: src_crm_profitcenter
       - name: src_crm_currency
       - name: src_crm_productclass
+      - name: src_crm_productsubclass
       - name: src_crm_opportunity_tagslist
       - name: src_crm_tagslist
       - name: src_crm_account_tagslist

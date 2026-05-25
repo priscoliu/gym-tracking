@@ -16,7 +16,6 @@ SELECT
     rs_financelevel1name,
     rs_businessname,
     rs_lobname,
-    rs_segmentname,
     statecode
 FROM
     rs_profitcenter

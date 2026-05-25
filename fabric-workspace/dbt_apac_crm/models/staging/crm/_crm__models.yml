@@ -79,6 +79,17 @@ models:
           - unique
           - not_null
 
+  - name: stg_crm_productsubclass
+    description: "D365 product sub-class reference (child of productclass)"
+    columns:
+      - name: ProductSubClassId
+        tests:
+          - unique
+          - not_null
+      - name: ProductClassId
+        tests:
+          - not_null
+
   - name: stg_crm_opportunity_tagslist
     description: "Raw opportunity-tag junction. TagName lookup is intermediate responsibility."
     columns:

@@ -25,6 +25,7 @@ renamed as (
         cast(modifiedon              as datetime2)      as ModifiedOn
     from source
     where rs_opportunityserviceid is not null
+      and rs_opportunity is not null
 )
 
 select * from renamed
