@@ -1,10 +1,10 @@
 let
     // Connect to Fabric Lakehouse
     // Bronze table already includes GCID (OracleID Mapping join done at Bronze layer)
-    Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
-    Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
-    Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
-    Raw = Navigation_2{[Id = "src_ret_oracle", ItemKind = "Table"]}[Data],
+    Source = Lakehouse.Contents(null),
+    Navigation = Source{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
+    Raw = #"Navigation 1"{[Id = "src_ret_oracle", ItemKind = "Table"]}[Data],
 
     // OracleID Mapping join — adds GCID from lookup table in Power BI model
     #"Merged queries" = Table.NestedJoin(Raw, {"Primary Customer Account Number"}, #"OracleID Mapping", {"OracleID"}, "OracleID Mapping", JoinKind.LeftOuter),
@@ -18,7 +18,7 @@ let
         {"Customer Name", "CLIENT GROUP Global DUNS Number", "Fiscal Period",
          "Fiscal Period Number", "Project Number", "TW_Service_Offering",
          "Project Office Code", "Project Market Cluster Name", "Employee Market Cluster",
-         "Revenue Amount", "Primary Customer Account Number", "GCID", "Source.Name"}
+         "Revenue Amount", "Primary Customer Account Number", "GCID", "Source_Name"}
     ),
 
     // Step 2: Fix Fiscal Period
@@ -33,7 +33,7 @@ let
              "Retirement Project Revenue YTD 2023.xlsx",
              "Retirement Project Revenue YTD 2024.xlsx",
              "Retirement Project Revenue December YTD 2025.xlsx"},
-            [#"Source.Name"]
+            [#"Source_Name"]
         )
         then Date.FromText(
             Text.Start([#"Fiscal Period Number"], 4) & "-" &

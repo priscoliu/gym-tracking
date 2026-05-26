@@ -1,18 +1,18 @@
 let
     // Connect to Fabric Lakehouse
-    Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
-    Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
-    Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
-    Raw = Navigation_2{[Id = "src_gswin_crb", ItemKind = "Table"]}[Data],
+    Source = Lakehouse.Contents(null),
+    Navigation = Source{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
+    Raw = #"Navigation 1"{[Id = "src_gswin_crb", ItemKind = "Table"]}[Data],
 
     // Step 1: Filter and Select Base Columns
-    // Note: verify "New/ _Renew" column name in Lakehouse — the line-feed char may be normalized
+    // Note: "New/ #(lf)Renew" — the column header in Excel contains a literal line-feed; pandas preserves it
     #"Base Columns" = Table.SelectColumns(
         Table.SelectRows(Raw,
             each [#"Willis Line"] <> "H&B"
         ),
         {"ClientID", "Client Name", "Policy Number", "Policy Type Name", "Renewable",
-         "New/ _Renew", "Inception Date", "Cury Code", "Premium USD",
+         "New/ #(lf)Renew", "Inception Date", "Cury Code", "Premium USD",
          "Total Brokerage in USD", "Willis Line", "GCID"}
     ),
 
@@ -26,9 +26,9 @@ let
                     else if [Renewable] = "N" then "N"
                     else "N", type text),
             t4 = Table.AddColumn(t3, "BusinessType", each
-                    if [#"New/ _Renew"] = "N" then "New Business"
-                    else if [#"New/ _Renew"] = "R" then "Renewal"
-                    else [#"New/ _Renew"], type text),
+                    if [#"New/ #(lf)Renew"] = "N" then "New Business"
+                    else if [#"New/ #(lf)Renew"] = "R" then "Renewal"
+                    else [#"New/ #(lf)Renew"], type text),
             t5 = Table.AddColumn(t4, "RevenueCountry", each "Vietnam", type text),
             t6 = Table.AddColumn(t5, "RevenueCities", each "", type text),
             t7 = Table.AddColumn(t6, "ClientID_Temp", each if [GCID] = null then [SystemID_New] else [GCID], type text),

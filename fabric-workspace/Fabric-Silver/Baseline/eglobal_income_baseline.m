@@ -7,28 +7,34 @@ let
             {"_CN.", "China", "CNY"},
             {"_HK.", "Hong Kong", "HKD"},
             {"_ID.", "Indonesia", "IDR"},
-            {"_KR.", "Korea", "KRW"},
+            {"_KR.", "South Korea", "KRW"},
             {"_NZ.", "New Zealand", "NZD"},
+            {"_PH_", "Philippines", "PHP"},
             {"_RO.", "Australia", "AUD"},
+            {"_SG.", "Singapore", "SGD"},
             {"_TW.", "Taiwan", "TWD"}
         }
     ),
-
     // Connect to Fabric Lakehouse
     Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
     Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
     Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
     Raw = Navigation_2{[Id = "src_eglobal_income_report", ItemKind = "Table"]}[Data],
 
-    // Step 1: Filter and Select Base Columns
-    // Column names match Fabric-normalized names from src_eglobal_income_report Bronze
-    #"Base CRB Columns" = Table.SelectColumns(
-        Table.SelectRows(Raw,
-            each not List.Contains({"EMB", "RET", "EBD", "EBC", "EBM", "EBS", "ECS", "GBM", "BEB", "MEB", "PEB", "SEB", "AEB", "CEB", "WEB", "UEB"}, [Department])
-        ),
-        {"Client No", "Client Name", "Department", "PREMIUM", "TOTAL INCOME", "Company", "Branch", "Risk", "Inv No", "EFFECTIVE DATE", "INCOME CLASS", "PARTY ID", "DUNS NUMBER", "Source.Name"}
-    ),
+        // Trim trailing spaces from source columns
+        #"Cleaned Headers" = Table.RenameColumns(Raw, {
+            {"Company ",       "Company"},
+            {"Inv Date ",      "Inv Date"},
+            {"Industry Code ", "Industry Code"}
+        }, MissingField.Ignore),
 
+        // Step 1: Filter and Select Base Columns
+        #"Base CRB Columns" = Table.SelectColumns(
+            Table.SelectRows(#"Cleaned Headers",
+                each not List.Contains({"EMB", "RET", "EBD", "EBC", "EBM", "EBS", "ECS", "GBM", "BEB", "MEB", "PEB", "SEB", "AEB", "CEB", "WEB", "UEB", "HBB","HCB"}, [Department])
+            ),
+            {"Client No", "Client Name", "Department", "PREMIUM", "TOTAL INCOME", "Company", "Branch", "Risk", "Inv No", "EFFECTIVE DATE", "INCOME CLASS", "PARTY ID", "DUNS NUMBER", "Source_Name"}
+    ),
     // Step 2: Add Business Logic Columns
     #"Business Logic" =
         let
@@ -50,8 +56,8 @@ let
                     if Match <> null then Record.Field(Match, field) else "",
 
             t1 = Table.AddColumn(#"Business Logic", "SystemID", each Text.Combine({[Company], [Branch], [#"Client No"]}), type text),
-            t2 = Table.AddColumn(t1, "RevenueCountry", each GetCountryInfo([#"Source.Name"], "Revenue Country"), type text),
-            t3 = Table.AddColumn(t2, "Currency", each GetCountryInfo([#"Source.Name"], "Currency"), type text),
+            t2 = Table.AddColumn(t1, "RevenueCountry", each GetCountryInfo([Source_Name], "Revenue Country"), type text),
+            t3 = Table.AddColumn(t2, "Currency", each GetCountryInfo([Source_Name], "Currency"), type text),
             t4 = Table.AddColumn(t3, "ClientID", each if [#"PARTY ID"] = null then [SystemID] else Text.From([#"PARTY ID"]), type text),
             t5 = Table.AddColumn(t4, "Source", each "eGlobal", type text),
             t6 = Table.AddColumn(t5, "RevenueCities", each "", type text)
@@ -68,7 +74,7 @@ let
                 {"TOTAL INCOME",   "Revenue"},
                 {"PREMIUM",        "Premium"},
                 {"PARTY ID",       "GCID"},
-                {"Source.Name",    "DataSource"},
+                {"Source_Name",    "DataSource"},
                 {"DUNS NUMBER",    "DUNSNO"},
                 {"Department",     "Segment"}
             }),

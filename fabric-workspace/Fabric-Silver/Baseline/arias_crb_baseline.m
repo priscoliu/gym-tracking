@@ -1,16 +1,16 @@
 let
     // Connect to Fabric Lakehouse
-    Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
-    Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
-    Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
-    Raw = Navigation_2{[Id = "src_arias_crb", ItemKind = "Table"]}[Data],
+    Source = Lakehouse.Contents(null),
+    Navigation = Source{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
+    Raw = #"Navigation 1"{[Id = "src_arias_crb", ItemKind = "Table"]}[Data],
 
     // Step 1: Filter and Select Base Columns
     #"Base Columns" = Table.SelectColumns(
         Table.SelectRows(Raw,
             each not ([チーム名] = "HB")
         ),
-        {"保険種類", "契約者名", "保険始期", "請求書番号", "Recurring", "保険料", "手数料（税抜_", "GCID", "Policy No"}
+        {"保険種類", "契約者名", "保険始期", "請求書番号", "Recurring", "保険料", "手数料（税抜)", "GCID", "Policy No"}
     ),
 
     // Step 2: Add Derived Columns
@@ -54,7 +54,7 @@ let
                 {"契約者名",      "SystemClientName"},
                 {"請求書番号",    "TX_ID_Original"},
                 {"保険料",        "Premium"},
-                {"手数料（税抜_", "Revenue"},
+                {"手数料（税抜)", "Revenue"},
                 {"SystemID_New",  "SystemID"},
                 {"TX_ID_New",     "TX_ID"},
                 {"RecurringRevenue_New", "RecurringRevenue"},

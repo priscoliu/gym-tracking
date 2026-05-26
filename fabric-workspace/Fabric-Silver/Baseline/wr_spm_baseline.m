@@ -1,9 +1,9 @@
 let
     // Connect to Fabric Lakehouse
-    Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
-    Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
-    Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
-    Raw = Navigation_2{[Id = "src_wr_spm", ItemKind = "Table"]}[Data],
+    Source = Lakehouse.Contents(null),
+    Navigation = Source{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
+    Raw = #"Navigation 1"{[Id = "src_wr_spm", ItemKind = "Table"]}[Data],
 
     // OracleID Mapping join — adds GCID from lookup table in Power BI model
     #"Merged queries" = Table.NestedJoin(Raw, {"Bill To Customer Number"}, #"OracleID Mapping", {"OracleID"}, "OracleID Mapping", JoinKind.LeftOuter),
