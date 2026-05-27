@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: bronze_billing
+    description: "APAC CRB Bronze Lakehouse - raw billing source ingestion (PySpark from Excel)"
+    database: APAC_CRM_Analytics_bronze_LH
+    schema: dbo
+    tables:
+      - name: src_saiba_crb
+      - name: src_arias_crb
+      - name: src_eclipse_crb
+      - name: src_eclipse_london
+      - name: src_eglobal_income_report
+      - name: src_eglobal_premium_report
+      - name: src_gswin_crb
+      - name: src_ret_oracle
+      - name: src_wr_spm

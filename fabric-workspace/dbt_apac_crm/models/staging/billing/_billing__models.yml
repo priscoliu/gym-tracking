@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_billing__arias
+    description: "Arias revenue records, type-cast with English column names. No filters applied -- HB team exclusion happens in int_billing__arias_enriched."
+    columns:
+      - name: PolicyNo
+        description: "Arias policy identifier"
+      - name: InvoiceNumber
+        description: "Source 請求書番号 -- raw invoice number before ARIAS- prefix"
+      - name: RecurringFlag
+        description: "R/N flag driving BusinessType and RecurringRevenue derivation"
+        tests:
+          - accepted_values:
+              values: ['R', 'N']
+              quote: true
+              config:
+                severity: warn
+
+  - name: int_billing__arias_enriched
+    description: "Arias revenue conformed to the 18-column baseline schema. HB team filtered out. RevenueCountry hardcoded to Japan, Currency to JPY, Segment to CRB."
+    columns:
+      - name: SystemID
+        tests:
+          - not_null
+      - name: ClientID
+        tests:
+          - not_null
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['ARIAS']
+              quote: true
+
+  - name: fct_billing_baseline
+    description: "Unified billing/revenue fact -- 18-column baseline schema across all 8 source systems. POC state currently contains Arias only."
+    columns:
+      - name: SystemID
+        tests:
+          - not_null
+      - name: ClientID
+        tests:
+          - not_null
+      - name: DataSource
+        tests:
+          - not_null

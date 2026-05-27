@@ -21,6 +21,14 @@ require-dbt-version: [">=1.0.0", "<2.0.0"]
 
 models:
   apac_sales_etl:
-      materialized: table
+      +materialized: table
       staging:
-        materialized: view
+        +materialized: view
+        billing:
+          +schema: apac_billing
+      intermediate:
+        billing:
+          +schema: apac_billing
+      marts:
+        billing:
+          +schema: apac_billing
