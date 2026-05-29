@@ -2,14 +2,13 @@ version: 2
 
 models:
   - name: fct_billing_baseline
-    description: "Unified billing/revenue fact -- 18-column baseline schema across all 8 source systems. POC state currently contains Arias only."
+    description: "Unified billing fact -- UNION ALL of 7 sources (Arias, Saiba, Eclipse CRB, eGlobal Income, GSWin, Oracle RET, WR SPM) conformed to 22-column schema. HWC_CRM, exchange-rate conversion, and product mapping not yet wired -- see TODOs in the SQL file."
     columns:
       - name: SystemID
-        tests:
-          - not_null
-      - name: ClientID
-        tests:
-          - not_null
+        tests: [not_null]
       - name: DataSource
         tests:
           - not_null
+          - accepted_values:
+              values: ['ARIAS', 'Saiba', 'ECLIPSE', 'eGlobal', 'GSWin', 'Oracle', 'SPM']
+              quote: true

@@ -15,3 +15,8 @@ sources:
       - name: src_gswin_crb
       - name: src_ret_oracle
       - name: src_wr_spm
+      - name: src_billing_exchange_rate
+      - name: src_billing_product_mapping
+      - name: src_billing_cis_historical
+      - name: src_billing_crm_oracle_mapping
+      - name: src_billing_client_list

@@ -2,17 +2,93 @@ version: 2
 
 models:
   - name: int_billing__arias_enriched
-    description: "Arias revenue conformed to the 18-column baseline schema. HB team filtered out. RevenueCountry hardcoded to Japan, Currency to JPY, Segment to CRB."
+    description: "Arias revenue conformed to baseline schema. HB team filtered. RevenueCountry=Japan, Currency=JPY, Segment=CRB."
     columns:
       - name: SystemID
-        tests:
-          - not_null
+        tests: [not_null]
       - name: ClientID
-        tests:
-          - not_null
+        tests: [not_null]
       - name: DataSource
         tests:
           - not_null
           - accepted_values:
               values: ['ARIAS']
+              quote: true
+
+  - name: int_billing__saiba_enriched
+    description: "Saiba revenue conformed to baseline schema. EB/HB/H&B departments filtered. RevenueCountry=India, Currency=INR, Segment=CRB."
+    columns:
+      - name: SystemID
+        tests: [not_null]
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Saiba']
+              quote: true
+
+  - name: int_billing__eclipse_crb_enriched
+    description: "Eclipse CRB conformed to baseline schema (+ SystemProductClass2). Indonesia/Taiwan legal entities filtered. RevenueCountry derived from BusinessUnit+Team or LegalEntity text-contains."
+    columns:
+      - name: SystemID
+        tests: [not_null]
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['ECLIPSE']
+              quote: true
+
+  - name: int_billing__eglobal_income_enriched
+    description: "eGlobal income conformed to baseline schema. Non-CRB departments filtered. RevenueCountry/Currency derived from SourceName filename pattern (10 countries)."
+    columns:
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['eGlobal']
+              quote: true
+
+  - name: int_billing__gswin_enriched
+    description: "GSWin (Vietnam) conformed to baseline schema. H&B WillisLine filtered. RevenueCountry=Vietnam, Currency=USD."
+    columns:
+      - name: SystemID
+        tests: [not_null]
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['GSWin']
+              quote: true
+
+  - name: int_billing__ret_oracle_enriched
+    description: "Oracle RET conformed to baseline schema. RET service-offering filter, 22-city mapping, FiscalPeriod YYYYMM fix for older files. GCID currently NULL pending OracleID Mapping join."
+    columns:
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Oracle']
+              quote: true
+
+  - name: int_billing__wr_spm_enriched
+    description: "WR SPM conformed to baseline schema (+ SubProduct/Service, Product/Service = 'RDI'). 14 Operating Unit filter, country/city mapping. GCID currently NULL pending OracleID Mapping join."
+    columns:
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['SPM']
+              quote: true
+
+  - name: int_billing__cis_historical_enriched
+    description: "CIS Historical (pre-2023 HWC) conformed to baseline schema. Filtered to IncomeInceptionDate < 2023-01-01. Source='CIS' hardcoded; DataSource preserves the source value (typically 'CRM'). Currency and GCID NULL -- the legacy source file does not carry them."
+    columns:
+      - name: SystemID
+        tests: [not_null]
+      - name: Source
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['CIS']
               quote: true

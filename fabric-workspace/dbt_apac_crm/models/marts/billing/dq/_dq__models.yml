@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: billing_missing_clients
+    description: "Data quality: distinct clients found in fct_billing_baseline but missing from src_billing_client_list (masterlist). Exported as CSV for analysts to recheck and add to the masterlist."
+    columns:
+      - name: ClientID
+        description: "Client identifier that was not matched in the masterlist (case-insensitive, trimmed)."
+      - name: Account
+        description: "SystemClientName from the baseline -- helps the analyst identify the client."
+      - name: GCID
+        description: "Global client ID if populated -- useful for cross-referencing."
+      - name: Data Source
+        description: "Source system the unmapped client came from."
+
+  - name: billing_unmapped_product_class
+    description: "Data quality: distinct SystemProductClass + Segment combinations where Product/Service or SubProduct/Service is NULL. Exported as CSV so mapping owners can fill the gaps."
+    columns:
+      - name: SystemProductClass
+        description: "Raw product class value from the source baseline that has no entry (or partial entry) in src_billing_product_mapping."
+      - name: Segment
+        description: "Segment the unmapped class belongs to (CRB / RET / W&R / etc.)."

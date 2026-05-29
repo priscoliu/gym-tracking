@@ -16,3 +16,71 @@ models:
               quote: true
               config:
                 severity: warn
+
+  - name: stg_billing__saiba
+    description: "Saiba (India) billing records. Source columns kept; EB/HB/H&B departments filtered in int layer."
+    columns:
+      - name: Cno
+        description: "Customer number -- TX_ID seed combined with InstNo"
+      - name: CustCode
+        description: "Customer code -- SystemID seed"
+
+  - name: stg_billing__eclipse_crb
+    description: "Eclipse CRB transactions. Indonesia/Taiwan legal entities filtered out in int layer."
+    columns:
+      - name: PolicyRef
+        description: "Eclipse policy reference -- TX_ID source"
+      - name: InsuredId
+        description: "Insured account ID -- SystemID seed"
+
+  - name: stg_billing__eglobal_income
+    description: "eGlobal income lines. EMB/RET/EBD/EBC etc departments filtered out in int layer."
+    columns:
+      - name: InvNo
+        description: "Invoice number -- TX_ID source"
+      - name: PartyId
+        description: "Willis Party ID -- GCID source"
+      - name: IncomeClass
+        description: "Drives BusinessType (RRN=Renewal, MDI/MDIAC=MDI, else New Business)"
+
+  - name: stg_billing__gswin
+    description: "GSWin (Vietnam) policy revenue. H&B Willis Line filtered out in int layer."
+    columns:
+      - name: PolicyNumber
+        description: "GSWin policy number -- TX_ID source"
+      - name: ClientId
+        description: "GSWin client ID -- SystemID source"
+
+  - name: stg_billing__ret_oracle
+    description: "Oracle retirement project revenue. RET service-offering filter and OracleID Mapping GCID join happen in int layer."
+    columns:
+      - name: ProjectNumber
+        description: "Oracle project number -- TX_ID source"
+      - name: PrimaryCustomerAcctNo
+        description: "Join key to ref_oracleid_mapping for GCID"
+
+  - name: stg_billing__wr_spm
+    description: "WR SPM revenue. 14-country operating unit filter and OracleID Mapping GCID join happen in int layer."
+    columns:
+      - name: Reference
+        description: "WR SPM transaction reference -- TX_ID source"
+      - name: BillToCustomerNumber
+        description: "Join key to ref_oracleid_mapping for GCID"
+
+  - name: stg_billing__product_mapping
+    description: "Reference: maps raw SystemProductClass to standardised Product/Service and SubProduct/Service. Used in mart to derive product hierarchy."
+    columns:
+      - name: SystemProductClass
+        description: "Join key for the product mapping. Must be unique -- the mart left-joins on this column."
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_billing__exchange_rate
+    description: "Reference: wide table with one row per CURRENCY, one column per month-end date. Used in mart to convert non-USD Revenue/Premium to USD."
+    columns:
+      - name: CURRENCY
+        tests: [not_null]
+
+  - name: stg_billing__cis_historical
+    description: "CIS Historical billing records (pre-2023 HWC). Column renames + type casts only; <2023-01-01 filter and Source='CIS' hardcode happen in int layer."

@@ -22,8 +22,8 @@ require-dbt-version: [">=1.0.0", "<2.0.0"]
 models:
   apac_sales_etl:
       +materialized: table
-      # Log row count after every model run (CRM + billing)
-      +post-hook: "{{ log_row_count(this) }}"
+      # Row-count logging post-hook disabled -- use ad-hoc SQL in the warehouse instead.
+      # +post-hook: "{{ log_row_count(this) }}"
       staging:
         +materialized: view
         crm:
@@ -40,3 +40,5 @@ models:
           +schema: apac_crm_gold
         billing:
           +schema: apac_billing_gold
+          dq:
+            +schema: apac_billing_dq
