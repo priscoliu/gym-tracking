@@ -16,10 +16,10 @@ let
         }
     ),
     // Connect to Fabric Lakehouse
-    Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
-    Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
-    Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
-    Raw = Navigation_2{[Id = "src_eglobal_income_report", ItemKind = "Table"]}[Data],
+    Source = Lakehouse.Contents(null),
+    Navigation = Source{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
+    Raw = #"Navigation 1"{[Id = "src_eglobal_income_report", ItemKind = "Table"]}[Data],
 
         // Trim trailing spaces from source columns
         #"Cleaned Headers" = Table.RenameColumns(Raw, {
@@ -28,12 +28,16 @@ let
             {"Industry Code ", "Industry Code"}
         }, MissingField.Ignore),
 
-        // Step 1: Filter and Select Base Columns
-        #"Base CRB Columns" = Table.SelectColumns(
-            Table.SelectRows(#"Cleaned Headers",
-                each not List.Contains({"EMB", "RET", "EBD", "EBC", "EBM", "EBS", "ECS", "GBM", "BEB", "MEB", "PEB", "SEB", "AEB", "CEB", "WEB", "UEB", "HBB","HCB"}, [Department])
+        // Step 1: Filter, Select Base Columns, and safely cast date columns (try/otherwise prevents
+        // whole-table failure when an individual row is blank or unparseable).
+        #"Base CRB Columns" = Table.TransformColumns(
+            Table.SelectColumns(
+                Table.SelectRows(#"Cleaned Headers",
+                    each not List.Contains({"EMB", "RET", "EBD", "EBC", "EBM", "EBS", "ECS", "GBM", "BEB", "MEB", "PEB", "SEB", "AEB", "CEB", "WEB", "UEB", "HBB","HCB"}, [Department])
+                ),
+                {"Client No", "Client Name", "Department", "PREMIUM", "TOTAL INCOME", "Company", "Branch", "Risk", "Inv No", "EFFECTIVE DATE", "INCOME CLASS", "PARTY ID", "DUNS NUMBER", "Source_Name"}
             ),
-            {"Client No", "Client Name", "Department", "PREMIUM", "TOTAL INCOME", "Company", "Branch", "Risk", "Inv No", "EFFECTIVE DATE", "INCOME CLASS", "PARTY ID", "DUNS NUMBER", "Source_Name"}
+            {{"EFFECTIVE DATE", each try DateTime.From(_) otherwise null, type datetime}}
     ),
     // Step 2: Add Business Logic Columns
     #"Business Logic" =

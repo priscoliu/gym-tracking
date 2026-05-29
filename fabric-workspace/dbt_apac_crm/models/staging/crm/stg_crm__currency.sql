@@ -4,7 +4,7 @@
 -- Currency reference table. Joins on TransactionCurrencyId for USD conversion.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_currency') }}
+    select * from {{ source('bronze_crm', 'src_crm_currency') }}
 ),
 
 renamed as (

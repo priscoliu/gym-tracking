@@ -4,7 +4,7 @@
 -- Raw tag reference. Filtering to APAC-relevant tag set is intermediate layer responsibility.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_tagslist') }}
+    select * from {{ source('bronze_crm', 'src_crm_tagslist') }}
 ),
 
 renamed as (

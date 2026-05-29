@@ -4,7 +4,7 @@
 -- Licensed, active users only (filter already applied in Bronze).
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_systemuser') }}
+    select * from {{ source('bronze_crm', 'src_crm_systemuser') }}
 ),
 
 renamed as (

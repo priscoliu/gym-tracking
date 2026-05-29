@@ -9,26 +9,30 @@ let
     #"Merged queries" = Table.NestedJoin(Raw, {"Bill To Customer Number"}, #"OracleID Mapping", {"OracleID"}, "OracleID Mapping", JoinKind.LeftOuter),
     #"With GCID" = Table.ExpandTableColumn(#"Merged queries", "OracleID Mapping", {"GCID"}, {"GCID"}),
 
-    // Step 1: Filter and Select Base Columns
-    #"Base Columns" = Table.SelectColumns(
-        Table.SelectRows(#"With GCID",
-            each [#"Operating Unit"] = "TW OU HK 3022-Hong Kong" or
-                 [#"Operating Unit"] = "TW OU TW 3121-Delaware Taiwan" or
-                 [#"Operating Unit"] = "TW OU CN 3241-Shanghai" or
-                 [#"Operating Unit"] = "TW OU PH 3101-Philippines" or
-                 [#"Operating Unit"] = "TW OU CN 3243-Beijing Br" or
-                 [#"Operating Unit"] = "TW OU SG 3042- Willis Towers Watson Consulting (Singapore) Pte Ltd" or
-                 [#"Operating Unit"] = "TW OU MY 3081-Malaysia" or
-                 [#"Operating Unit"] = "TW OU ID 3162-Indonesia" or
-                 [#"Operating Unit"] = "TW OU CN 3248-TW Mgmt Cons Shenzhen" or
-                 [#"Operating Unit"] = "TW OU TH 3221-Thailand" or
-                 [#"Operating Unit"] = "TW OU JP 3062-KK" or
-                 [#"Operating Unit"] = "TW OU KR 3183-Willis Towers Watson Consulting Korea Limited" or
-                 [#"Operating Unit"] = "TW OU IN 3002-India Pvt" or
-                 [#"Operating Unit"] = "TW OU AU 3141-Australia"
+    // Step 1: Filter, Select Base Columns, and safely cast date columns (try/otherwise prevents
+    // whole-table failure when an individual row is blank or unparseable).
+    #"Base Columns" = Table.TransformColumns(
+        Table.SelectColumns(
+            Table.SelectRows(#"With GCID",
+                each [#"Operating Unit"] = "TW OU HK 3022-Hong Kong" or
+                     [#"Operating Unit"] = "TW OU TW 3121-Delaware Taiwan" or
+                     [#"Operating Unit"] = "TW OU CN 3241-Shanghai" or
+                     [#"Operating Unit"] = "TW OU PH 3101-Philippines" or
+                     [#"Operating Unit"] = "TW OU CN 3243-Beijing Br" or
+                     [#"Operating Unit"] = "TW OU SG 3042- Willis Towers Watson Consulting (Singapore) Pte Ltd" or
+                     [#"Operating Unit"] = "TW OU MY 3081-Malaysia" or
+                     [#"Operating Unit"] = "TW OU ID 3162-Indonesia" or
+                     [#"Operating Unit"] = "TW OU CN 3248-TW Mgmt Cons Shenzhen" or
+                     [#"Operating Unit"] = "TW OU TH 3221-Thailand" or
+                     [#"Operating Unit"] = "TW OU JP 3062-KK" or
+                     [#"Operating Unit"] = "TW OU KR 3183-Willis Towers Watson Consulting Korea Limited" or
+                     [#"Operating Unit"] = "TW OU IN 3002-India Pvt" or
+                     [#"Operating Unit"] = "TW OU AU 3141-Australia"
+            ),
+            {"Reference", "Operating Unit", "Bill To Customer", "Invoice Amount",
+             "Currency", "Date", "Bill To Customer Number", "GCID"}
         ),
-        {"Reference", "Operating Unit", "Bill To Customer", "Invoice Amount",
-         "Currency", "Date", "Bill To Customer Number", "GCID"}
+        {{"Date", each try DateTime.From(_) otherwise null, type datetime}}
     ),
 
     // Step 2: Add Derived Columns

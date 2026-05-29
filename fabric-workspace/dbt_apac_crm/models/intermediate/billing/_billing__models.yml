@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: int_billing__arias_enriched
+    description: "Arias revenue conformed to the 18-column baseline schema. HB team filtered out. RevenueCountry hardcoded to Japan, Currency to JPY, Segment to CRB."
+    columns:
+      - name: SystemID
+        tests:
+          - not_null
+      - name: ClientID
+        tests:
+          - not_null
+      - name: DataSource
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['ARIAS']
+              quote: true

@@ -4,7 +4,7 @@
 -- Open and completed activities. Office/region resolution via SystemUserId join at intermediate layer.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_activity') }}
+    select * from {{ source('bronze_crm', 'src_crm_activity') }}
 ),
 
 renamed as (

@@ -10,15 +10,19 @@ let
     #"Merged queries" = Table.NestedJoin(Raw, {"Primary Customer Account Number"}, #"OracleID Mapping", {"OracleID"}, "OracleID Mapping", JoinKind.LeftOuter),
     #"With GCID" = Table.ExpandTableColumn(#"Merged queries", "OracleID Mapping", {"GCID"}, {"GCID"}),
 
-    // Step 1: Filter and Select Base Columns
-    #"Base Columns" = Table.SelectColumns(
-        Table.SelectRows(#"With GCID",
-            each Text.StartsWith([TW_Service_Offering], "RET")
+    // Step 1: Filter, Select Base Columns, and safely cast date columns (try/otherwise prevents
+    // whole-table failure when an individual row is blank or unparseable).
+    #"Base Columns" = Table.TransformColumns(
+        Table.SelectColumns(
+            Table.SelectRows(#"With GCID",
+                each Text.StartsWith([TW_Service_Offering], "RET")
+            ),
+            {"Customer Name", "CLIENT GROUP Global DUNS Number", "Fiscal Period",
+             "Fiscal Period Number", "Project Number", "TW_Service_Offering",
+             "Project Office Code", "Project Market Cluster Name", "Employee Market Cluster",
+             "Revenue Amount", "Primary Customer Account Number", "GCID", "Source_Name"}
         ),
-        {"Customer Name", "CLIENT GROUP Global DUNS Number", "Fiscal Period",
-         "Fiscal Period Number", "Project Number", "TW_Service_Offering",
-         "Project Office Code", "Project Market Cluster Name", "Employee Market Cluster",
-         "Revenue Amount", "Primary Customer Account Number", "GCID", "Source_Name"}
+        {{"Fiscal Period", each try DateTime.From(_) otherwise null, type datetime}}
     ),
 
     // Step 2: Fix Fiscal Period

@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_crm_opportunity
+  - name: stg_crm__opportunity
     description: "One row per CRM opportunity from D365"
     columns:
       - name: OpportunityId
@@ -12,7 +12,7 @@ models:
         tests:
           - not_null
 
-  - name: stg_crm_opportunity_service
+  - name: stg_crm__opportunity_service
     description: "One row per opportunity service line"
     columns:
       - name: OpportunityServiceId
@@ -23,7 +23,7 @@ models:
         tests:
           - not_null
 
-  - name: stg_crm_income_assignment
+  - name: stg_crm__income_assignment
     description: "Colleague split records per service line"
     columns:
       - name: IncomeAssignmentId
@@ -31,7 +31,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_account
+  - name: stg_crm__account
     description: "Global D365 accounts"
     columns:
       - name: AccountId
@@ -39,7 +39,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_systemuser
+  - name: stg_crm__systemuser
     description: "Active licensed D365 users"
     columns:
       - name: SystemUserId
@@ -47,7 +47,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_office
+  - name: stg_crm__office
     description: "D365 office reference"
     columns:
       - name: OfficeId
@@ -55,7 +55,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_profitcenter
+  - name: stg_crm__profitcenter
     description: "D365 profit center reference"
     columns:
       - name: ProfitCenterId
@@ -63,7 +63,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_currency
+  - name: stg_crm__currency
     description: "D365 transaction currency"
     columns:
       - name: CurrencyId
@@ -71,7 +71,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_productclass
+  - name: stg_crm__productclass
     description: "D365 product class / LOB reference"
     columns:
       - name: ProductClassId
@@ -79,7 +79,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_productsubclass
+  - name: stg_crm__productsubclass
     description: "D365 product sub-class reference (child of productclass)"
     columns:
       - name: ProductSubClassId
@@ -90,7 +90,7 @@ models:
         tests:
           - not_null
 
-  - name: stg_crm_opportunity_tagslist
+  - name: stg_crm__opportunity_tagslist
     description: "Raw opportunity-tag junction. TagName lookup is intermediate responsibility."
     columns:
       - name: OpportunityId
@@ -100,7 +100,7 @@ models:
         tests:
           - not_null
 
-  - name: stg_crm_tagslist
+  - name: stg_crm__tagslist
     description: "All D365 tags (raw). Filter to APAC-relevant in intermediate layer."
     columns:
       - name: TagId
@@ -108,7 +108,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_account_tagslist
+  - name: stg_crm__account_tagslist
     description: "Raw account-tag junction. Inheritance (Direct/Parent/Global Parent) is intermediate responsibility."
     columns:
       - name: AccountId
@@ -118,7 +118,7 @@ models:
         tests:
           - not_null
 
-  - name: stg_crm_activity
+  - name: stg_crm__activity
     description: "D365 activities (open and completed)"
     columns:
       - name: ActivityId
@@ -126,7 +126,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_crm_lead
+  - name: stg_crm__lead
     description: "D365 leads (open and converted)"
     columns:
       - name: LeadId

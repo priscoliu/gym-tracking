@@ -22,13 +22,21 @@ require-dbt-version: [">=1.0.0", "<2.0.0"]
 models:
   apac_sales_etl:
       +materialized: table
+      # Log row count after every model run (CRM + billing)
+      +post-hook: "{{ log_row_count(this) }}"
       staging:
         +materialized: view
+        crm:
+          +schema: apac_crm_silver
         billing:
-          +schema: apac_billing
+          +schema: apac_billing_silver
       intermediate:
+        crm:
+          +schema: apac_crm_silver
         billing:
-          +schema: apac_billing
+          +schema: apac_billing_silver
       marts:
+        crm:
+          +schema: apac_crm_gold
         billing:
-          +schema: apac_billing
+          +schema: apac_billing_gold

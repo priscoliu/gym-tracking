@@ -4,7 +4,7 @@
 -- Product/LOB reference table for opportunity classification.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_productclass') }}
+    select * from {{ source('bronze_crm', 'src_crm_productclass') }}
 ),
 
 renamed as (

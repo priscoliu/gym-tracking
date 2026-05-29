@@ -1,5 +1,5 @@
 -- Mart: fct_billing_baseline
--- Output: apac_billing.fct_billing_baseline (table)
+-- Output: apac_billing_gold.fct_billing_baseline (table)
 -- Unified baseline fact table -- one row per billing/revenue record across all 8 sources,
 -- conformed to the 18-column standard schema that Power BI consumes.
 --

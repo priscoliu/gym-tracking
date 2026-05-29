@@ -5,7 +5,7 @@
 -- (join to stg_crm_tagslist).
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_opportunity_tagslist') }}
+    select * from {{ source('bronze_crm', 'src_crm_opportunity_tagslist') }}
 ),
 
 renamed as (

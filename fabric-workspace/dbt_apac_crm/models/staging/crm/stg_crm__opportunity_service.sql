@@ -4,7 +4,7 @@
 -- One row per service line. Joins to stg_crm_opportunity on OpportunityId in intermediate layer.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_opportunity_service') }}
+    select * from {{ source('bronze_crm', 'src_crm_opportunity_service') }}
 ),
 
 renamed as (

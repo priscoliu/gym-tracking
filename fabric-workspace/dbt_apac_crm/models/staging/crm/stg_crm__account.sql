@@ -4,7 +4,7 @@
 -- Global account reference — no APAC filter (applied in intermediate layer).
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_account') }}
+    select * from {{ source('bronze_crm', 'src_crm_account') }}
 ),
 
 renamed as (

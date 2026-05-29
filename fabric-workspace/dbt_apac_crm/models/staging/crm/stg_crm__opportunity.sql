@@ -4,7 +4,7 @@
 -- One row per D365 opportunity. Light type casting only — no joins, no filters beyond Bronze.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_opportunity') }}
+    select * from {{ source('bronze_crm', 'src_crm_opportunity') }}
 ),
 
 renamed as (

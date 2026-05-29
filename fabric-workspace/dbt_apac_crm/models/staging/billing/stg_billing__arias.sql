@@ -1,6 +1,6 @@
 -- Staging: Arias billing
 -- Source:  APAC_CRM_Analytics_bronze_LH.dbo.src_arias_crb
--- Output:  apac_billing.stg_billing__arias (view)
+-- Output:  apac_billing_silver.stg_billing__arias (view)
 -- One row per Arias revenue record. Type cast + English column names only -- no filters, no joins.
 -- Original Japanese column names from source preserved as comments.
 

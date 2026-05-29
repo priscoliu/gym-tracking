@@ -4,7 +4,7 @@
 -- Colleague split records. Joins to stg_crm_opportunity_service on OpportunityServiceId.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_income_assignment') }}
+    select * from {{ source('bronze_crm', 'src_crm_income_assignment') }}
 ),
 
 renamed as (

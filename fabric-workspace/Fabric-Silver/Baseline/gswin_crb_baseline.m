@@ -5,15 +5,19 @@ let
     #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
     Raw = #"Navigation 1"{[Id = "src_gswin_crb", ItemKind = "Table"]}[Data],
 
-    // Step 1: Filter and Select Base Columns
+    // Step 1: Filter, Select Base Columns, and safely cast date columns (try/otherwise prevents
+    // whole-table failure when an individual row is blank or unparseable).
     // Note: "New/ #(lf)Renew" — the column header in Excel contains a literal line-feed; pandas preserves it
-    #"Base Columns" = Table.SelectColumns(
-        Table.SelectRows(Raw,
-            each [#"Willis Line"] <> "H&B"
+    #"Base Columns" = Table.TransformColumns(
+        Table.SelectColumns(
+            Table.SelectRows(Raw,
+                each [#"Willis Line"] <> "H&B"
+            ),
+            {"ClientID", "Client Name", "Policy Number", "Policy Type Name", "Renewable",
+             "New/ #(lf)Renew", "Inception Date", "Cury Code", "Premium USD",
+             "Total Brokerage in USD", "Willis Line", "GCID"}
         ),
-        {"ClientID", "Client Name", "Policy Number", "Policy Type Name", "Renewable",
-         "New/ #(lf)Renew", "Inception Date", "Cury Code", "Premium USD",
-         "Total Brokerage in USD", "Willis Line", "GCID"}
+        {{"Inception Date", each try DateTime.From(_) otherwise null, type datetime}}
     ),
 
     // Step 2: Add Derived Columns

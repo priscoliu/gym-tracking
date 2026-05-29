@@ -4,7 +4,7 @@
 -- Open and converted leads. ANZ vs APAC scope filter is intermediate layer responsibility.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_lead') }}
+    select * from {{ source('bronze_crm', 'src_crm_lead') }}
 ),
 
 renamed as (

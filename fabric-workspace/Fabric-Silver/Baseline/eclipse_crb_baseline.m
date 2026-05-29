@@ -1,19 +1,24 @@
 let
     // Connect to Fabric Lakehouse
-    Pattern = Lakehouse.Contents([HierarchicalNavigation = null, CreateNavigationProperties = false, EnableFolding = false]),
-    Navigation_1 = Pattern{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
-    Navigation_2 = Navigation_1{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
-    Raw = Navigation_2{[Id = "src_eclipse_crb", ItemKind = "Table"]}[Data],
+    Source = Lakehouse.Contents(null),
+    Navigation = Source{[workspaceId = "76ec20c3-c400-415a-99c6-708f8207d5f9"]}[Data],
+    #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
+    Raw = #"Navigation 1"{[Id = "src_eclipse_crb", ItemKind = "Table"]}[Data],
 
-    // Step 1: Filter and Select Base Columns
-    #"Base Columns" = Table.SelectColumns(
-        Table.SelectRows(Raw,
-            each [LegalEntity] <> "PT. Willis Reinsurance Brokers Indonesia"
-              and [LegalEntity] <> "Willis Towers Watson Taiwan Limited"
+    // Step 1: Filter, Select Base Columns, and safely cast date columns (try/otherwise prevents
+    // whole-table failure when an individual row is blank or unparseable).
+    #"Base Columns" = Table.TransformColumns(
+        Table.SelectColumns(
+            Table.SelectRows(Raw,
+                each [LegalEntity] <> "PT. Willis Reinsurance Brokers Indonesia"
+                  and [LegalEntity] <> "Willis Towers Watson Taiwan Limited"
+            ),
+            {"LegalEntity", "BusinessUnit", "Team", "PolicyRef", "InceptionDate", "ExpiryDate",
+             "Insured", "NetBkgeUSDPlan", "GrossPremNonTtyUSDPlan", "ClassOfBusiness",
+             "Willis Party ID", "Dun and Bradstreet No", "Revenue Type", "InsuredID", "BUSegment"}
         ),
-        {"LegalEntity", "BusinessUnit", "Team", "PolicyRef", "InceptionDate", "ExpiryDate",
-         "Insured", "NetBkgeUSDPlan", "GrossPremNonTtyUSDPlan", "ClassOfBusiness",
-         "Willis Party ID", "Dun and Bradstreet No", "Revenue Type", "InsuredID", "BUSegment"}
+        {{"InceptionDate", each try DateTime.From(_) otherwise null, type datetime},
+         {"ExpiryDate",    each try DateTime.From(_) otherwise null, type datetime}}
     ),
 
     // Step 2: Add Derived Columns
@@ -68,8 +73,8 @@ let
             }),
             typed = Table.TransformColumnTypes(renamed, {
                 {"TX_ID",                    type text},
-                {"IncomeDate/InceptionDate", type date},
-                {"PolicyEndsDate",           type date},
+                {"IncomeDate/InceptionDate", type datetime},
+                {"PolicyEndsDate",           type datetime},
                 {"Revenue",                  type number},
                 {"Premium",                  type number},
                 {"GCID",                     type text},

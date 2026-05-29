@@ -5,16 +5,19 @@ let
     #"Navigation 1" = Navigation{[lakehouseId = "1c0d3357-c170-4ddd-9738-e1c90bbe99f2"]}[Data],
     Raw = #"Navigation 1"{[Id = "src_arias_crb", ItemKind = "Table"]}[Data],
 
-    // Step 1: Filter and Select Base Columns
-    #"Base Columns" = Table.SelectColumns(
-        Table.SelectRows(Raw,
-            each not ([チーム名] = "HB")
+    // Step 1: Filter, Select Base Columns, and safely cast date columns (try/otherwise prevents
+    // whole-table failure when an individual row is blank or unparseable).
+    #"Base Columns" = Table.TransformColumns(
+        Table.SelectColumns(
+            Table.SelectRows(Raw,
+                each not ([チーム名] = "HB")
+            ),
+            {"保険種類", "契約者名", "保険始期", "請求書番号", "Recurring", "保険料", "手数料（税抜)", "GCID", "Policy No"}
         ),
-        {"保険種類", "契約者名", "保険始期", "請求書番号", "Recurring", "保険料", "手数料（税抜)", "GCID", "Policy No"}
+        {{"保険始期", each try Date.From(_) otherwise null, type date}}
     ),
 
     // Step 2: Add Derived Columns
-    // Note: 保険始期 is already type date in the Lakehouse — no yyyymmdd parsing needed
     #"Derived Columns" =
         let
             t1  = Table.AddColumn(#"Base Columns", "DataSource", each "ARIAS", type text),

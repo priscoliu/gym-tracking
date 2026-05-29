@@ -4,7 +4,7 @@
 -- Child of stg_crm_productclass. Intermediate joins LOB hierarchy.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_productsubclass') }}
+    select * from {{ source('bronze_crm', 'src_crm_productsubclass') }}
 ),
 
 renamed as (

@@ -4,7 +4,7 @@
 -- Office reference table used in intermediate layer for APAC subregion/country fallback.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_office') }}
+    select * from {{ source('bronze_crm', 'src_crm_office') }}
 ),
 
 renamed as (

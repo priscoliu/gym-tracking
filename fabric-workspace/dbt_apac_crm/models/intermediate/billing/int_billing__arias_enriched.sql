@@ -1,6 +1,6 @@
 -- Intermediate: Arias enriched
 -- Source:  {{ ref('stg_billing__arias') }}
--- Output:  apac_billing.int_billing__arias_enriched (table)
+-- Output:  apac_billing_silver.int_billing__arias_enriched (table)
 -- Applies Silver baseline business logic: HB team filter, BusinessType / RecurringRevenue derivation,
 -- hardcoded RevenueCountry/Currency, SystemID/TX_ID/ClientID construction. Conforms to the 18-column
 -- standard schema that all 8 baselines feed into fct_billing_baseline.

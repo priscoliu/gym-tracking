@@ -4,7 +4,7 @@
 -- Reference table used in intermediate layer to resolve Finance Level 1.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_profitcenter') }}
+    select * from {{ source('bronze_crm', 'src_crm_profitcenter') }}
 ),
 
 renamed as (

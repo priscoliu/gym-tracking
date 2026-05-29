@@ -14,10 +14,16 @@ let
         {"CNo", "InstNo", "CustName", "CustCode", "GCID", "Policy Type", "BizType", "StartDate", "Brok Prem_", "Brokerage"}
     ),
 
+    // Safe datetime cast -- bad/blank rows resolve to null instead of failing the whole refresh
+    #"Changed column type" = Table.TransformColumns(
+        #"Base Columns",
+        {{"StartDate", each try DateTime.From(_) otherwise null, type datetime}}
+    ),
+
     // Step 2: Add Derived Columns
     #"Derived Columns" =
         let
-            t1  = Table.AddColumn(#"Base Columns", "DataSource", each "Saiba", type text),
+            t1  = Table.AddColumn(#"Changed column type", "DataSource", each "Saiba", type text),
             t2  = Table.AddColumn(t1, "SystemID_New", each
                     if [CustCode] = null or [CustCode] = "" then ""
                     else [DataSource] & "-" & [CustCode],

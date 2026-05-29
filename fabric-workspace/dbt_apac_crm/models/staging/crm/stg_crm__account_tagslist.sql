@@ -5,7 +5,7 @@
 -- is intermediate layer responsibility.
 
 with source as (
-    select * from {{ source('bronze', 'src_crm_account_tagslist') }}
+    select * from {{ source('bronze_crm', 'src_crm_account_tagslist') }}
 ),
 
 renamed as (

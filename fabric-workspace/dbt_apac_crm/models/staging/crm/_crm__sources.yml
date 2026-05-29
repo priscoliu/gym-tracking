@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: bronze
+  - name: bronze_crm
     description: "APAC CRM Bronze Lakehouse - raw D365 entity pulls"
     database: APAC_CRM_Analytics_bronze_LH
     schema: dbo
