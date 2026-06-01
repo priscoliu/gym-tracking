@@ -35,6 +35,9 @@ __pycache__/
 *.pyc
 *.pyo
 
+# VFS for Git metadata
+.vfsmeta
+
 # Temporary files
 *.tmp
 *.temp
