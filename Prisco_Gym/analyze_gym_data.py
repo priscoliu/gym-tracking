@@ -35,10 +35,8 @@ def analyze_data(all_data):
     print(f"TOTAL EXERCISE ENTRIES FOUND: {len(all_data)}")
     print("="*50)
     
-    # Let's see the structure of the data by printing the first few items
-    print("\nSAMPLE ENTRIES:")
-    for i, item in enumerate(all_data[:5]):
-        print(item)
+    # We skipped printing to console to avoid UnicodeEncodeError on Windows
+    print("Writing data to recent_gym_data_summary.json...")
         
     # We will write the aggregated data to a file for the LLM to read easily
     with open("recent_gym_data_summary.json", "w", encoding="utf-8") as f:
