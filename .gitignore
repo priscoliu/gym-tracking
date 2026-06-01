@@ -30,6 +30,11 @@ Thumbs.db
 # PySpark / Databricks type stubs (auto-generated, not source)
 .stubs/
 
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
 # Temporary files
 *.tmp
 *.temp
