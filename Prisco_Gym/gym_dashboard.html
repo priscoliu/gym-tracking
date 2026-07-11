@@ -239,20 +239,29 @@
       flex-shrink: 0;
     }
 
-    /* Nutrition placeholder */
+    /* Nutrition section */
     .nutrition-card {
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      border: 2px dashed #e8e2d9;
-      padding: 28px 24px;
+      border-top: 3px solid #d4700a;
+      padding: 24px;
       margin-bottom: 24px;
+    }
+    .nutrition-card.placeholder {
+      border: 2px dashed #e8e2d9;
+      border-top: none;
     }
     .nutrition-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
       margin-bottom: 20px;
+    }
+    .nutrition-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .nutrition-header h2 {
       font-size: 11px;
@@ -271,10 +280,15 @@
       padding: 2px 10px;
       letter-spacing: 0.05em;
     }
+    .nutrition-date-range {
+      font-size: 12px;
+      color: #6b6b6b;
+    }
     .nutrition-slots {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
+      margin-bottom: 16px;
     }
     .nutrition-slot {
       background: #faf9f7;
@@ -287,20 +301,80 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #a09080;
+      color: #6b6b6b;
       margin-bottom: 6px;
     }
     .nutrition-slot-value {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
-      color: #ccc0b0;
+      color: #1a1a1a;
       letter-spacing: -0.5px;
+    }
+    .nutrition-slot-value.placeholder-val {
+      color: #ccc0b0;
     }
     .nutrition-slot-unit {
       font-size: 12px;
       font-weight: 400;
-      color: #c0b0a0;
+      color: #6b6b6b;
       margin-left: 2px;
+    }
+    /* Target bars */
+    .nutrition-target-bar-wrap {
+      margin-top: 8px;
+    }
+    .nutrition-target-track {
+      width: 100%;
+      height: 5px;
+      background: #ede9e0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .nutrition-target-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: #d4700a;
+      transition: width 0.4s ease;
+    }
+    .nutrition-target-label {
+      font-size: 10px;
+      color: #9b8b7b;
+      margin-top: 4px;
+    }
+    /* Last 7 days mini table */
+    .nutrition-table-wrap {
+      margin-top: 4px;
+      overflow-x: auto;
+    }
+    .nutrition-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .nutrition-table th {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      padding: 6px 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid #ede9e0;
+    }
+    .nutrition-table td {
+      padding: 7px 10px;
+      color: #1a1a1a;
+      border-bottom: 1px solid #f5f2ed;
+    }
+    .nutrition-table tr:last-child td { border-bottom: none; }
+    .nutrition-table tr:hover td { background: #faf9f7; }
+    .status-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
     }
     .nutrition-notes {
       margin-top: 14px;
@@ -361,32 +435,8 @@
       <div class="lifts-grid" id="lifts-grid"></div>
     </div>
 
-    <!-- Nutrition placeholder -->
-    <div class="nutrition-card">
-      <div class="nutrition-header">
-        <h2>Nutrition Tracking</h2>
-        <span class="nutrition-badge">PASTE FROM NUTRITION CHAT</span>
-      </div>
-      <div class="nutrition-slots">
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Avg Calories</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">kcal</span></div>
-        </div>
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Protein</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">g</span></div>
-        </div>
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Carbs</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">g</span></div>
-        </div>
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Fat</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">g</span></div>
-        </div>
-      </div>
-      <div class="nutrition-notes">Notes &mdash; paste observations from your nutrition chat here.</div>
-    </div>
+    <!-- Nutrition section -->
+    <div class="nutrition-card" id="nutrition-card"></div>
 
   </div>
 
@@ -565,6 +615,92 @@
         drawSparkline(svg, pts, color);
       });
     });
+
+    // ── Nutrition section ─────────────────────────────────────────────────────
+    const NUTRITION = {"date_range_start": "2026-05-26", "date_range_end": "2026-07-11", "n_complete": 22, "n_total": 25, "avg_calories": 1415.0, "avg_protein": 110.8, "avg_carbs": 137.7, "avg_fat": 45.6, "targets": {"calories": 1850, "protein": 130, "carbs": 195, "fat": 60}, "last7": [{"date": "2026-07-05", "calories": 1531, "protein": 86.0, "carbs": 165.7, "fat": 49.8, "day_type": "Rest Day", "log_status": "Complete", "meals": "Lunch: 250g beef mince (from 500g batch ~1300 kcal total) + 150g rice + 200ml Oatly oat milk coffee (942 kcal, 46g P) | Dinner: lean pork stir-fry with cauliflower + capsicum - had 100g meat + 100g veg + 1 egg + 135g rice (499 kcal, 38.2g P) | Snack: ~300g watermelon flesh (90 kcal, 1.8g P)"}, {"date": "2026-07-06", "calories": 1427, "protein": 117.0, "carbs": 89.0, "fat": 62.0, "day_type": "Rest Day", "log_status": "Complete", "meals": "Lunch: TamJai mixian + extra chicken (~527 kcal, 52g P) | Dinner: 10 KFC popcorn chicken + 2 nuggets (~330 kcal, 16g P) + 200g scotch fillet steak + 130g mixed salad + gravy (~570 kcal, 49g P)"}, {"date": "2026-07-07", "calories": 1266, "protein": 113.0, "carbs": 99.0, "fat": 44.4, "day_type": "Rest Day", "log_status": "Complete", "meals": "Breakfast: 1 scoop ON Isolate + 250ml lite milk (222 kcal, 34g P) | Lunch: 120g rice + 125g salmon + 75g veg + 50g gravy + 2 KFC nuggets + 88g KFC chicken tenders (827 kcal, 80.9g P) | Dinner: 1 pot rice - beef mince + 2 cups rice + onion + carrot + gochujang + sesame oil, had 150g portion (217 kcal, 16.1g P)"}, {"date": "2026-07-08", "calories": 2090, "protein": 111.0, "carbs": 145.0, "fat": 95.5, "day_type": "Training Day", "log_status": "Complete", "meals": "Lunch: 186g leftover one pot rice + 125g salmon (515 kcal, 50g P) | Dinner: Korean Town shared meal (4 people) - 1/4 dandan noodles, spicy beef tofu stir-fry, fishballs, cold noodles, beef, corn cheese bake (~1,060 kcal, 61g P) | Training: Pull day + 40min cardio"}, {"date": "2026-07-09", "calories": 1169, "protein": 77.5, "carbs": 134.4, "fat": 32.2, "day_type": "Rest Day", "log_status": "Complete", "meals": "Breakfast: 230ml Oatly oat milk + L'Or caramel espresso capsule (146 kcal, 2.5g P) | Lunch: 70g rice + 50g beef (199 kcal, 14.7g P) | Dinner: one pot chicken rice - 570g chicken thighs (no skin, no bone) + 2 cups rice + cucumber + chicken stock + soy/oyster sauce + sesame oil, had 475g portion (624 kcal, 45.8g P)"}, {"date": "2026-07-10", "calories": 1411, "protein": 101.0, "carbs": 143.5, "fat": 48.9, "day_type": "Rest Day", "log_status": "Complete", "meals": "Lunch: 250g leftover one pot chicken rice + 1 scoop ON Isolate + 250ml lite milk (551 kcal, 58g P) | Dinner: chicken fried rice 2 small bowls (~300g) + satay beef stir-fry 40% share (~250g) with broccoli, onion, capsicum, pineapple (~860 kcal, 43g P)"}, {"date": "2026-07-11", "calories": 973, "protein": 95.5, "carbs": 55.3, "fat": 38.0, "day_type": "Rest Day", "log_status": "Complete", "meals": "Lunch: Gai Wong Har Mee (prawn noodle soup) - glass noodles, lean pork, shrimp, half boiled egg, beansprouts, kangkong, sambal (~420 kcal, 30g P) | Dinner: 250g air fried chicken thighs + teriyaki sauce + 60g cucumber + 1 egg stir-fry with soy/oyster sauce, oil (~553 kcal, 65.5g P)"}]};
+    const nutCard = document.getElementById("nutrition-card");
+
+    function fmtDate(ds) {
+      const d = new Date(ds + "T00:00:00");
+      return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+    }
+
+    if (!NUTRITION) {
+      nutCard.classList.add("placeholder");
+      nutCard.innerHTML = `
+        <div class="nutrition-header"><div class="nutrition-header-left">
+          <h2>Nutrition Tracking</h2>
+          <span class="nutrition-badge">NO DATA</span>
+        </div></div>
+        <div class="nutrition-notes">nutrition_data.json not found &mdash; run the nutrition sync task to populate this section.</div>`;
+    } else {
+      const n = NUTRITION;
+      const targets = n.targets;
+
+      function targetBar(val, target) {
+        const pct = Math.min(Math.round((val / target) * 100), 100);
+        const color = pct >= 90 ? "#16a34a" : pct >= 70 ? "#d4700a" : "#ef4444";
+        return `<div class="nutrition-target-bar-wrap">
+          <div class="nutrition-target-track">
+            <div class="nutrition-target-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <div class="nutrition-target-label">${val} / ${target} (${pct}%)</div>
+        </div>`;
+      }
+
+      const macros = [
+        { label: "Avg Calories", val: n.avg_calories, unit: "kcal", target: targets.calories },
+        { label: "Avg Protein",  val: n.avg_protein,  unit: "g",    target: targets.protein  },
+        { label: "Avg Carbs",    val: n.avg_carbs,    unit: "g",    target: targets.carbs    },
+        { label: "Avg Fat",      val: n.avg_fat,      unit: "g",    target: targets.fat      },
+      ];
+
+      let slotsHtml = '<div class="nutrition-slots">';
+      macros.forEach(m => {
+        slotsHtml += `<div class="nutrition-slot">
+          <div class="nutrition-slot-label">${m.label}</div>
+          <div class="nutrition-slot-value">${m.val}<span class="nutrition-slot-unit">${m.unit}</span></div>
+          ${targetBar(m.val, m.target)}
+        </div>`;
+      });
+      slotsHtml += '</div>';
+
+      // Last 7 days table
+      const last7 = n.last7;
+      let tableHtml = `<div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#6b6b6b;margin-bottom:8px">Last 7 Days</div>
+        <div class="nutrition-table-wrap"><table class="nutrition-table">
+          <thead><tr>
+            <th>Date</th><th>Type</th><th>Kcal</th><th>P (g)</th><th>C (g)</th><th>F (g)</th><th>Status</th>
+          </tr></thead><tbody>`;
+      last7.forEach(e => {
+        const dotColor = e.log_status === "Complete" ? "#16a34a" : "#f59e0b";
+        const typeShort = e.day_type === "Training Day" ? "Train" : "Rest";
+        tableHtml += `<tr>
+          <td>${fmtDate(e.date)}</td>
+          <td><span style="color:${e.day_type === 'Training Day' ? '#d4700a' : '#6b6b6b'};font-weight:500">${typeShort}</span></td>
+          <td>${e.calories ?? "—"}</td>
+          <td>${e.protein ?? "—"}</td>
+          <td>${e.carbs ?? "—"}</td>
+          <td>${e.fat ?? "—"}</td>
+          <td><span class="status-dot" style="background:${dotColor}"></span>${e.log_status}</td>
+        </tr>`;
+      });
+      tableHtml += '</tbody></table></div>';
+
+      const startLabel = fmtDate(n.date_range_start);
+      const endLabel   = fmtDate(n.date_range_end);
+
+      nutCard.innerHTML = `
+        <div class="nutrition-header">
+          <div class="nutrition-header-left">
+            <h2>Nutrition Tracking</h2>
+            <span class="nutrition-badge">${n.n_complete} COMPLETE DAYS</span>
+          </div>
+          <div class="nutrition-date-range">${startLabel} &ndash; ${endLabel}</div>
+        </div>
+        ${slotsHtml}
+        ${tableHtml}`;
+    }
 
   </script>
 </body>

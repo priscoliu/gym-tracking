@@ -36,8 +36,9 @@ TRANSLATIONS = {
     "上斜哑铃弯举": "Incline DB Curl",
 }
 
-CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
-OUT_PATH   = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gym_dashboard.html")
+CACHE_DIR      = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+OUT_PATH       = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gym_dashboard.html")
+NUTRITION_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nutrition_data.json")
 
 
 def translate(name):
@@ -432,20 +433,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       flex-shrink: 0;
     }
 
-    /* Nutrition placeholder */
+    /* Nutrition section */
     .nutrition-card {
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      border: 2px dashed #e8e2d9;
-      padding: 28px 24px;
+      border-top: 3px solid #d4700a;
+      padding: 24px;
       margin-bottom: 24px;
+    }
+    .nutrition-card.placeholder {
+      border: 2px dashed #e8e2d9;
+      border-top: none;
     }
     .nutrition-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
       margin-bottom: 20px;
+    }
+    .nutrition-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .nutrition-header h2 {
       font-size: 11px;
@@ -464,10 +474,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       padding: 2px 10px;
       letter-spacing: 0.05em;
     }
+    .nutrition-date-range {
+      font-size: 12px;
+      color: #6b6b6b;
+    }
     .nutrition-slots {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
+      margin-bottom: 16px;
     }
     .nutrition-slot {
       background: #faf9f7;
@@ -480,20 +495,80 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #a09080;
+      color: #6b6b6b;
       margin-bottom: 6px;
     }
     .nutrition-slot-value {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
-      color: #ccc0b0;
+      color: #1a1a1a;
       letter-spacing: -0.5px;
+    }
+    .nutrition-slot-value.placeholder-val {
+      color: #ccc0b0;
     }
     .nutrition-slot-unit {
       font-size: 12px;
       font-weight: 400;
-      color: #c0b0a0;
+      color: #6b6b6b;
       margin-left: 2px;
+    }
+    /* Target bars */
+    .nutrition-target-bar-wrap {
+      margin-top: 8px;
+    }
+    .nutrition-target-track {
+      width: 100%;
+      height: 5px;
+      background: #ede9e0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .nutrition-target-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: #d4700a;
+      transition: width 0.4s ease;
+    }
+    .nutrition-target-label {
+      font-size: 10px;
+      color: #9b8b7b;
+      margin-top: 4px;
+    }
+    /* Last 7 days mini table */
+    .nutrition-table-wrap {
+      margin-top: 4px;
+      overflow-x: auto;
+    }
+    .nutrition-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .nutrition-table th {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      padding: 6px 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid #ede9e0;
+    }
+    .nutrition-table td {
+      padding: 7px 10px;
+      color: #1a1a1a;
+      border-bottom: 1px solid #f5f2ed;
+    }
+    .nutrition-table tr:last-child td { border-bottom: none; }
+    .nutrition-table tr:hover td { background: #faf9f7; }
+    .status-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
     }
     .nutrition-notes {
       margin-top: 14px;
@@ -554,32 +629,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div class="lifts-grid" id="lifts-grid"></div>
     </div>
 
-    <!-- Nutrition placeholder -->
-    <div class="nutrition-card">
-      <div class="nutrition-header">
-        <h2>Nutrition Tracking</h2>
-        <span class="nutrition-badge">PASTE FROM NUTRITION CHAT</span>
-      </div>
-      <div class="nutrition-slots">
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Avg Calories</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">kcal</span></div>
-        </div>
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Protein</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">g</span></div>
-        </div>
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Carbs</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">g</span></div>
-        </div>
-        <div class="nutrition-slot">
-          <div class="nutrition-slot-label">Fat</div>
-          <div class="nutrition-slot-value">--<span class="nutrition-slot-unit">g</span></div>
-        </div>
-      </div>
-      <div class="nutrition-notes">Notes &mdash; paste observations from your nutrition chat here.</div>
-    </div>
+    <!-- Nutrition section -->
+    <div class="nutrition-card" id="nutrition-card"></div>
 
   </div>
 
@@ -759,15 +810,135 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       });
     });
 
+    // ── Nutrition section ─────────────────────────────────────────────────────
+    const NUTRITION = __NUTRITION_PLACEHOLDER__;
+    const nutCard = document.getElementById("nutrition-card");
+
+    function fmtDate(ds) {
+      const d = new Date(ds + "T00:00:00");
+      return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+    }
+
+    if (!NUTRITION) {
+      nutCard.classList.add("placeholder");
+      nutCard.innerHTML = `
+        <div class="nutrition-header"><div class="nutrition-header-left">
+          <h2>Nutrition Tracking</h2>
+          <span class="nutrition-badge">NO DATA</span>
+        </div></div>
+        <div class="nutrition-notes">nutrition_data.json not found &mdash; run the nutrition sync task to populate this section.</div>`;
+    } else {
+      const n = NUTRITION;
+      const targets = n.targets;
+
+      function targetBar(val, target) {
+        const pct = Math.min(Math.round((val / target) * 100), 100);
+        const color = pct >= 90 ? "#16a34a" : pct >= 70 ? "#d4700a" : "#ef4444";
+        return `<div class="nutrition-target-bar-wrap">
+          <div class="nutrition-target-track">
+            <div class="nutrition-target-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <div class="nutrition-target-label">${val} / ${target} (${pct}%)</div>
+        </div>`;
+      }
+
+      const macros = [
+        { label: "Avg Calories", val: n.avg_calories, unit: "kcal", target: targets.calories },
+        { label: "Avg Protein",  val: n.avg_protein,  unit: "g",    target: targets.protein  },
+        { label: "Avg Carbs",    val: n.avg_carbs,    unit: "g",    target: targets.carbs    },
+        { label: "Avg Fat",      val: n.avg_fat,      unit: "g",    target: targets.fat      },
+      ];
+
+      let slotsHtml = '<div class="nutrition-slots">';
+      macros.forEach(m => {
+        slotsHtml += `<div class="nutrition-slot">
+          <div class="nutrition-slot-label">${m.label}</div>
+          <div class="nutrition-slot-value">${m.val}<span class="nutrition-slot-unit">${m.unit}</span></div>
+          ${targetBar(m.val, m.target)}
+        </div>`;
+      });
+      slotsHtml += '</div>';
+
+      // Last 7 days table
+      const last7 = n.last7;
+      let tableHtml = `<div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#6b6b6b;margin-bottom:8px">Last 7 Days</div>
+        <div class="nutrition-table-wrap"><table class="nutrition-table">
+          <thead><tr>
+            <th>Date</th><th>Type</th><th>Kcal</th><th>P (g)</th><th>C (g)</th><th>F (g)</th><th>Status</th>
+          </tr></thead><tbody>`;
+      last7.forEach(e => {
+        const dotColor = e.log_status === "Complete" ? "#16a34a" : "#f59e0b";
+        const typeShort = e.day_type === "Training Day" ? "Train" : "Rest";
+        tableHtml += `<tr>
+          <td>${fmtDate(e.date)}</td>
+          <td><span style="color:${e.day_type === 'Training Day' ? '#d4700a' : '#6b6b6b'};font-weight:500">${typeShort}</span></td>
+          <td>${e.calories ?? "—"}</td>
+          <td>${e.protein ?? "—"}</td>
+          <td>${e.carbs ?? "—"}</td>
+          <td>${e.fat ?? "—"}</td>
+          <td><span class="status-dot" style="background:${dotColor}"></span>${e.log_status}</td>
+        </tr>`;
+      });
+      tableHtml += '</tbody></table></div>';
+
+      const startLabel = fmtDate(n.date_range_start);
+      const endLabel   = fmtDate(n.date_range_end);
+
+      nutCard.innerHTML = `
+        <div class="nutrition-header">
+          <div class="nutrition-header-left">
+            <h2>Nutrition Tracking</h2>
+            <span class="nutrition-badge">${n.n_complete} COMPLETE DAYS</span>
+          </div>
+          <div class="nutrition-date-range">${startLabel} &ndash; ${endLabel}</div>
+        </div>
+        ${slotsHtml}
+        ${tableHtml}`;
+    }
+
   </script>
 </body>
 </html>
 """
 
 
-def generate_html(data: dict) -> str:
+def load_nutrition():
+    if not os.path.exists(NUTRITION_PATH):
+        return None
+    try:
+        with open(NUTRITION_PATH, encoding="utf-8") as f:
+            entries = json.load(f)
+        complete = [e for e in entries if e.get("log_status") == "Complete"]
+        if not complete:
+            return None
+        dates = sorted(e["date"] for e in entries)
+        def avg(field):
+            vals = [e[field] for e in complete if e.get(field) is not None]
+            return round(sum(vals) / len(vals), 1) if vals else None
+        last7 = sorted(entries, key=lambda e: e["date"])[-7:]
+        return {
+            "date_range_start": dates[0],
+            "date_range_end": dates[-1],
+            "n_complete": len(complete),
+            "n_total": len(entries),
+            "avg_calories": avg("calories"),
+            "avg_protein": avg("protein"),
+            "avg_carbs": avg("carbs"),
+            "avg_fat": avg("fat"),
+            "targets": {"calories": 1850, "protein": 130, "carbs": 195, "fat": 60},
+            "last7": last7,
+        }
+    except Exception as e:
+        print(f"  Warning: could not load nutrition data: {e}")
+        return None
+
+
+def generate_html(data: dict, nutrition=None) -> str:
     data_json = json.dumps(data, ensure_ascii=False, default=str)
-    return HTML_TEMPLATE.replace("__DATA_PLACEHOLDER__", data_json)
+    nutrition_json = json.dumps(nutrition, ensure_ascii=False, default=str)
+    html = HTML_TEMPLATE.replace("__DATA_PLACEHOLDER__", data_json)
+    html = html.replace("__NUTRITION_PLACEHOLDER__", nutrition_json)
+    return html
 
 
 def main():
@@ -775,7 +946,11 @@ def main():
     sessions = load_sessions()
     print(f"  Found {len(sessions)} sessions.")
     data = build_dashboard_data(sessions)
-    html = generate_html(data)
+    nutrition = load_nutrition()
+    if nutrition:
+        print(f"  Loaded nutrition data: {nutrition['n_complete']} complete entries ({nutrition['date_range_start']} to {nutrition['date_range_end']})")
+        print(f"  Avg (complete): {nutrition['avg_calories']} kcal | {nutrition['avg_protein']}g P | {nutrition['avg_carbs']}g C | {nutrition['avg_fat']}g F")
+    html = generate_html(data, nutrition)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"  Dashboard written to: {OUT_PATH}")

@@ -1,0 +1,252 @@
+[
+  {
+    "date": "2026-05-26",
+    "calories": 1038,
+    "protein": 88.0,
+    "carbs": 107.0,
+    "fat": 26.0,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: Chobani Fit Tropical yogurt 160g | Lunch: Tuna bowl + 1 extra can tuna | Dinner: Beef mince + 1 cup cooked rice (soy sauce, fish sauce, sesame oil, Chinese wine — no added oil)"
+  },
+  {
+    "date": "2026-05-30",
+    "calories": 1127,
+    "protein": 81.5,
+    "carbs": 47.0,
+    "fat": 69.0,
+    "day_type": "Training Day",
+    "log_status": "Partial",
+    "meals": "Breakfast: Chobani Fit Tropical yogurt 160g | Brunch (half shared): 2.5 eggs + 50ml milk + 1/2 tbsp butter + capsicum + ~15g cheese | Lunch: 6 KFC Wicked Wings | Dinner: Tsukemen (no broth) — pending finalisation"
+  },
+  {
+    "date": "2026-06-01",
+    "calories": 1722,
+    "protein": 140.5,
+    "carbs": 178.8,
+    "fat": 56.8,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: Chobani Fit 160g | Lunch: Tian Fu Li fish rice noodles (1 scoop broth) | Dinner: Thai spread + banana + small fried fish"
+  },
+  {
+    "date": "2026-06-08",
+    "calories": 1444,
+    "protein": 91.0,
+    "carbs": 143.0,
+    "fat": 50.5,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: Banana 90g | Lunch: Beef brisket pie leftovers 300g | Snacks: 2 fruit jelly lollies + red wine ~50ml | Dinner: Fried noodles (4 servings noodles + shared sirloin steak + capsicum/onion/broccoli) ~410g portion | After dinner: 250ml light milk"
+  },
+  {
+    "date": "2026-06-09",
+    "calories": 444,
+    "protein": 39.0,
+    "carbs": 55.3,
+    "fat": 8.1,
+    "day_type": "Training Day",
+    "log_status": "Partial",
+    "meals": "Breakfast shake: 250ml light milk + 100g banana + 1 scoop ON Whey + 31g oats | Lunch: 109g roasted chicken breast (no skin) + noodle leftovers 100g | Push Day: Bench Press 62.5kg, Upper DB Press 50kg, Weighted Dips, Machine Shoulder Press, Lateral Row, Pulldown — 1h, 9,176kg volume"
+  },
+  {
+    "date": "2026-06-10",
+    "calories": 1544,
+    "protein": 169.7,
+    "carbs": 162.6,
+    "fat": 23.8,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast shake: 100g banana + 250ml light milk + 1 scoop ON Whey | Lunch: 162g chicken breast + 42g crab meat + 26g red pepper paste + 157g rice | Snack: YoPRO Perform 175g | Dinner: 200g chicken thigh dish leftovers + 150g rice | Night: 1 scoop ON Whey + BCAA + water"
+  },
+  {
+    "date": "2026-06-11",
+    "calories": 985,
+    "protein": 87.7,
+    "carbs": 128.3,
+    "fat": 16.1,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 124g banana | Lunch: 120g chicken drumstick+wings (bone-in) + 99g tuna + 30g gochujang + 150g rice | Dinner: 120g pork chop (bone-in, air fried) + broccoli + 120g rice | Evening: 1 scoop ON Whey + BCAA + water | Training: Pull day + 40 min cardio"
+  },
+  {
+    "date": "2026-06-14",
+    "calories": 1974,
+    "protein": 94.0,
+    "carbs": 230.8,
+    "fat": 76.0,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: Banana ~90g + yuzu cold brew (no milk/sugar) | Lunch: Egg noodles 316g (1.5 servings + shared chicken mince + gochujang + soy) | Dinner: 2 slices chicken/ham pizza (mozzarella/gorgonzola) + 1 slice garlic cheese pizza | Dessert: Apple pie ~100g + vanilla ice cream ~100g | Training: Pull day + 3hr walking 6km"
+  },
+  {
+    "date": "2026-06-15",
+    "calories": 1304,
+    "protein": 105.7,
+    "carbs": 160.8,
+    "fat": 27.8,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 100g banana + 1 scoop ON Whey + water | Lunch: 222g noodle+mince leftovers + 1 can tuna 95g | Dinner: Japanese beef curry (379g — beef mince + sweet potato 774g + onion + carrot + S&B roux 4 blocks) + 1 cup rice"
+  },
+  {
+    "date": "2026-06-16",
+    "calories": 1485,
+    "protein": 74.0,
+    "carbs": 194.8,
+    "fat": 41.0,
+    "day_type": "Training Day",
+    "log_status": "Partial",
+    "meals": "Lunch: 112g cooked rice + 400g curry (573 kcal, 26.5g P). Dinner: Bak Kut Teh - beef brisket (~200g portion), sweet potato (~150g portion), Claypot Klang herbal broth packet, soy/oyster sauce, 85g cooked rice (912 kcal, 47.5g P). Training: Pull day + 40min cardio"
+  },
+  {
+    "date": "2026-06-22",
+    "calories": 1365,
+    "protein": 100.4,
+    "carbs": 118.0,
+    "fat": 50.3,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: banana (~120g) + lite milk latte (197 kcal, 9.3g P) | Lunch: Fishbowl Five Spice Beef Box + miso glazed salmon fillet add-on (823 kcal, 60g P) | Dinner: 120g rice + 120g boiled chicken thigh no skin (345 kcal, 31.1g P)"
+  },
+  {
+    "date": "2026-06-23",
+    "calories": 1548,
+    "protein": 153.8,
+    "carbs": 154.2,
+    "fat": 54.3,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Morning: 1 scoop ON Isolate + 250ml lite milk (222 kcal, 34g P) | Lunch: 100g lemon shredded roast chicken + 115g salmon + 150g rice (632 kcal, 53g P) | Dinner: 150g rice + steamed chicken mince patty ~155g portion (694 kcal, 66.8g P) | Training: Pull day"
+  },
+  {
+    "date": "2026-06-25",
+    "calories": 1178,
+    "protein": 97.6,
+    "carbs": 127.0,
+    "fat": 30.3,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 1 scoop ON Isolate + 260ml lite milk (229 kcal, 34.4g P) | Lunch: 70g rice + 130g lemon shredded chicken + 60g chunk bone-in (418 kcal, 37.1g P) | Dinner: Korean seafood hotpot 1/3 share (octopus, tofu, mixed mushrooms, glass noodles, chives, veg) + 1 bowl mixed grain rice (~531 kcal, 26.1g P)"
+  },
+  {
+    "date": "2026-06-29",
+    "calories": 1412,
+    "protein": 99.4,
+    "carbs": 149.5,
+    "fat": 45.8,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Lunch: one pot rice - beef skirt ~120g + 255g rice (cooked in chicken stock, soy sauce, oyster sauce, sesame oil) (~595 kcal, 34.8g P) | Dinner: stir-fry beef skirt + capsicum + carrot broccoli stir-fry + 150g rice (~817 kcal, 64.6g P)"
+  },
+  {
+    "date": "2026-06-30",
+    "calories": 1375,
+    "protein": 131.7,
+    "carbs": 118.5,
+    "fat": 42.4,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 130g banana (119 kcal, 1.5g P) | Lunch: 115g salmon + 180g one pot rice leftover + 100g carrots + 98g beef skirt (702 kcal, 53.2g P) | Dinner: 178g grilled chicken thigh boneless no skin + 60g sweet potato (332 kcal, 43g P) | Evening: 1 scoop ON Isolate + 250ml lite milk (222 kcal, 34g P)"
+  },
+  {
+    "date": "2026-07-02",
+    "calories": 1416,
+    "protein": 120.5,
+    "carbs": 137.0,
+    "fat": 38.5,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 130g banana + 1 scoop ON Isolate + 250ml lite milk (341 kcal, 35.5g P) | Lunch: 125g salmon + 120g rice + 62g cherry tomatoes + 107g broccoli (453 kcal, 37.4g P) | Dinner: 223g bone-in pork ribs lean parts + 107g Japanese pumpkin + black bean garlic sauce + 129g rice (622 kcal, 47.6g P) | Training: Pull day + 40min cardio"
+  },
+  {
+    "date": "2026-07-03",
+    "calories": 1579,
+    "protein": 114.9,
+    "carbs": 151.0,
+    "fat": 61.1,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Lunch: 72g rice + 110g pork ribs lean + 50g Japanese pumpkin + 125g salmon + 130g banana (869 kcal, 76.5g P) | Dinner: Chicken Kottu Roti 80% serve - shredded roti, chicken, egg, mixed veg, chicken gravy (~710 kcal, 38.4g P) | Training: Chest (push) day"
+  },
+  {
+    "date": "2026-07-04",
+    "calories": 1378,
+    "protein": 142.0,
+    "carbs": 130.0,
+    "fat": 33.0,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Lunch: Gai Wong Hainanese chicken rice - single set (boneless chicken ~210g, chicken rice dome, soup, sauces) + 180g extra boneless chicken no skin (~810 kcal, 92g P) | Dinner: protein shake - 372ml lite milk + 140g banana + 2 scoops ON Isolate (~568 kcal, 50g P)"
+  },
+  {
+    "date": "2026-07-05",
+    "calories": 1531,
+    "protein": 86.0,
+    "carbs": 165.7,
+    "fat": 49.8,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Lunch: 250g beef mince (from 500g batch ~1300 kcal total) + 150g rice + 200ml Oatly oat milk coffee (942 kcal, 46g P) | Dinner: lean pork stir-fry with cauliflower + capsicum - had 100g meat + 100g veg + 1 egg + 135g rice (499 kcal, 38.2g P) | Snack: ~300g watermelon flesh (90 kcal, 1.8g P)"
+  },
+  {
+    "date": "2026-07-06",
+    "calories": 1427,
+    "protein": 117.0,
+    "carbs": 89.0,
+    "fat": 62.0,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Lunch: TamJai mixian + extra chicken (~527 kcal, 52g P) | Dinner: 10 KFC popcorn chicken + 2 nuggets (~330 kcal, 16g P) + 200g scotch fillet steak + 130g mixed salad + gravy (~570 kcal, 49g P)"
+  },
+  {
+    "date": "2026-07-07",
+    "calories": 1266,
+    "protein": 113.0,
+    "carbs": 99.0,
+    "fat": 44.4,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 1 scoop ON Isolate + 250ml lite milk (222 kcal, 34g P) | Lunch: 120g rice + 125g salmon + 75g veg + 50g gravy + 2 KFC nuggets + 88g KFC chicken tenders (827 kcal, 80.9g P) | Dinner: 1 pot rice - beef mince + 2 cups rice + onion + carrot + gochujang + sesame oil, had 150g portion (217 kcal, 16.1g P)"
+  },
+  {
+    "date": "2026-07-08",
+    "calories": 2090,
+    "protein": 111.0,
+    "carbs": 145.0,
+    "fat": 95.5,
+    "day_type": "Training Day",
+    "log_status": "Complete",
+    "meals": "Lunch: 186g leftover one pot rice + 125g salmon (515 kcal, 50g P) | Dinner: Korean Town shared meal (4 people) - 1/4 dandan noodles, spicy beef tofu stir-fry, fishballs, cold noodles, beef, corn cheese bake (~1,060 kcal, 61g P) | Training: Pull day + 40min cardio"
+  },
+  {
+    "date": "2026-07-09",
+    "calories": 1169,
+    "protein": 77.5,
+    "carbs": 134.4,
+    "fat": 32.2,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Breakfast: 230ml Oatly oat milk + L'Or caramel espresso capsule (146 kcal, 2.5g P) | Lunch: 70g rice + 50g beef (199 kcal, 14.7g P) | Dinner: one pot chicken rice - 570g chicken thighs (no skin, no bone) + 2 cups rice + cucumber + chicken stock + soy/oyster sauce + sesame oil, had 475g portion (624 kcal, 45.8g P)"
+  },
+  {
+    "date": "2026-07-10",
+    "calories": 1411,
+    "protein": 101.0,
+    "carbs": 143.5,
+    "fat": 48.9,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Lunch: 250g leftover one pot chicken rice + 1 scoop ON Isolate + 250ml lite milk (551 kcal, 58g P) | Dinner: chicken fried rice 2 small bowls (~300g) + satay beef stir-fry 40% share (~250g) with broccoli, onion, capsicum, pineapple (~860 kcal, 43g P)"
+  },
+  {
+    "date": "2026-07-11",
+    "calories": 973,
+    "protein": 95.5,
+    "carbs": 55.3,
+    "fat": 38.0,
+    "day_type": "Rest Day",
+    "log_status": "Complete",
+    "meals": "Lunch: Gai Wong Har Mee (prawn noodle soup) - glass noodles, lean pork, shrimp, half boiled egg, beansprouts, kangkong, sambal (~420 kcal, 30g P) | Dinner: 250g air fried chicken thighs + teriyaki sauce + 60g cucumber + 1 egg stir-fry with soy/oyster sauce, oil (~553 kcal, 65.5g P)"
+  }
+]
