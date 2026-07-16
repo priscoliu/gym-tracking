@@ -52,6 +52,19 @@
 
 **Weekly volume:** Back ~18 sets · Biceps ~16 · Triceps ~13 · Delts ~15 · Chest ~12 · Quads/Hams ~10–12. Arms and back 2×/week.
 
+## Weekly effort ramp (6-week blocks)
+
+Exercises and set counts stay identical every week. Effort climbs through the block:
+
+| Week | Effort | Notes |
+|---|---|---|
+| 1 | RPE 7 (~3 reps in reserve) | Comfortable, never grinding |
+| 2 | RPE 7–8 | |
+| 3 | RPE 8–9 | Weight jumps usually happen here |
+| 4 | RPE 9 (0–1 in reserve) | Last isolation sets to failure + partials |
+| 5 | RPE 9, beat week 4's numbers | Heaviest week |
+| 6 | Deload: 60% loads, same movements | Then repeat block at new baseline |
+
 ## Progression rules
 
 1. Log every set. All sets at top of rep range → add 2.5kg next session.
