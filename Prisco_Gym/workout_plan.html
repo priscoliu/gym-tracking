@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prisco's Lean-Gain Program</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #faf9f7;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 32px 24px 64px;
+    overflow-x: hidden;
+  }
+
+  .container { max-width: 1080px; margin: 0 auto; }
+
+  .page-header { text-align: center; margin-bottom: 40px; }
+  .page-header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .page-header p { font-size: 14px; color: #6b6b6b; margin-top: 6px; }
+
+  .day-section { margin-bottom: 36px; }
+  .day-title {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #d4700a; margin-bottom: 6px;
+  }
+  .day-sub { font-size: 13px; color: #6b6b6b; margin-bottom: 16px; }
+
+  .ex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+  }
+
+  .ex-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    border-top: 3px solid #d4700a;
+    padding: 18px 18px 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .ex-svg { display: flex; justify-content: center; margin-bottom: 12px; }
+  .ex-svg svg { width: 120px; height: 90px; max-width: 100%; }
+  .ex-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .ex-scheme { font-size: 13px; font-weight: 500; color: #d4700a; margin-bottom: 6px; }
+  .ex-note { font-size: 12.5px; color: #4a4a4a; line-height: 1.45; }
+  .badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+    color: #ffffff; background: #d4700a;
+    padding: 3px 7px; border-radius: 999px;
+  }
+
+  .footer-strip {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    border-top: 3px solid #d4700a;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 28px;
+    margin-top: 8px;
+  }
+  .footer-strip h3 {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #6b6b6b; margin-bottom: 12px;
+  }
+  .footer-strip ul { list-style: none; }
+  .footer-strip li {
+    font-size: 13px; color: #4a4a4a; line-height: 1.5;
+    padding-left: 16px; position: relative; margin-bottom: 7px;
+  }
+  .footer-strip li::before {
+    content: ""; position: absolute; left: 0; top: 8px;
+    width: 6px; height: 6px; border-radius: 50%; background: #d4700a;
+  }
+  .nutri-row { display: flex; justify-content: space-between; font-size: 13px; padding: 7px 0; border-bottom: 1px solid #eeeae4; }
+  .nutri-row:last-child { border-bottom: none; }
+  .nutri-row .k { color: #6b6b6b; }
+  .nutri-row .v { color: #1a1a1a; font-weight: 600; }
+
+  @media (max-width: 640px) {
+    .ex-grid { grid-template-columns: 1fr; }
+    .footer-strip { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="page-header">
+    <h1>Prisco's Lean-Gain Program</h1>
+    <p>Muscle gain with arms + back priority · 55.9kg start · 4 days/week · target +0.5–0.75kg/month</p>
+  </header>
+
+  <!-- ===================== DAY 1 — PUSH ===================== -->
+  <section class="day-section">
+    <div class="day-title">Day 1 — Push</div>
+    <div class="day-sub">Chest, shoulders, triceps</div>
+    <div class="ex-grid">
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- bench press: lying figure, bar overhead -->
+          <rect x="25" y="58" width="70" height="8" stroke="#d4700a" stroke-width="3"/>
+          <line x1="35" y1="66" x2="35" y2="78" stroke="#d4700a" stroke-width="3"/>
+          <line x1="85" y1="66" x2="85" y2="78" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="42" cy="52" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="48" y1="55" x2="90" y2="55" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="55" x2="60" y2="32" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="30" y1="30" x2="90" y2="30" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="30" cy="30" r="6" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="90" cy="30" r="6" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Barbell Bench Press</div>
+        <div class="ex-scheme">Top 1×5–6 @ 67.5kg + 3×8–10 @ 60kg</div>
+        <div class="ex-note">Add 2.5kg when top set hits 6 clean reps.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- incline DB press: inclined bench, figure pressing DBs -->
+          <line x1="30" y1="72" x2="80" y2="42" stroke="#d4700a" stroke-width="3"/>
+          <line x1="42" y1="66" x2="42" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <line x1="70" y1="50" x2="70" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="82" cy="34" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="48" y1="63" x2="76" y2="42" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="64" y1="50" x2="60" y2="26" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="26" x2="66" y2="26" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="54" cy="26" r="3.5" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="66" cy="26" r="3.5" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Incline DB Press</div>
+        <div class="ex-scheme">4 × 8–12 · 27.5kg</div>
+        <div class="ex-note">Was 25kg × 12–13 — move up.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- dips: figure between parallel bars -->
+          <line x1="30" y1="38" x2="48" y2="38" stroke="#d4700a" stroke-width="3"/>
+          <line x1="72" y1="38" x2="90" y2="38" stroke="#d4700a" stroke-width="3"/>
+          <line x1="34" y1="38" x2="34" y2="78" stroke="#d4700a" stroke-width="3"/>
+          <line x1="86" y1="38" x2="86" y2="78" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="60" cy="22" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="28" x2="60" y2="52" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="34" x2="46" y2="38" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="34" x2="74" y2="38" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="52" x2="54" y2="68" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="68" x2="60" y2="76" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Weighted Dips</div>
+        <div class="ex-scheme">3 × 8–10 · +8.75kg</div>
+        <div class="ex-note">Keep adding weight.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- machine shoulder press: seated figure pressing handles up -->
+          <line x1="44" y1="80" x2="76" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <line x1="48" y1="80" x2="48" y2="58" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="58" cy="34" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="40" x2="58" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="62" x2="72" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="72" y1="62" x2="72" y2="78" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="44" x2="68" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="44" x2="48" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="42" y1="26" x2="54" y2="26" stroke="#d4700a" stroke-width="4"/>
+          <line x1="62" y1="26" x2="74" y2="26" stroke="#d4700a" stroke-width="4"/>
+          <line x1="48" y1="26" x2="48" y2="16" stroke="#d4700a" stroke-width="3"/>
+          <line x1="68" y1="26" x2="68" y2="16" stroke="#d4700a" stroke-width="3"/>
+          <line x1="48" y1="16" x2="68" y2="16" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Machine Shoulder Press</div>
+        <div class="ex-scheme">3 × 8–12 · 30kg</div>
+        <div class="ex-note">Standard progression — log every set.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="badge">S-TIER SWAP</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- cable lateral raise: figure with arm out, cable from low pulley -->
+          <circle cx="55" cy="20" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="26" x2="55" y2="54" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="54" x2="48" y2="78" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="54" x2="62" y2="78" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="34" x2="86" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="24" cy="76" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="27" y1="72" x2="86" y2="30" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Cable Lateral Raise</div>
+        <div class="ex-scheme">4 × 10–12/side · find 10–12RM</div>
+        <div class="ex-note">Swapped from DB laterals — constant tension.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="badge">NEW</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- overhead cable extension: figure facing away, arms overhead, cable behind -->
+          <circle cx="58" cy="28" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="34" x2="58" y2="60" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="60" x2="50" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="60" x2="68" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="38" x2="72" y2="22" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="72" y1="22" x2="84" y2="12" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="24" cy="20" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="29" y1="18" x2="84" y2="12" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Overhead Cable Extension</div>
+        <div class="ex-scheme">3 × 10–12 · find 10–12RM</div>
+        <div class="ex-note">S-tier — trains the long head at full stretch.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- tricep pushdown: figure pushing bar down from high pulley -->
+          <circle cx="82" cy="14" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="82" y1="19" x2="72" y2="46" stroke="#d4700a" stroke-width="3"/>
+          <line x1="64" y1="48" x2="80" y2="48" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="52" cy="24" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="30" x2="52" y2="58" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="58" x2="46" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="58" x2="58" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="36" x2="64" y2="38" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="64" y1="38" x2="72" y2="48" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Tricep Pushdown</div>
+        <div class="ex-scheme">3 × 10–12 · 15kg</div>
+        <div class="ex-note">Last set: lengthened partials after failure.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== DAY 2 — PULL ===================== -->
+  <section class="day-section">
+    <div class="day-title">Day 2 — Pull</div>
+    <div class="day-sub">Back, biceps, rear delts</div>
+    <div class="ex-grid">
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- pull-up: figure hanging from bar -->
+          <line x1="28" y1="16" x2="92" y2="16" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="60" cy="34" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="40" x2="60" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="42" x2="46" y2="17" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="42" x2="74" y2="17" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="62" x2="54" y2="76" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="76" x2="60" y2="84" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="66" cy="66" r="5" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Neutral-Grip Weighted Pull-up</div>
+        <div class="ex-scheme">4 × 6–8 · +5kg belt</div>
+        <div class="ex-note">Was bodyweight — stalled 3 months. Load it.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- seated cable row: seated figure pulling cable to torso -->
+          <line x1="40" y1="76" x2="90" y2="76" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="78" cy="30" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="78" y1="36" x2="74" y2="60" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="74" y1="60" x2="54" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="62" x2="50" y2="76" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="76" y1="44" x2="58" y2="46" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="26" cy="46" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="31" y1="46" x2="58" y2="46" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Seated Cable Row</div>
+        <div class="ex-scheme">4 × 8–10 · 54.5kg</div>
+        <div class="ex-note">Progressing well — keep it.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="badge">S-TIER SWAP</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- lat pulldown: seated figure pulling wide bar down -->
+          <circle cx="60" cy="12" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="60" y1="17" x2="60" y2="24" stroke="#d4700a" stroke-width="3"/>
+          <line x1="36" y1="26" x2="84" y2="26" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="60" cy="38" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="44" x2="60" y2="64" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="46" x2="40" y2="27" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="46" x2="80" y2="27" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="64" x2="74" y2="66" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="74" y1="66" x2="74" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="48" y1="80" x2="84" y2="80" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Wide-Grip Lat Pulldown</div>
+        <div class="ex-scheme">3 × 8–12 · ~45kg</div>
+        <div class="ex-note">Swapped from close-grip for lat width.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- RDL: hinged figure holding bar at shins -->
+          <circle cx="76" cy="32" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="72" y1="37" x2="52" y2="52" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="52" x2="52" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="68" y1="40" x2="66" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="46" y1="62" x2="86" y2="62" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="46" cy="62" r="6" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="86" cy="62" r="6" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">RDL</div>
+        <div class="ex-scheme">3 × 10–12 · 60kg</div>
+        <div class="ex-note">Build to 3×12, then move to 65kg.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="badge">S-TIER SWAP</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- preacher curl: seated figure, arm on angled pad, DB -->
+          <line x1="44" y1="44" x2="72" y2="60" stroke="#d4700a" stroke-width="3"/>
+          <line x1="58" y1="52" x2="58" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="40" cy="26" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="40" y1="32" x2="40" y2="58" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="40" y1="58" x2="40" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="40" y1="38" x2="54" y2="48" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="48" x2="62" y2="34" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="30" x2="68" y2="36" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="58" cy="30" r="3.5" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="68" cy="36" r="3.5" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">45° Preacher Curl</div>
+        <div class="ex-scheme">4 × 8–12 · ~20kg</div>
+        <div class="ex-note">Swapped from EZ curl — stretch under load.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="badge">S-TIER SWAP</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- bayesian cable curl: figure facing away from low pulley, arm behind curling -->
+          <circle cx="70" cy="22" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="70" y1="28" x2="66" y2="56" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="66" y1="56" x2="58" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="66" y1="56" x2="74" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="69" y1="34" x2="54" y2="44" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="44" x2="50" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="24" cy="74" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="28" y1="70" x2="54" y2="44" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Bayesian Cable Curl</div>
+        <div class="ex-scheme">3 × 10–12/side · find 10–12RM</div>
+        <div class="ex-note">Swapped from incline DB curl.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- reverse pec deck: seated figure facing pad, arms sweeping back -->
+          <line x1="56" y1="24" x2="56" y2="66" stroke="#d4700a" stroke-width="3"/>
+          <line x1="48" y1="80" x2="72" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <line x1="60" y1="66" x2="60" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="66" cy="26" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="66" y1="32" x2="66" y2="58" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="66" y1="38" x2="88" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="66" y1="38" x2="44" y2="34" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="92" cy="28" r="4" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="40" cy="33" r="4" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Reverse Pec Deck (or Face Pull)</div>
+        <div class="ex-scheme">3 × 12–15</div>
+        <div class="ex-note">Rear delts — chase the squeeze, not the load.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== DAY 3 — LEGS + ABS ===================== -->
+  <section class="day-section">
+    <div class="day-title">Day 3 — Legs + Abs</div>
+    <div class="day-sub">Unchanged — it's working</div>
+    <div class="ex-grid">
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- squat: bent-knee figure with bar on shoulders -->
+          <line x1="30" y1="30" x2="86" y2="30" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="30" cy="30" r="6" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="86" cy="30" r="6" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="58" cy="22" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="28" x2="54" y2="52" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="54" y1="52" x2="70" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="70" y1="62" x2="64" y2="82" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="57" y1="32" x2="48" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Squat</div>
+        <div class="ex-scheme">Top 1×5–6 @ 82.5kg + 3×8–10 @ 72.5kg</div>
+        <div class="ex-note">Add 2.5kg when top set hits 6.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- leg press: reclined figure pushing angled sled -->
+          <line x1="26" y1="78" x2="58" y2="52" stroke="#d4700a" stroke-width="3"/>
+          <line x1="70" y1="24" x2="94" y2="52" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="36" cy="60" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="41" y1="64" x2="58" y2="72" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="72" x2="72" y2="54" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="72" y1="54" x2="82" y2="42" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Leg Press</div>
+        <div class="ex-scheme">4 × 10–12 · 175→180kg</div>
+        <div class="ex-note">Push to 180kg once 4×12 is clean.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- leg curl: prone figure on bench, heel curling up -->
+          <line x1="24" y1="56" x2="82" y2="56" stroke="#d4700a" stroke-width="3"/>
+          <line x1="32" y1="56" x2="32" y2="76" stroke="#d4700a" stroke-width="3"/>
+          <line x1="74" y1="56" x2="74" y2="76" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="30" cy="44" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="36" y1="48" x2="72" y2="50" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="72" y1="50" x2="86" y2="34" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="90" cy="30" r="5" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Leg Curl</div>
+        <div class="ex-scheme">4 × 10–12 · 40kg</div>
+        <div class="ex-note">Slow eccentric, full stretch at bottom.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- hip thrust: shoulders on bench, bar on hips, bridge -->
+          <rect x="18" y="42" width="18" height="26" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="30" cy="30" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="36" y1="36" x2="62" y2="44" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="62" y1="44" x2="74" y2="60" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="74" y1="60" x2="74" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="62" y1="44" x2="62" y2="30" stroke="#d4700a" stroke-width="3"/>
+          <line x1="44" y1="30" x2="80" y2="30" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="44" cy="30" r="6" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="80" cy="30" r="6" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Hip Thrust</div>
+        <div class="ex-scheme">3 × 10–12 · 40→45kg</div>
+        <div class="ex-note">Pause 1s at lockout.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- cable crunch: kneeling figure curling down, rope from high pulley -->
+          <circle cx="86" cy="14" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="83" y1="18" x2="62" y2="34" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="58" cy="38" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="43" x2="46" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="46" y1="62" x2="62" y2="66" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="62" y1="66" x2="62" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="56" y1="44" x2="62" y2="32" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Cable Crunch</div>
+        <div class="ex-scheme">3 × 10–15 · 31.5kg</div>
+        <div class="ex-note">Flex the spine, don't pull with arms.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- hanging leg raise: figure hanging, legs raised to L -->
+          <line x1="30" y1="14" x2="90" y2="14" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="58" cy="32" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="38" x2="58" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="40" x2="48" y2="15" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="40" x2="68" y2="15" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="62" x2="84" y2="58" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Hanging Leg Raise</div>
+        <div class="ex-scheme">3 × 12 · BW</div>
+        <div class="ex-note">Controlled — no swinging.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== DAY 4 — ARMS + BACK ===================== -->
+  <section class="day-section">
+    <div class="day-title">Day 4 — Arms + Back</div>
+    <div class="day-sub">New priority day · ~40–45 min</div>
+    <div class="ex-grid">
+
+      <div class="ex-card">
+        <div class="badge">NEW</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- chest-supported row: figure prone on incline pad rowing DBs -->
+          <line x1="34" y1="66" x2="84" y2="36" stroke="#d4700a" stroke-width="3"/>
+          <line x1="46" y1="60" x2="46" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <line x1="74" y1="44" x2="74" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="88" cy="26" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="50" y1="55" x2="82" y2="32" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="68" y1="42" x2="66" y2="60" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="60" x2="72" y2="60" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="60" cy="60" r="3.5" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="72" cy="60" r="3.5" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Chest-Supported Row</div>
+        <div class="ex-scheme">3 × 8–12</div>
+        <div class="ex-note">Best all-around back exercise — no lower-back fatigue.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="badge">NEW</div>
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- half-kneeling 1-arm pulldown: kneeling figure pulling cable from high -->
+          <circle cx="92" cy="14" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="89" y1="18" x2="66" y2="36" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="52" cy="30" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="36" x2="52" y2="58" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="53" y1="40" x2="66" y2="36" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="58" x2="38" y2="62" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="38" y1="62" x2="38" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="52" y1="58" x2="62" y2="72" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="62" y1="72" x2="74" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Half-Kneeling 1-Arm Pulldown</div>
+        <div class="ex-scheme">3 × 10–12/side</div>
+        <div class="ex-note">Fixes left/right asymmetries.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- preacher/bayesian curl: seated figure on angled pad curling DB -->
+          <line x1="46" y1="42" x2="74" y2="58" stroke="#d4700a" stroke-width="3"/>
+          <line x1="60" y1="50" x2="60" y2="80" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="42" cy="24" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="42" y1="30" x2="42" y2="58" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="42" y1="58" x2="42" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="42" y1="36" x2="56" y2="46" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="56" y1="46" x2="64" y2="32" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="60" y1="28" x2="70" y2="34" stroke="#d4700a" stroke-width="4"/>
+          <circle cx="60" cy="28" r="3.5" stroke="#d4700a" stroke-width="3"/>
+          <circle cx="70" cy="34" r="3.5" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Preacher or Bayesian Curl</div>
+        <div class="ex-scheme">3 × 8–12</div>
+        <div class="ex-note">Whichever Day 2 went lighter on.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- overhead cable extension (repeat) -->
+          <circle cx="58" cy="28" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="34" x2="58" y2="60" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="60" x2="50" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="60" x2="68" y2="80" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="58" y1="38" x2="72" y2="22" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="72" y1="22" x2="84" y2="12" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="24" cy="20" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="29" y1="18" x2="84" y2="12" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Overhead Cable Extension</div>
+        <div class="ex-scheme">3 × 10–12</div>
+        <div class="ex-note">Second weekly hit for the long head.</div>
+      </div>
+
+      <div class="ex-card">
+        <div class="ex-svg"><svg viewBox="0 0 120 90" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- cable lateral raise (repeat) -->
+          <circle cx="55" cy="20" r="6" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="26" x2="55" y2="54" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="54" x2="48" y2="78" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="54" x2="62" y2="78" stroke="#1a1a1a" stroke-width="3"/>
+          <line x1="55" y1="34" x2="86" y2="30" stroke="#1a1a1a" stroke-width="3"/>
+          <circle cx="24" cy="76" r="5" stroke="#d4700a" stroke-width="3"/>
+          <line x1="27" y1="72" x2="86" y2="30" stroke="#d4700a" stroke-width="3"/>
+        </svg></div>
+        <div class="ex-name">Cable Lateral Raise</div>
+        <div class="ex-scheme">3 × 12–15</div>
+        <div class="ex-note">Bonus delt volume — light, high reps.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <div class="footer-strip">
+    <div>
+      <h3>Progression Rules</h3>
+      <ul>
+        <li>Log every set. All sets at top of rep range → add 2.5kg next session.</li>
+        <li>Top sets: add 2.5kg at 6 clean reps.</li>
+        <li>Last isolation set of curls/laterals: lengthened partials after failure.</li>
+        <li>Any lift flat 4+ weeks: check session order first, then swap.</li>
+        <li>Deload every 6 weeks: one week at 60% load.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Nutrition Targets</h3>
+      <div class="nutri-row"><span class="k">Calories</span><span class="v">2,250–2,350 kcal/day</span></div>
+      <div class="nutri-row"><span class="k">Protein</span><span class="v">125–130g</span></div>
+      <div class="nutri-row"><span class="k">Carbs</span><span class="v">~250g training · ~180g rest</span></div>
+      <div class="nutri-row"><span class="k">Fat</span><span class="v">65–75g</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
