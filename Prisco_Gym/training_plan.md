@@ -87,11 +87,18 @@ Push / Pull / rest / Legs / rest / Arms+WP / rest. Arms day 2+ days after Pull d
 Weigh weekly. >0.25kg/week gain after week 2 → −100 kcal. Flat after 3 weeks → +150.
 High protein: spread over 3+ meals, drink plenty of water.
 
+**PBB Nutrition Booklet additions:**
+- Surplus check: targets = ~5–9% over maintenance (his lean-bulk zone is 5–15%). Validated.
+- **Creatine monohydrate 5g/day, every day, any time.** Expect ~1kg water-weight jump in the first weeks — not fat; exclude from surplus adjustments.
+- **Eat 3–5 discrete meals** (current pattern is 2 — add a real third meal; that's where the extra ~800 kcal lives).
+- After 2 weeks of the bulk: compute true maintenance from Notion weight+calorie logs (guess-and-check method), recalibrate surplus.
+- Supplements worth using: creatine, protein powder as needed, optional caffeine 150–250mg pre-training, optional multivitamin. Skip test boosters / fat burners / BCAAs.
+
 ## Bulk/cut cycle strategy (adapted from 曾礼智《健身实用手册》)
 
 **Current phase: lean bulk from 56kg.**
 
-- First checkpoint: **60–61kg (BMI ~22)** — reassess leanness in mirror before continuing toward the 65kg (BMI 24) hard ceiling.
+- **Working target: 60–61kg (BMI ~22)** — clean-bulk goal confirmed. Reassess leanness in mirror there before any push toward the 65kg (BMI 24) hard ceiling. ETA ~5–7 months of training at a 5–9% surplus.
 - End the bulk early if: main-lift strength stalls >3 weeks despite eating enough, or appetite/neural fatigue signs appear (hunger gone, training drive down).
 - Light cardio 1–2× 20 min/week for health is fine; no fat-loss cardio.
 
