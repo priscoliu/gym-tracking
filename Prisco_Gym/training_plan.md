@@ -1,94 +1,98 @@
-# Prisco's Lean-Gain Program
+# Prisco's Lean-Gain Program — v2 (PBB Hybrid)
 
-**Created:** 2026-07-15 · **Based on:** 46 logged sessions (Apr 22 – Jul 10, 2026) + Notion macro log
-**Goal:** gain muscle (arms + back priority), keep current body fat. Start weight 55.9kg. Target gain ~0.5–0.75kg/month.
+**Updated:** 2026-07-18 · **Base:** Jeff Nippard's Pure Bodybuilding Program Phase 2 (PPL), condensed to 4 days/week
+**Goal:** gain muscle (arms + back priority), keep current body fat. Start weight 55.9kg. Target ~0.5–0.75kg/month.
+**Data baseline:** 46 logged sessions Apr 22 – Jul 10, 2026.
 
-## Weekly structure — 4 days
+## Block structure (6 weeks)
 
-### Day 1 — Push
-
-| Exercise | Sets × Reps | Start weight | Notes |
-|---|---|---|---|
-| Barbell Bench Press | Top set 1×5–6 + 3×8–10 @ −10% | Top: 67.5kg, back-off: 60kg | Add 2.5kg when top set hits 6 |
-| Incline DB Press | 4 × 8–12 | 27.5kg | Was 25×12–13, move up |
-| Weighted Dips | 3 × 8–10 | +8.75kg | Keep adding |
-| Machine Shoulder Press | 3 × 8–12 | 30kg | |
-| Cable Lateral Raise | 4 × 10–12/side | find 10–12RM | Swapped from DB (S-tier) |
-| Overhead Cable Extension | 3 × 10–12 | find 10–12RM | New (S-tier, long head) |
-| Tricep Pushdown | 3 × 10–12 | 15kg | Last set: lengthened partials |
-
-### Day 2 — Pull
-
-| Exercise | Sets × Reps | Start weight | Notes |
-|---|---|---|---|
-| Neutral-Grip Weighted Pull-up | 4 × 6–8 | +5kg belt | Was BW — stalled 3 months |
-| Seated Cable Row | 4 × 8–10 | 54.5kg | Progressing — keep |
-| Wide-Grip Lat Pulldown | 3 × 8–12 | ~45kg | Swapped from close-grip (S-tier) |
-| RDL | 3 × 10–12 | 60kg | Build to 3×12 then 65kg |
-| 45° Preacher Curl | 4 × 8–12 | ~20kg | Swapped from EZ curl (S-tier) |
-| Bayesian Cable Curl | 3 × 10–12/side | find 10–12RM | Swapped from incline DB curl (S-tier) |
-| Reverse Pec Deck (or Face Pull) | 3 × 12–15 | | |
-
-### Day 3 — Legs + Abs (unchanged)
-
-| Exercise | Sets × Reps | Weight |
+| Week | Effort | Techniques |
 |---|---|---|
-| Squat | Top 1×5–6 + 3×8–10 @ −10% | Top: 82.5kg, back-off: 72.5kg |
-| Leg Press | 4 × 10–12 | 175→180kg |
-| Leg Curl | 4 × 10–12 | 40kg |
-| Hip Thrust | 3 × 10–12 | 40→45kg |
-| Cable Crunch | 3 × 10–15 | 31.5kg |
-| Hanging Leg Raise | 3 × 12 | BW |
+| 1 | Intro/deload — RPE 5–6, straight sets | None. Learn machines, find weights |
+| 2 | RPE 8 (last set ~9) | Intensity techniques ON |
+| 3–4 | RPE 8–9 (last set 9–10) | All techniques |
+| 5 | RPE 9 (last set 10), beat week 4 | All techniques |
+| 6 | Next block's intro week | Repeat cycle |
 
-### Day 4 — Arms + Back (new, ~40–45 min)
+## Warm-up pyramid (PBB protocol)
 
-| Exercise | Sets × Reps | Notes |
-|---|---|---|
-| Chest-Supported Row | 3 × 8–12 | Best all-around back exercise |
-| Half-Kneeling 1-Arm Pulldown | 3 × 10–12/side | Fixes asymmetries |
-| Preacher or Bayesian Curl | 3 × 8–12 | Whichever Day 2 went lighter on |
-| Overhead Cable Extension | 3 × 10–12 | |
-| Cable Lateral Raise | 3 × 12–15 | Bonus delt volume |
+- First compound of the day: 45% × 6–10 · 65% × 4–6 · 85% × 3–4
+- Later compounds: 50% × 6–10 · 70% × 4–6
+- Isolations: one set ~60% × 6–10
 
-**Weekly volume:** Back ~18 sets · Biceps ~16 · Triceps ~13 · Delts ~15 · Chest ~12 · Quads/Hams ~10–12. Arms and back 2×/week.
+## Day 1 — Push
 
-## Weekly effort ramp (6-week blocks)
+| Exercise | Sets | Reps | Rest | Wk 2+ technique |
+|---|---|---|---|---|
+| Flat Machine Chest Press | 3 | 8–10 | 3 min | — |
+| Bottom-Half Low Incline DB Press | 3 | 10–12 | 2–3 min | Pause in stretch |
+| DB Shoulder Press | 3 | 10–12 | 2–3 min | — |
+| Meadows Incline DB Lateral Raise | 3 | 10–12 | 1–2 min | Lengthened partials, all sets |
+| Overhead Cable Triceps Extension (bar) | 3 | 12–15 | 1–2 min | Last set to failure |
+| Cable Triceps Kickback | 2 | 15–20 | 1 min | Last set to failure |
 
-Exercises and set counts stay identical every week. Effort climbs through the block:
+## Day 2 — Pull
 
-| Week | Effort | Notes |
-|---|---|---|
-| 1 | RPE 7 (~3 reps in reserve) | Comfortable, never grinding |
-| 2 | RPE 7–8 | |
-| 3 | RPE 8–9 | Weight jumps usually happen here |
-| 4 | RPE 9 (0–1 in reserve) | Last isolation sets to failure + partials |
-| 5 | RPE 9, beat week 4's numbers | Heaviest week |
-| 6 | Deload: 60% loads, same movements | Then repeat block at new baseline |
+| Exercise | Sets | Reps | Rest | Wk 2+ technique |
+|---|---|---|---|---|
+| Wide-Grip Pull-Up | 3 | 8–10 | 2–3 min | Lengthened partials (extend set). Add belt weight at 3×10 |
+| Chest-Supported Machine Row | 3 | 8–10 | 2–3 min | Lengthened partials (extend set) |
+| Half-Kneeling 1-Arm Lat Pulldown | 2/side | 12–15 | 1–2 min | Integrated partials, all sets |
+| Cable 1-Arm Face Pull | 2/side | 10–12 | 1–2 min | To failure |
+| Seated Super-Bayesian High Cable Curl | 3 | 12–15 | 1–2 min | To failure |
+| Cable Crunch | 2 | 10–12 | 1–2 min | To failure |
+
+## Day 3 — Legs
+
+| Exercise | Sets | Reps | Rest | Wk 2+ technique |
+|---|---|---|---|---|
+| Bottom-Half Smith Squat (or barbell squat — listed sub) | 3 | 6–8 | 3.5 min | — |
+| Barbell RDL | 2 | 8–10 | 3 min | Cap at RPE 5–6 (PBB rule). 60kg |
+| Seated Leg Curl | 3 | 8–10 | 1–2 min | — |
+| Leg Extension | 2 | 10–12 | 1–2 min | Pause at top |
+| Standing Calf Raise | 2 | 15–20 | 1 min | Pause at bottom |
+| Roman Chair Leg Raise | 2 | 10–20 | 1 min | — |
+
+## Day 4 — Arms & Weak Points
+
+| Exercise | Sets | Reps | Rest | Wk 2+ technique |
+|---|---|---|---|---|
+| WP1: Machine Lateral Raise | 3 | 8–12 | 1–2 min | Lengthened partials |
+| WP2: DB/Machine Pullover (lats) | 2 | 8–12 | 1–2 min | — |
+| EZ-Bar Cable Curl | 2 | 10–12 | 1–2 min | — |
+| Bottom-Half Incline DB Curl | 2 | 12–15 | 1–2 min | All sets bottom-half |
+| EZ-Bar Skull Crusher | 2 | 10–12 | 1–2 min | — |
+| Triceps Pressdown (bar) | 2 | 12–15 | 1–2 min | Last set to failure |
+
+## Weekly layout
+
+Push / Pull / rest / Legs / rest / Arms+WP / rest. Arms day 2+ days after Pull day.
 
 ## Progression rules
 
-1. Log every set. All sets at top of rep range → add 2.5kg next session.
-2. Top sets: add 2.5kg at 6 clean reps.
-3. Last isolation set of curls/laterals: lengthened partials after failure.
-4. Any lift flat 4+ weeks: check session order first, then swap.
-5. Deload every 6 weeks: one week at 60% load.
+1. Log every set. All sets at top of rep range at target RPE → add 2.5kg next session.
+2. Machines new to you: week 1 finds the weights, log them.
+3. Any lift flat 4+ weeks (excluding intro weeks): check order, then swap via PBB substitution table.
+4. If arms don't respond after one full block: add PBB optional weak-point slots on Day 4.
 
-## Nutrition
+## Nutrition (unchanged — the gate)
 
-| | Target | Baseline (Jun–Jul avg) |
-|---|---|---|
-| Calories | 2,250–2,350/day (incl. rest days) | 1,438 (rest days 1,316) |
-| Protein | 125–130g | 108g |
-| Carbs | ~250g training / ~180g rest | 139g |
-| Fat | 65–75g | 48g |
+| | Target |
+|---|---|
+| Calories | 2,250–2,350/day, incl. rest days |
+| Protein | 125–130g |
+| Carbs | ~250g training / ~180g rest days |
+| Fat | 65–75g |
 
-Weigh weekly. Gaining >0.25kg/week after week 2 → trim 100 kcal. Flat after 3 weeks → add 150.
+Weigh weekly. >0.25kg/week gain after week 2 → −100 kcal. Flat after 3 weeks → +150.
 
 ## Month break protocol (if taken)
 
-- During: maintenance ~2,100 kcal, protein 130g, no surplus.
-- Return week 1: ~65–70% of pre-break weights. Full loads by week 3.
+During: maintenance ~2,100 kcal, protein 130g. Return week = the block's intro week at ~65–70% loads; full loads by week 3.
 
-## Baseline reference (early Jul)
+## Carry-over baselines (early Jul)
 
-Squat 80kg×9 · Bench 65kg×10 · RDL 60kg×11 · Leg Press 175kg×13 · Shoulder Press 30kg×11 · Dips +6.25kg×10 · Pull-up BW×12 · Row 54.5kg×8 · Pulldown 49.5kg×10
+Squat 80kg×9 · Bench 65kg×10 (reference for machine press) · RDL 60kg×11 · Pull-up BW×12 · Row 54.5kg×8 · Pulldown 49.5kg×10 · Shoulder press 30kg×11
+
+---
+*v1 (pre-PBB) is in git history: see commit ea6590d.*
