@@ -75,16 +75,35 @@ Push / Pull / rest / Legs / rest / Arms+WP / rest. Arms day 2+ days after Pull d
 3. Any lift flat 4+ weeks (excluding intro weeks): check order, then swap via PBB substitution table.
 4. If arms don't respond after one full block: add PBB optional weak-point slots on Day 4.
 
-## Nutrition (unchanged — the gate)
+## Nutrition (harmonized with 曾礼智 framework, 56kg basis)
 
-| | Target |
-|---|---|
-| Calories | 2,250–2,350/day, incl. rest days |
-| Protein | 125–130g |
-| Carbs | ~250g training / ~180g rest days |
-| Fat | 65–75g |
+| | Target | Framework multiple |
+|---|---|---|
+| Calories | 2,250–2,350/day, incl. rest days | within its 2,000–2,400 bulk range |
+| Protein | 125–130g | ~2.3×BW (top of 1.8–2.3 range) |
+| Carbs | ~200–225g training / ~170g rest days | 3–4×BW, scaled to actual session output |
+| Fat | 56–70g | ~1×BW minimum |
 
 Weigh weekly. >0.25kg/week gain after week 2 → −100 kcal. Flat after 3 weeks → +150.
+High protein: spread over 3+ meals, drink plenty of water.
+
+## Bulk/cut cycle strategy (adapted from 曾礼智《健身实用手册》)
+
+**Current phase: lean bulk from 56kg.**
+
+- First checkpoint: **60–61kg (BMI ~22)** — reassess leanness in mirror before continuing toward the 65kg (BMI 24) hard ceiling.
+- End the bulk early if: main-lift strength stalls >3 weeks despite eating enough, or appetite/neural fatigue signs appear (hunger gone, training drive down).
+- Light cardio 1–2× 20 min/week for health is fine; no fat-loss cardio.
+
+**Future cut (when triggered):**
+
+- Cut targets: 52–55kg floor (BMI 19–20). Never below BMI 19.
+- **Strength floor: bench ≥1.16× bodyweight** (pre-break level) — if it drops below, stop the cut.
+- Cut macros at 56kg basis: protein 2–2.5×BW (112–140g), carbs 1.5–2.4×BW (~84–134g, or lean-mass×3), fat 0.8–1×BW (45–56g). Optional 5 low-carb + 1 high-carb day cycle.
+- Deficit 300–500 kcal/day; expect ~100–200g/day loss mid-cut; first-month water drop (~4kg incl. glycogen/sodium) is not fat loss.
+- Body-fat % is an outcome, not a target.
+
+**Annual rhythm:** bulk:cut time ≥ 2:1. Path: 56 → 60-65kg bulk (1–2 yrs) → ~6-week cut → repeat, accumulating muscle each cycle.
 
 ## Month break protocol (if taken)
 
