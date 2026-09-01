@@ -15,6 +15,102 @@ His program is an **8-session asynchronous cycle** (Pull#1, Push#1, Legs#1, Arms
 
 One "program week" = 2 calendar weeks. Cost of 4 days/week: each muscle trained 2× per 14 days (~1×/week) instead of 2× per 10 days. Accepted tradeoff — total volume preserved, all 8 unique sessions kept.
 
+## Logged history — Block 1, Program Week 1 (intro)
+
+All 8 sessions completed Aug 18–30 at 2 working sets, RPE ~7. Exercise names below are gym-floor substitutions the equipment forced — kept as logged (not reverted to Nippard's original names) since these are what's actually available and now the tracked history in Xunji.
+
+**Note on set counts in the raw log:** several sessions show 3–4 logged sets where the plan called for 2. The extra sets are warm-up ramps (lighter weight, then holds) — e.g. Pull #2's Smith Reverse-Grip Row logged 20kg×6, 20kg×6, 50kg×9, 50kg×9: the first two are warm-up, 50kg×9 is the real working weight. Only the sustained working-weight sets are used below as the Week 3 progression baseline.
+
+| Session (date) | Exercise (as logged) | Working weight × reps | Sub for |
+|---|---|---|---|
+| Pull #1 (8/18) | 引体向上 | BW × 9 | Wide-Grip Pull-Up |
+| | 器械划船1 | 35kg × 10 | Chest-Supported Machine Row |
+| | 弹力绳-单手下拉 | 10kg × 13 | Half-Kneeling 1-Arm Lat Pulldown |
+| | 单臂绳索面拉 | 7kg × 11 | Cable 1-Arm Face Pull |
+| | 坐姿高位绳索弯举 | 5kg × 13 | Seated Super-Bayesian High Cable Curl |
+| | 站姿绳索卷腹 | 21kg × 11 | Cable Crunch |
+| Push #1 (8/19) | 平板上斜侧平举 | 5kg × 11 | Meadows Incline DB Lateral Raise |
+| | 悍马机推胸 | 15kg × 9 | Flat Machine Chest Press |
+| | 把手式蝴蝶机飞鸟 | 32kg × 9 | Bottom-Half Seated Cable Flye |
+| | 哑铃推肩 | 10kg × 11 | DB Shoulder Press |
+| | 绳索过头臂屈伸 | 10kg × 13 | Overhead Cable Triceps Extension |
+| | 单手绳索臂屈伸 | 5kg × 12 | Cable Triceps Kickback |
+| Legs #1 (8/20) | 腿弯举 | 25kg × 9 | Seated Leg Curl (Bottom-Half) |
+| | 史密斯机深蹲 | 50kg × 7 | Smith Machine Squat |
+| | 水平山羊挺身 | BW × 11 | Glute-Ham Raise |
+| | 坐姿腿屈伸 | 25kg × 11 | Leg Extension |
+| | 坐姿器械提踵 | 10kg × 18 | Standing Calf Raise |
+| | 绳索侧踢 | 2.5kg × 13 | Machine Hip Abduction |
+| Arms & WP #1 (8/21) | 器械坐姿反向飞鸟 (WP1) | 20kg × 10 | *see flag below* |
+| | 平躺哑铃过头拉 (WP2) | 10kg × 10 | Machine Pullover |
+| | 直杆绳索弯举 | 12.5kg × 11 | EZ-Bar Cable Curl |
+| | 绳索过头臂屈伸 | 10kg × 11 | EZ-Bar Skull Crusher |
+| | 上斜哑铃弯举 | 6kg × 13 | Bottom-Half Incline DB Curl |
+| | 绳索三头下压_SZ杆 | 15kg × 13 | Triceps Pressdown (bar) |
+| | 悬挂抬腿 | BW × 10 | Roman Chair Leg Raise |
+| Pull #2 (8/26) | 史密斯反手划船 | 50kg × 9 | Smith Machine Deficit Row |
+| | V-bar下拉 | 40kg × 10 | Neutral-Grip Lat Pulldown |
+| | 坐姿单手划船 | 10kg × 11 | Moto Cable Row |
+| | 牧师器弯举 | 25–27.5kg × 10 | Bottom-Half EZ-Bar Preacher Curl |
+| | 器械坐姿单臂后束飞鸟 | 15kg × 11 | Super-Stretch Reverse Pec Deck |
+| | 史密斯耸肩 | 20kg × 11 | Machine Cheat Shrug |
+| Push #2 (8/27) | 绳索侧平举（单边） | 2.5kg × 13 | High-Cable Cuffed Lateral Raise |
+| | 上斜哑铃卧推 | 20kg × 11 | Bottom-Half Low Incline DB Press |
+| | 悍马机坐姿推举 | 15kg × 11 | Machine Shoulder Press |
+| | 绳索俯身过顶三头肌伸展 | 10kg × 11 | Katana Triceps Extension |
+| | 把手式蝴蝶机飞鸟 | 33kg × 11 | Cable Crossover Ladder |
+| Legs #2 (8/28) | 杠铃罗马尼亚硬拉 | 50kg × 9 | Barbell RDL (cap RPE 5–6) |
+| | 腿举 | 100kg × 9 | Super-ROM Leg Press |
+| | 史密斯机箭步蹲 | 20kg × 11 | Smith Machine Reverse Lunge |
+| | 山羊挺身 | BW × 11 | Weighted 45° Hyperextension |
+| | 坐姿器械提踵 | 15kg × 11 | Bottom-Half Standing Calf Raise |
+| | 绳索内收 | 5kg × 13 | Machine Hip Adduction |
+| Arms & WP #2 (8/30) | 蝴蝶机反向飞鸟 (WP1) | 26kg × 10 | *see flag below* |
+| | 平躺哑铃过头拉 (WP2) | 10kg × 10 | Machine Pullover |
+| | 锤式弯举 | 7kg × 11 | DB Hammer Curl |
+| | 窄距卧推(靠近式) | 20kg × 11 | Smith Machine JM Press |
+| | 单臂佐特曼牧师凳弯举 | 6kg × 13 | DB Scott Curl |
+| | 单手绳索臂屈伸 | 12.5kg × 13 | Single-Arm Triceps Pressdown |
+| | 负重仰卧起坐 | 10kg × 13 (1 set only) | Decline Weighted Crunch |
+
+**⚑ Flag — WP1 drifted from the plan.** Both Arms sessions used a **reverse fly / rear-delt fly** for WP1 (器械坐姿反向飞鸟, 蝴蝶机反向飞鸟), not the **Machine Lateral Raise** originally slotted for your stalled side delts. Cable lateral raise *was* used elsewhere (Push #2, 绳索侧平举) — so the equipment exists, this was a choice not a forced substitution. Rear-delt work isn't wasted (upper-back/shoulder width), but it doesn't address the specific stall we identified (front/side delt width, 6→7kg over 3 months pre-break). Decide: keep reverse fly (shifts WP1 to rear-delt priority) or swap back to lateral raise/cable lateral raise (stays on the original side-delt target). Week 3 below keeps reverse fly for continuity — swap it if you want the original target back.
+
+**⚑ Logging note.** Push #2 (8/27) shows a 23-hour session duration and 3,927 kcal — clearly an app glitch (forgot to close the session), not real. Ignored for analysis.
+
+## Block 1, Program Week 2 (first climb week) — pushed to Xunji 9/2–9/6
+
+3 sets, RPE 8–9 early / 9–10 last set, techniques ON. Weights below are +5–10% over the logged working weight wherever reps were at or near the top of target range; held flat where reps were mid-range or below.
+
+| Session | Date | Exercise | Sets × Reps | Weight | Technique (last set) |
+|---|---|---|---|---|---|
+| Pull #1 | Wed 9/2 | 引体向上 | 3×9 | BW | Lengthened partials (extend set) |
+| | | 器械划船1 | 3×8 | 40kg | Lengthened partials (extend set) |
+| | | 弹力绳-单手下拉 | 3×12 | 12.5kg | Integrated partials (all sets) |
+| | | 单臂绳索面拉 | 3×10 | 8kg | Failure |
+| | | 坐姿高位绳索弯举 | 3×12 | 6kg | Failure |
+| | | 站姿绳索卷腹 | 3×10 | 22.5kg | Failure |
+| Push #1 | Thu 9/3 | 平板上斜侧平举 | 3×10 | 6kg | Failure |
+| | | 悍马机推胸 | 3×8 | 17.5kg | Lengthened partials (extend set) |
+| | | 把手式蝴蝶机飞鸟 | 2×8 | 33kg | Failure |
+| | | 哑铃推肩 | 3×10 | 12kg | — |
+| | | 绳索过头臂屈伸 | 2×12 | 11kg | Dropset |
+| | | 单手绳索臂屈伸 | 2×13 | 5kg (hold — push reps toward 15+ first) | Failure |
+| Legs #1 | Fri 9/4 | 腿弯举 | 3×8 | 27.5kg | Lengthened partials (extend set) |
+| | | 史密斯机深蹲 | 3×6 | 55kg | — (RPE capped ~7-8/8-9) |
+| | | 水平山羊挺身 | 3×10 | BW | — |
+| | | 坐姿腿屈伸 | 3×10 | 27.5kg | Lengthened partials (extend set) |
+| | | 坐姿器械提踵 | 3×15 | 12.5kg | Weighted static hold 30s |
+| | | 绳索侧踢 | 3×12 | 3kg | Failure |
+| Arms & WP #1 | Sun 9/6 | 器械坐姿反向飞鸟 (WP1) | 3×8 | 22.5kg | — |
+| | | 平躺哑铃过头拉 (WP2) | 3×8 | **13kg** (flat at 10kg×10 for 2 full sessions — clear overload signal) | — |
+| | | 直杆绳索弯举 | 3×10 | 14kg | Failure |
+| | | 绳索过头臂屈伸 | 3×10 | 12kg | Failure |
+| | | 上斜哑铃弯举 | 2×12 | 7kg | Failure |
+| | | 绳索三头下压_SZ杆 | 2×12 | 17kg | Failure |
+| | | 悬挂抬腿 | 3×12 | BW (push reps before adding load) | — |
+
+Pushed live via `push_week3_plan.py` (run from a machine where the Xunji API is reachable — the earlier remote sandbox blocked it, this local machine does not).
+
 ## Block schedule (optimised: 4 program weeks per block, not 5)
 
 Weeks 2–5 of each block are **identical** in sets/reps/RPE — only load climbs. Running all five adds 2 calendar weeks of no programmed change, so we run intro + 3 climb weeks per block.
